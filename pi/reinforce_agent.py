@@ -42,6 +42,7 @@ class Agent:
         returns = self.discount_rewards(rewards)
         returns = (returns - np.mean(returns)) / (np.std(returns) + 1e-10)
         summaries = policy.update_parameters(observations, actions, returns)
+        self.log_scalar('avg_length', avg_length, ep_index, writer)
         writer.add_summary(summaries, global_step=ep_index)
         writer.flush()
         action_lengths.append(len(actions))
@@ -92,6 +93,10 @@ class Agent:
       running_add = running_add * 0.99 + rewards[t]
       discounted_rewards[t] = running_add
     return discounted_rewards
+
+  def log_scalar(self, tag, value, step, writer):
+    summary = tf.Summary(value=[tf.Summary.Value(tag=tag, simple_value=value)])
+    writer.add_summary(summary, step)
 
 # End of Agent
 #----------------------------------------------------------------
