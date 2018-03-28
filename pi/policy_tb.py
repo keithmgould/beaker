@@ -22,26 +22,26 @@ class Policy:
     self.summaries = tf.summary.merge_all()
 
   def tensorboard_scalar_store(self, thing, family):
-    tf.summary.scalar(family + 'max', tf.reduce_max(thing))
-    tf.summary.scalar(family + 'min', tf.reduce_min(thing))
-    tf.summary.scalar(family + 'mean', tf.reduce_mean(thing))
+    tf.summary.scalar('max', tf.reduce_max(thing), family=family)
+    tf.summary.scalar('min', tf.reduce_min(thing), family=family)
+    tf.summary.scalar('mean', tf.reduce_mean(thing), family=family)
 
   def tensorboard_grad_store(self, gvs):
     hidden_weight_grads = gvs[0][0]
     hidden_bias_grads = gvs[1][0]
     mu_weight_grads = gvs[2][0]
     mu_bias_grads = gvs[3][0]
-    tf.summary.histogram(family + "weightGrads", hidden_weight_grads)
-    tf.summary.histogram(family + "biasGrads", hidden_bias_grads)
-    tf.summary.histogram(family + "weightGrads", mu_weight_grads)
-    tf.summary.histogram( family + "biasGrads", mu_weight_grads)
+    tf.summary.histogram("weightGrads", hidden_weight_grads, family="hidden")
+    tf.summary.histogram("biasGrads", hidden_bias_grads, family="hidden")
+    tf.summary.histogram("weightGrads", mu_weight_grads, family="mu")
+    tf.summary.histogram("biasGrads", mu_weight_grads, family="mu")
 
   def tensorboard_wba_store(self, family, layer):
     weights = tf.get_default_graph().get_tensor_by_name(family + '/kernel:0')
     bias = tf.get_default_graph().get_tensor_by_name(family + '/bias:0')
-    tf.summary.histogram( family + "weights", weights)
-    tf.summary.histogram( family + "bias", bias)
-    tf.summary.histogram( family + "activations", layer)
+    tf.summary.histogram("weights", weights, family=family)
+    tf.summary.histogram("bias", bias, family=family)
+    tf.summary.histogram("activations", layer, family=family)
 
   def build_graph(self):
     hidden = tf.layers.dense(self.observations, 128, tf.nn.relu, name="hidden")
