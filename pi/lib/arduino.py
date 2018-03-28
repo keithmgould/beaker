@@ -3,8 +3,6 @@ import sys
 import time
 
 class Arduino:
-  ADDRESS = 0x04
-
   def __init__(self):
     self.serial = serial.Serial( port='/dev/serial0', baudrate = 115200,
                   parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,
@@ -44,6 +42,7 @@ class Arduino:
     while waiting or char != '!':
       waiting = False
       char = self.serial.read()
+      char = char.decode("utf-8") 
       message += char
     if message[0] == expected:
       return message[1:-1] # removes expected and !
@@ -53,5 +52,5 @@ class Arduino:
 
   def __writeMessage(self, message):
     message = message + "!"
-    self.serial.write(message)
+    self.serial.write(message.encode())
 

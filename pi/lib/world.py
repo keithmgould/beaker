@@ -9,7 +9,7 @@ import numpy as np
 
 # Don't try to interface with robot
 # peripherals unless you are a robot.
-if(sys.platform == 'linux2'):
+if(sys.platform == 'linux'):
   from lib.arduino import Arduino
 else:
   from lib.fakes.arduino_fake import Arduino
