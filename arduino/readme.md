@@ -3,6 +3,7 @@
 0. receives (and buffers) the motor quadrature encoders interrupt signals.
 0. commands the motors
 0. communicates with the IMU
+0. communicates with the winch (Add link to repo here)
 0. prepares the "state" for the Raspberry Pi (brain) and sends it up upon  request
 
 ## Why Not Skip the Arduino?
@@ -17,6 +18,12 @@ noise away from the hardware handling the neural network.
 
 0. arduino.ino - the main arduino file to compile (and upload to robot)
 0. servoMotor.cpp - small class to encapsulate controlling motors and quad encoders
+0. constants.cpp - holds the (you guessed it) constants for the ardduino app
+
+# Functionality Checks:
+
+These are micro progams that load just enough code to test specific parts of
+Beaker's hardware.
 
 ## Dependencies:
 

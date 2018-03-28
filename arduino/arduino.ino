@@ -11,7 +11,6 @@
 #include "RF24.h" // radio controls
 #include "servoMotor.cpp"
 #include "constants.cpp"
-#include "utils/ftoa.cpp"
 
 ServoMotor motorLeft(LH_ENCODER_A,LH_ENCODER_B, 1);
 ServoMotor motorRight(RH_ENCODER_A,RH_ENCODER_B, -1);
