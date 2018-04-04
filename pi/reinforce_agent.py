@@ -1,5 +1,5 @@
 import numpy as np
-import pdb, shutil, time
+import pdb, shutil, time, datetime
 import argparse
 from lib.world import World
 import tensorflow as tf
@@ -27,7 +27,8 @@ class Agent:
       # policy = Policy(session, self.env.observation_space.shape[0], self.env.action_space.low[0], self.env.action_space.high[0])
       policy = Policy(session, self.env.observation_space.shape[0], -0.7, 0.7)
       session.run(tf.global_variables_initializer())
-      writer = tf.summary.FileWriter("./logs/", graph=tf.get_default_graph())
+      log_name = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H_%M_%S')
+      writer = tf.summary.FileWriter("./logs/" + log_name, graph=tf.get_default_graph())
       saver = tf.train.Saver(max_to_keep=5)
       ep_index = 0
       if self.args['restore'] or self.args['resume']:
@@ -107,6 +108,5 @@ parser.add_argument('--restore', help='restore from saved session', default=Fals
 parser.add_argument('--resume', help='restore from saved session', default=False)
 args = vars(parser.parse_args())
 
-shutil.rmtree("./logs", True)
 agent = Agent(args)
 agent.run()
