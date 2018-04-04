@@ -72,9 +72,9 @@ class Agent:
       time_delta = current_milli_time() - last_time
       print("Loop Time: {}".format(time_delta))
       last_time = current_milli_time()
-      if step == 2:
-        self.env.arduino.give_robot_slack()
-        time_delta = current_milli_time() - last_time
+      # if step == 2:
+      #   self.env.arduino.give_robot_slack()
+      #   time_delta = current_milli_time() - last_time
       action = policy.select_action(observation)
       time_delta = current_milli_time() - last_time
       observations.append(observation)
