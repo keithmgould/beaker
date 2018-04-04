@@ -126,7 +126,6 @@ void fetchX(float dt){
   lastXPos = xPos;
 }
 
-
 // calculates and stores
 // phi and phiDot
 //
@@ -142,7 +141,7 @@ void fetchPhi(float dt){
 //    a meter is more than enough.
 void sanityCheck() {
   if(previousGain == 0){ return; }
-  if(std::abs(xPos) > 1.0){
+  if(std::abs(xPos) > 0.5){
     Serial.println("\n\nFailed Sanity Check!!\n\n");
     updatePower(0);
     delay(200);
