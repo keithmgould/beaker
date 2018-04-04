@@ -43,14 +43,14 @@ class Agent:
         returns = self.discount_rewards(rewards)
         returns = (returns - np.mean(returns)) / (np.std(returns) + 1e-10)
         summaries = policy.update_parameters(observations, actions, returns)
+        action_lengths.append(len(actions))
+        avg_length = np.average(action_lengths[-10:])
         self.log_scalar('avg_length', avg_length, ep_index, writer)
         writer.add_summary(summaries, global_step=ep_index)
         writer.flush()
-        action_lengths.append(len(actions))
-        avg_length = np.average(action_lengths[-10:])
         self.print_episode_results(ep_index, action_lengths)
         ep_index = ep_index + 1
-        if ep_index % 25 == 0 and ep_index > 0:
+        if ep_index % 5 == 0 and ep_index > 0:
           print("=====> Saving model")
           saver.save(
             session,
