@@ -2,6 +2,7 @@ import time
 import datetime
 import sys
 import math
+import RPi.GPIO as GPIO # for reset button
 from lib.state import State
 from lib.base_world import BaseWorld
 import pdb
@@ -33,6 +34,11 @@ class World(BaseWorld):
     self.episodeStartTime = datetime.datetime.now()
     self.arduino.resetPhi()
 
+    # Pin Setup:
+    self.buttonPin = 4
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(self.buttonPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
   # returns four states
   def getObservation(self):
     self.observation = self.arduino.getObservation()
@@ -46,8 +52,16 @@ class World(BaseWorld):
   def reset(self):
     print("initiating reset...")
     self.arduino.stopMotors()
-    self.arduino.reset_robot()
     self.arduino.resetPhi() # reset xPos to 0
+    print("waiting on reset button...")
+    while 1:
+        if GPIO.input(self.buttonPin): # button is released
+          a = 1
+           # do Nothing
+        else: # button is pressed:
+          print("button pressed! Here we go!")
+          break
+
     self.episodeStartTime = datetime.datetime.now()
     return self.getObservation()
 
