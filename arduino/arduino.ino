@@ -274,6 +274,13 @@ void sendStateToPi(){
   sendToPi('S', message);
 }
 
+// this is used if Arduino received an unrecognized command. The assumption is
+// that the PI sent something valid, but there was a transmission error.
+void resendCommand(){
+  String message = " ";
+  sendToPi('X', message);
+}
+
 void handle_command_from_pi(std::string message){
   Serial.print("got the message from Pi: ");
   Serial.println(message.c_str());
@@ -290,6 +297,7 @@ void handle_command_from_pi(std::string message){
               break;
     case 'O': sendStateToPi();
               break;
+    default: resendCommand(); // must have been a transmission error?
   }
 }
 
