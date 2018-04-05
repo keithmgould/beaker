@@ -32,12 +32,13 @@ class Arduino:
   # xPos, xVel, Theta, ThetaDot
   def getObservation(self):
     while True:
-      try:
-        self.__writeMessage("O")
-        message = self.__waitForArduinoMessage("S")
-        break
-      except:
+      self.__writeMessage("O")
+      message = self.__waitForArduinoMessage("S")
+      if message == False:
         print("errored on getObservation. Trying again")
+        next
+      else:
+        break
     lst = message.split(",")
     return [float(i) for i in lst]
 
@@ -47,7 +48,10 @@ class Arduino:
     while waiting or char != '!':
       waiting = False
       char = self.serial.read()
-      char = char.decode("utf-8")
+      try:
+        char = char.decode("utf-8")
+      except:
+        return False # we got someting undecodable from Arduino
       message += char
     if message[0] == expected:
       return message[1:-1] # removes expected and !
