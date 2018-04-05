@@ -55,7 +55,7 @@ class Arduino:
       return message[1:-1] # removes expected and !
     else:
       print("Expected message type {}. Found: {}".format(expected, message))
-      raise "^^ Expected Message But found something else"
+      return False
 
   def __writeMessage(self, message):
     message = message + "!"

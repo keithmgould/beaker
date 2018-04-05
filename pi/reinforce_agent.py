@@ -84,6 +84,7 @@ class Agent:
         print("obsv: {}, action: {}".format(observation, action))
         observation, reward, done = self.env.step(action)
         if observation == False: # some sort of error communicating w Arduino
+            done = False # prob not needed (already false) but just to be safe
             break # lets try another rollout
         time_delta = current_milli_time() - last_time
         rewards.append(reward)
