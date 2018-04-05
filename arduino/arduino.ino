@@ -39,6 +39,31 @@ float previousGain = 0;
 char tmp_char;
 std::string str;
 
+void turnBuzzerOn(){
+  digitalWrite(BUZZER_PIN, HIGH);
+}
+
+void turnBuzzerOff(){
+  digitalWrite(BUZZER_PIN, LOW);
+}
+
+void beep(int durationOn, int durationOff){
+  turnBuzzerOn();
+  delay(durationOn);
+  turnBuzzerOff();
+  delay(durationOff);
+}
+
+void playInitSong(){
+  beep(150, 150);
+  beep(150, 75);
+  beep(75, 75);
+  beep(150, 150);
+  beep(250, 250);
+  beep(150, 150);
+  beep(250, 150);
+}
+
 void updatePower(float newGain){
 
   // TMP Switch polarity for a TMP test!!
@@ -70,8 +95,10 @@ void errorMode(const char* input) {
   Serial.println(input);
   while(true){
     turnIndicatorLightOn();
+    turnBuzzerOn();
     delay(300);
     turnIndicatorLightOff();
+    turnBuzzerOff();
     delay(300);
   }
 }
@@ -144,7 +171,9 @@ void sanityCheck() {
   if(std::abs(xPos) > 0.5){
     Serial.println("\n\nFailed Sanity Check!!\n\n");
     updatePower(0);
+    turnBuzzerOn();
     delay(200);
+    turnBuzzerOff();
   }
 }
 
@@ -281,9 +310,11 @@ void checkForPiCommand(){
 void setup() {
   // indicator pin is an output for LED
   pinMode(INDICATOR, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
 
   // turn off indicator light while we setup
   turnIndicatorLightOff();
+  turnBuzzerOff();
 
   // Open console serial communications
   Serial.begin(115200);
@@ -339,6 +370,9 @@ void setup() {
   Serial.println("Done Initializing!");
   updatePower(0); // ensure motors are off
   turnIndicatorLightOn();
+
+  // play init song
+  playInitSong();
 
   // print out two lines in case there  was garbage (noise) in serial setup
   Serial.println("\n");

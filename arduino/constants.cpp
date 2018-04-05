@@ -10,6 +10,9 @@
 #define LH_ENCODER_A 3 // interupt pin
 #define LH_ENCODER_B 5
 
+// pin for piezo buzzer
+#define BUZZER_PIN 9
+
 // pins for radio
 #define RADIO_CE 6
 #define RADIO_CSN 7
