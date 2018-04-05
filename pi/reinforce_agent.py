@@ -66,30 +66,31 @@ class Agent:
           file.close
 
   def policy_rollout(self, policy):
-    observation, reward, done = self.env.reset(), 0, False
-    observations, actions, rewards  = [], [], []
-    throw_away_action = policy.select_action(observation) # prime network.
+    while True:
+      observation, reward, done = self.env.reset(), 0, False
+      observations, actions, rewards  = [], [], []
+      throw_away_action = policy.select_action(observation) # prime network.
 
-    step = 0
-    last_time = current_milli_time()
-    while not done:
-      time_delta = current_milli_time() - last_time
-      print("Loop Time: {}".format(time_delta))
+      step = 0
       last_time = current_milli_time()
-      # if step == 2:
-      #   self.env.arduino.give_robot_slack()
-      #   time_delta = current_milli_time() - last_time
-      action = policy.select_action(observation)
-      time_delta = current_milli_time() - last_time
-      observations.append(observation)
-      actions.append(action)
-      print("obsv: {}, action: {}".format(observation, action))
-      observation, reward, done = self.env.step(action)
-      time_delta = current_milli_time() - last_time
-      rewards.append(reward)
-      step = step + 1
+      while not done:
+        time_delta = current_milli_time() - last_time
+        print("Loop Time: {}".format(time_delta))
+        last_time = current_milli_time()
+        action = policy.select_action(observation)
+        time_delta = current_milli_time() - last_time
+        observations.append(observation)
+        actions.append(action)
+        print("obsv: {}, action: {}".format(observation, action))
+        observation, reward, done = self.env.step(action)
+        if observation == False: # some sort of error communicating w Arduino
+            break # lets try another rollout
+        time_delta = current_milli_time() - last_time
+        rewards.append(reward)
+        step = step + 1
 
-    return observations, actions, rewards
+      if done:
+        return observations, actions, rewards
 
   def discount_rewards(self, rewards):
     discounted_rewards = np.zeros_like(rewards)

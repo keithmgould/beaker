@@ -35,10 +35,8 @@ class Arduino:
       self.__writeMessage("O")
       message = self.__waitForArduinoMessage("S")
       if message == False:
-        print("errored on getObservation. Trying again")
-        next
-      else:
-        break
+        print("errored on getObservation.")
+        return False
     lst = message.split(",")
     return [float(i) for i in lst]
 
