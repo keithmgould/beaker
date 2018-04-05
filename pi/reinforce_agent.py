@@ -40,8 +40,12 @@ class Agent:
       action_lengths = []
       while(True):
         observations, actions, rewards = self.policy_rollout(policy)
+        if len(actions) < 5:
+          print("Skipping short {}-step rollout".format(len(actions)))
+          next # this was almost certainly a run with robot not ready
         returns = self.discount_rewards(rewards)
         returns = (returns - np.mean(returns)) / (np.std(returns) + 1e-10)
+
         summaries = policy.update_parameters(observations, actions, returns)
         action_lengths.append(len(actions))
         avg_length = np.average(action_lengths[-10:])
