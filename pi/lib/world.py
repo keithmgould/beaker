@@ -47,7 +47,11 @@ class World(BaseWorld):
   # returns observation, reward, done
   def step(self, action):
     self.updateMotors(action)
-    return self.getObservation(), self.__reward(), self.isDone()
+    observation = self.getObservation()
+    if observation == False:
+      return False, False, False
+
+    return observation, self.__reward(), self.isDone()
 
   def reset(self):
     print("initiating reset...")

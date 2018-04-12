@@ -40,6 +40,9 @@ class Agent:
       action_lengths = []
       while(True):
         observations, actions, rewards = self.policy_rollout(policy)
+        if observations == False:
+          print("Errored on getObservation. Restarting Episode...")
+          continue
         if len(actions) < 5:
           print("Skipping short {}-step rollout".format(len(actions)))
           continue # this was almost certainly a run with robot not ready
