@@ -42,11 +42,11 @@ class Agent:
         observations, actions, rewards = self.policy_rollout(policy)
         if len(actions) < 5:
           print("Skipping short {}-step rollout".format(len(actions)))
-          next # this was almost certainly a run with robot not ready
-        if len(actions_lengths) < 10:
+          continue # this was almost certainly a run with robot not ready
+        if len(action_lengths) < 10:
           action_lengths.append(len(actions))
           print("Skipping until we have 10 episode lengths saved. {} Saved so far.".format(len(action_lengths)))
-          next
+          continue
         returns = self.discount_rewards(rewards)
         returns = returns / returns[0]
         relative = len(actions) - np.average(action_lengths[-10:])
