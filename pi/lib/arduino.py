@@ -31,12 +31,11 @@ class Arduino:
 
   # xPos, xVel, Theta, ThetaDot
   def getObservation(self):
-    while True:
-      self.__writeMessage("O")
-      message = self.__waitForArduinoMessage("S")
-      if message == False:
-        print("errored on getObservation.")
-        return False
+    self.__writeMessage("O")
+    message = self.__waitForArduinoMessage("S")
+    if message == False:
+      print("errored on getObservation.")
+      return False
     lst = message.split(",")
     return [float(i) for i in lst]
 
