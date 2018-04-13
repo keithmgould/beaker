@@ -39,7 +39,7 @@ class Agent:
         ep_index = int(file.read())
         file.close()
         file = open("./models/avg_length.txt", "r")
-        avg_lenth = float(file.read())
+        avg_length = float(file.read())
         file.close()
         for x in range (0,10):
           action_lengths.append(avg_length)
