@@ -18,7 +18,7 @@
 #define RADIO_CSN 7
 
 // Duration (in millisecs) for each loop.
-// 10 => 100hz
+// 20 => 50hz
 #define TIMESTEP 20
 
 // Minimum/Maximum values to send to motor drivers

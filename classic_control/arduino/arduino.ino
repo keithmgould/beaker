@@ -1,6 +1,7 @@
 // CLASSIC CONTROL -- PID
 
 #include <StandardCplusplus.h>
+#include <string>
 #include <cmath>
 #include <Adafruit_Sensor.h> // IMU
 #include <Adafruit_BNO055.h> // IMU
@@ -20,10 +21,9 @@ int kD = 0;       // holds the D parameter
 
 int motorCommand = 0; // holds the final command to motor
 
-int tick=0;                 // holds the tick offset from the encoder.
-int currentError = 0;       // error from offset. Comes from tampling tick
-int previousError = 0;      // holds the previous timestep's error
-int deltaError = 0;         // holds the derivative of the error
+float currentError = 0;       // error from offset. comes from phi for now
+float previousError = 0;      // holds the previous timestep's error
+float deltaError = 0;         // holds the derivative of the error
 float accumulatedError = 0; // holds accumulated error (over time)
 
 // following variables used to control the loop time
@@ -42,6 +42,10 @@ float theta = 0; // radians
 float thetaDot = 0; // radians / sec
 float lastTheta = 0;
 float previousGain = 0;
+
+// vars to hold incoming serial messages from Pi
+char tmp_char;
+std::string str;
 
 void turnIndicatorLightOff(){
   digitalWrite(INDICATOR, LOW);
@@ -77,6 +81,51 @@ float rawPhi() {
 // in meters. Average of both wheels
 float rawX() {
   return (motorLeft.getDistance() + motorRight.getDistance()) / 2.0;
+}
+
+// in radians
+imu::Quaternion quat;
+imu::Vector<3> axis;
+float rawTheta() {
+  quat = bno.getQuat();
+  axis = quat.toEuler();
+  return axis.z();
+}
+
+// calculates and stores
+// theta and thetaDot
+//
+// argument dt is in seconds
+void fetchTheta(float dt){
+  theta = rawTheta();
+  thetaDot = (theta - lastTheta); // no division by dt because only called once per loop
+  lastTheta = theta;
+}
+
+// calculates and stores
+// x and xDot (Meters and Meters/Sec)
+void fetchX(){
+  xPos = rawX();
+  xVel = (xPos - lastXPos);
+  lastXPos = xPos;
+}
+
+// calculates and stores
+// phi and phiDot
+void fetchPhi(){
+  phi = rawPhi();
+  phiDot = (phi - lastPhi);
+  lastPhi = phi;
+}
+
+void fetchState(){
+  fetchPhi();
+  fetchX();
+}
+
+void calculateCurrentError(){
+  previousError = currentError;
+  currentError = theta;
 }
 
 void turnBuzzerOn(){
@@ -145,7 +194,112 @@ void errorMode(const char* input) {
   }
 }
 
+// dividing by 10 because we don't need values higher than 0-9.
+void updatePIDValues(){
+  kP = 0;
+  kI = 0;
+  kD = 0;
+}
+
+void calculateAccumulatedError(){
+  // once we cross the 0 error mark, the past accumulated error
+  // is no longer helping us. Reset to 0.
+  if(currentError == 0){
+    accumulatedError = 0;
+    return;
+  }
+
+  accumulatedError += currentError;
+
+  // helps with windup (overaccumulating the error)
+  accumulatedError = constrain(accumulatedError, -20, 20);
+}
+
+// deltaError is used for the D component of the controller.
+// for that we need the derivative of the error.
+// since this is only called once per loop, we do not need to divide by time
+void calculateDeltaError(){
+  deltaError =  currentError - previousError;
+}
+
+void generateMotorCommand(){
+  // this is the crux of the PID controller: adding togethe the P,I,D components
+  int finalCommand = kP * currentError + kI * accumulatedError + kD * deltaError;
+
+  // ensure we stay within bounds of motor controller.
+  motorCommand = constrain(finalCommand, -255, 255);
+}
+
+void updateMotor(){
+
+}
+
+void sendToPi(char code, String message){
+  String final;
+  final = String(code) + message + "!";
+  Serial.print("sending to Pi: ");
+  Serial.println(final.c_str());
+  Serial2.write(final.c_str());
+}
+
+void sendPIDToPi(){
+
+}
+
+// this is used if Arduino received an unrecognized command. The assumption is
+// that the PI sent something valid, but there was a transmission error.
+void resendCommand(){
+  String message = " ";
+  sendToPi('X', message);
+}
+
+void handle_command_from_pi(std::string message){
+  Serial.print("got the message from Pi: ");
+  Serial.println(message.c_str());
+  char command;
+  command = message[0];
+  switch (command){
+    case 'S': playInitSong();
+              break;
+    case 'U': updatePIDValues();
+              break;
+    default: resendCommand(); // must have been a transmission error?
+  }
+}
+
+// fetch data from Pi.
+// If full command is here, process it.
+void checkForPiCommand(){
+  while(Serial2.available()) {
+    tmp_char = Serial2.read();
+    if(tmp_char == '!'){
+      handle_command_from_pi(str);
+      str = "";
+    }else{
+      str += tmp_char;
+    }
+  }
+}
+
+// ensure main loop is TIMESTEP milliseconds long
+void wait_TIMESTEP_ms(){
+  while(true){
+    nowish = millis();
+    timeDelta = nowish - timeMarker;
+    if(timeDelta < TIMESTEP){return;}
+    timeMarker = nowish;
+  }
+}
+
 void setup(){
+  // indicator pin is an output for LED
+  pinMode(INDICATOR, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+
+  // turn off indicator light while we setup
+  turnIndicatorLightOff();
+  turnBuzzerOff();
+
     // Open console serial communications
   Serial.begin(115200);
   while (!Serial) {;}
@@ -186,85 +340,27 @@ void setup(){
   Serial.println("Done!");
 
   // Turn on indicator light because we are ready to rock.
-  Serial.println("Done Initializing!");
-  updatePower(0); // ensure motors are off
+  Serial.println("Done Initializing like a boss!");
+  // updatePower(0); // ensure motors are off
   turnIndicatorLightOn();
 
-  // play init song
+  // play init song :D
   playInitSong();
 
-  // print out two lines in case there  was garbage (noise) in serial setup
+  // print out two lines in case there
+  // was garbage (noise) in serial setup
   Serial.println("\n");
   delay(100);
-
-  // ensure our timeDelta is accurate by resetting timeMarker
-  // just before the loop starts
-  timeMarker = millis();
-}
-
-int fetchAnalog(int potPin){
-  int potVal = analogRead(potPin); // returns value in range [0,1023]
-  return int(potVal * .008797654); // normalize to value in range [0,9]
-}
-
-// dividing by 10 because we don't need values higher than 0-9.
-void updatePIDValues(){
-  kP = 0;
-  kI = 0;
-  kD = 0;
-}
-
-void calculateAccumulatedError(){
-  // once we cross the 0 error mark, the past accumulated error
-  // is no longer helping us. Reset to 0.
-  if(currentError == 0){
-    accumulatedError = 0;
-    return;
-  }
-
-  accumulatedError += currentError;
-
-  // helps with windup (overaccumulating the error)
-  accumulatedError = constrain(accumulatedError, -20, 20);
-}
-
-// deltaError is used for the D component of the controller.
-// for that we need the derivative of the error.
-// since this is only called once per loop, we do not need to divide by time
-void calculateDeltaError(){
-  previousError = currentError;
-  currentError = tick;
-  deltaError =  currentError - previousError;
-}
-
-void generateMotorCommand(){
-  // this is the crux of the PID controller: adding togethe the P,I,D components
-  int finalCommand = kP * currentError + kI * accumulatedError + kD * deltaError;
-
-  // ensure we stay within bounds of motor controller.
-  motorCommand = constrain(finalCommand, -255, 255);
-}
-
-void updateMotor(){
-
-}
-
-// ensure main loop is <loopTimeMs> milliseconds long
-void wait_enough_time(){
-  while(true){
-    nowish = millis();
-    timeDelta = nowish - timeMarker;
-    if(timeDelta < loopTimeMs){return;}
-    timeMarker = nowish;
-  }
 }
 
 void loop(){
-  wait_enough_time();
-  updatePIDValues();
+  wait_TIMESTEP_ms();
+  fetchState();
+  calculateCurrentError();
   calculateAccumulatedError();
   calculateDeltaError();
   generateMotorCommand();
   updateMotor();
+  checkForPiCommand();
  }
 
