@@ -128,21 +128,17 @@ float rawTheta() {
 
 // calculates and stores
 // theta and thetaDot
-//
-// argument dt is in seconds
-void fetchTheta(float dt){
+void fetchTheta(){
   theta = rawTheta();
-  thetaDot = (theta - lastTheta) / dt;
+  thetaDot = (theta - lastTheta); // no division by dt because only called once per loop
   lastTheta = theta;
 }
 
 // calculates and stores
 // x and xDot (Meters and Meters/Sec)
-//
-// argument dt is in seconds
-void fetchX(float dt){
+void fetchX(){
   xPos = rawX();
-  xVel = (xPos - lastXPos) / dt;
+  xVel = (xPos - lastXPos); // no division by dt because only called once per loop
   lastXPos = xPos;
 }
 
@@ -390,8 +386,8 @@ void loop() {
   if(timeDelta < TIMESTEP){return;}
   timeMarker = nowish;
   dt = (float) timeDelta / 1000; // Units are floats in seconds.
-  fetchTheta(dt);
-  fetchX(dt);
+  fetchTheta();
+  fetchX();
   sanityCheck();
   checkForPiCommand();
 }
