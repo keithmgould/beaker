@@ -87,7 +87,7 @@ class Agent:
         writer.flush()
         self.print_episode_results(ep_index, action_lengths)
         ep_index = ep_index + 1
-        ep_index > 0:
+        if ep_index > 0:
           print("=====> Saving model")
           saver.save(
             session,
