@@ -31,13 +31,18 @@ class Agent:
       writer = tf.summary.FileWriter("./logs/" + log_name, graph=tf.get_default_graph())
       saver = tf.train.Saver(max_to_keep=5)
       ep_index = 0
+      action_lengths = []
       if self.args['restore'] or self.args['resume']:
         print("Restoring from saved model.")
         saver.restore(session, tf.train.latest_checkpoint('./models/'))
         file = open("./models/at_episode.txt", "r")
         ep_index = int(file.read())
         file.close()
-      action_lengths = []
+        file = open("./models/avg_length.txt", "r")
+        avg_lenth = float(file.read())
+        file.close()
+        for x in range (0,10):
+          action_lengths.append(avg_length)
       while(True):
         observations, actions, rewards = self.policy_rollout(policy)
         if observations == False:
@@ -75,6 +80,10 @@ class Agent:
           file = open("./models/at_episode.txt","w")
           file.write(str(ep_index))
           file.close
+          file = open("./models/avg_length.txt","w")
+          file.write(str(avg_length))
+          file.close
+
 
   def policy_rollout(self, policy):
     while True:
