@@ -37,9 +37,11 @@ class Agent:
         saver.restore(session, tf.train.latest_checkpoint('./models/'))
         file = open("./models/at_episode.txt", "r")
         ep_index = int(file.read())
+        print("Restoring to episode: {}".format(ep_index))
         file.close()
         file = open("./models/avg_length.txt", "r")
         avg_length = float(file.read())
+        print("Restoring to avg length: {}".format(avg_length))
         file.close()
         for x in range (0,10):
           action_lengths.append(avg_length)
