@@ -73,7 +73,6 @@ class World(BaseWorld):
     self.episodeStartTime = datetime.datetime.now()
     # self.arduino.give_robot_slack() NOT NEEDED. USING BUTTON
 
-  # Keeping public for testing
   def updateMotors(self, newPower):
     self.arduino.updateMotorPower(newPower)
 
