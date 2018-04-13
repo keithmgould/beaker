@@ -11,9 +11,12 @@ class Arduino:
   def playInitSong(self):
     self.__writeMessage("S")
 
+  def zeroes(self):
+    self.updatePIDValues(0,0,0)
+
   def updatePIDValues(self, p, i, d):
     # TODO: validations here?
-    self.__writeMessage("U.5,0.2,1")
+    self.__writeMessage("U" + str(p) + " " + str(i) + " " + str(d))
 
   def __waitForArduinoMessage(self, expected):
     waiting = True

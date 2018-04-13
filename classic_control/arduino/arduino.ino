@@ -1,7 +1,9 @@
 // CLASSIC CONTROL -- PID
 
 #include <StandardCplusplus.h>
+#include <sstream>      // std::istringstream
 #include <string>
+
 #include <cmath>
 #include <Adafruit_Sensor.h> // IMU
 #include <Adafruit_BNO055.h> // IMU
@@ -15,11 +17,11 @@ ServoMotor motorRight(RH_ENCODER_A,RH_ENCODER_B, -1);
 // IMU
 Adafruit_BNO055 bno = Adafruit_BNO055(55, 40);
 
-int kP = 0;       // holds the P parameter
-int kI = 0;       // holds the I parameter
-int kD = 0;       // holds the D parameter
+float kP = 0;       // holds the P parameter
+float kI = 0;       // holds the I parameter
+float kD = 0;       // holds the D parameter
 
-int motorCommand = 0; // holds the final command to motor
+float motorCommand = 0; // holds the final command to motor
 
 float currentError = 0;       // error from offset. comes from phi for now
 float previousError = 0;      // holds the previous timestep's error
@@ -47,26 +49,28 @@ float previousGain = 0;
 char tmp_char;
 std::string str;
 
+void printStatus(){
+Serial.print(kP);
+Serial.print(", ");
+Serial.print(kI);
+Serial.print(", ");
+Serial.print(kD);
+Serial.print(", ");
+Serial.print(theta, 5);
+Serial.print(", ");
+Serial.print(accumulatedError, 5);
+Serial.print(", ");
+Serial.print(deltaError, 5);
+Serial.print(", ");
+Serial.println(motorCommand);
+}
+
 void turnIndicatorLightOff(){
   digitalWrite(INDICATOR, LOW);
 }
 
 void turnIndicatorLightOn(){
   digitalWrite(INDICATOR, HIGH);
-}
-
-void updatePower(float newGain){
-
-  // TMP Switch polarity for a TMP test!!
-  newGain = -newGain;
-
-  // safety first. ensure gain between these values
-  newGain = constrain(newGain, MINIMUM_GAIN, MAXIMUM_GAIN);
-  Serial.print("updatePower: ");
-  Serial.println(newGain);
-  previousGain = newGain;
-  motorLeft.updatePower(newGain);
-  motorRight.updatePower(newGain);
 }
 
 float degToRadians(float deg) {
@@ -94,10 +98,8 @@ float rawTheta() {
 
 // calculates and stores
 // theta and thetaDot
-//
-// argument dt is in seconds
-void fetchTheta(float dt){
-  theta = rawTheta();
+void fetchTheta(){
+  theta = rawTheta() + THETA_OFFSET;
   thetaDot = (theta - lastTheta); // no division by dt because only called once per loop
   lastTheta = theta;
 }
@@ -119,6 +121,7 @@ void fetchPhi(){
 }
 
 void fetchState(){
+  fetchTheta();
   fetchPhi();
   fetchX();
 }
@@ -134,30 +137,6 @@ void turnBuzzerOn(){
 
 void turnBuzzerOff(){
   digitalWrite(BUZZER_PIN, LOW);
-}
-
-// Sometimes the PI leaves the motors spinning when it dies.
-// When learning to balance:
-//    a meter is more than enough.
-void sanityCheck() {
-  if(previousGain == 0){ return; }
-  if(std::abs(xPos) > 0.5){
-    Serial.println("\n\nFailed Sanity Check!!\n\n");
-    updatePower(0);
-    turnBuzzerOn();
-    delay(200);
-    turnBuzzerOff();
-  }
-}
-
-void leftEncoderEvent() {
-  sanityCheck();
-  motorLeft.encoderEvent();
-}
-
-void rightEncoderEvent() {
-  sanityCheck();
-  motorRight.encoderEvent();
 }
 
 void beep(int durationOn, int durationOff){
@@ -177,11 +156,53 @@ void playInitSong(){
   beep(250, 150);
 }
 
+void updateMotor(){
+  // safety first. ensure gain between these values
+  float newGain = constrain(motorCommand, -0.75, 0.75);
+
+  Serial.print("updatePower: ");
+  Serial.println(newGain);
+
+  previousGain = newGain;
+
+  motorLeft.updatePower(newGain);
+  motorRight.updatePower(newGain);
+}
+
+void stopMotors() {
+  motorCommand = 0;
+  updateMotor();
+}
+
+// Sometimes the PI leaves the motors spinning when it dies.
+// When learning to balance:
+//    a meter is more than enough.
+void sanityCheck() {
+  if(previousGain == 0){ return; }
+  if(std::abs(xPos) > 0.5){
+    Serial.println("\n\nFailed Sanity Check!!\n\n");
+    stopMotors();
+    turnBuzzerOn();
+    delay(200);
+    turnBuzzerOff();
+  }
+}
+
+void leftEncoderEvent() {
+  sanityCheck();
+  motorLeft.encoderEvent();
+}
+
+void rightEncoderEvent() {
+  sanityCheck();
+  motorRight.encoderEvent();
+}
+
 // kill motors and blink status indicator
 // FOREVER
 void errorMode(const char* input) {
   Serial.println("\n!!!!!!!!!!!!!!!!!!!!!! In Error Mode!");
-  updatePower(0);
+  stopMotors();
   Serial.print("Error: ");
   Serial.println(input);
   while(true){
@@ -194,11 +215,22 @@ void errorMode(const char* input) {
   }
 }
 
-// dividing by 10 because we don't need values higher than 0-9.
-void updatePIDValues(){
-  kP = 0;
-  kI = 0;
-  kD = 0;
+void updatePIDValues(std::string message){
+  Serial.println("Updating PID Values!!!");
+  Serial.println(message.c_str());
+
+  float values[3];
+  std::istringstream ss( message );
+  std::copy(
+    std::istream_iterator <float> ( ss ),
+    std::istream_iterator <float> (),
+    values
+    );
+
+
+  kP = values[0];
+  kI = values[1];
+  kD = values[2];
 }
 
 void calculateAccumulatedError(){
@@ -212,7 +244,7 @@ void calculateAccumulatedError(){
   accumulatedError += currentError;
 
   // helps with windup (overaccumulating the error)
-  accumulatedError = constrain(accumulatedError, -20, 20);
+  accumulatedError = constrain(accumulatedError, -1, 1);
 }
 
 // deltaError is used for the D component of the controller.
@@ -224,14 +256,10 @@ void calculateDeltaError(){
 
 void generateMotorCommand(){
   // this is the crux of the PID controller: adding togethe the P,I,D components
-  int finalCommand = kP * currentError + kI * accumulatedError + kD * deltaError;
+  float finalCommand = kP * currentError + kI * accumulatedError + kD * deltaError;
 
   // ensure we stay within bounds of motor controller.
-  motorCommand = constrain(finalCommand, -255, 255);
-}
-
-void updateMotor(){
-
+  motorCommand = constrain(finalCommand, -1, 1);
 }
 
 void sendToPi(char code, String message){
@@ -240,10 +268,6 @@ void sendToPi(char code, String message){
   Serial.print("sending to Pi: ");
   Serial.println(final.c_str());
   Serial2.write(final.c_str());
-}
-
-void sendPIDToPi(){
-
 }
 
 // this is used if Arduino received an unrecognized command. The assumption is
@@ -261,7 +285,7 @@ void handle_command_from_pi(std::string message){
   switch (command){
     case 'S': playInitSong();
               break;
-    case 'U': updatePIDValues();
+    case 'U': updatePIDValues(message.substr(1));
               break;
     default: resendCommand(); // must have been a transmission error?
   }
@@ -345,7 +369,7 @@ void setup(){
   turnIndicatorLightOn();
 
   // play init song :D
-  playInitSong();
+  // playInitSong();
 
   // print out two lines in case there
   // was garbage (noise) in serial setup
@@ -360,6 +384,7 @@ void loop(){
   calculateAccumulatedError();
   calculateDeltaError();
   generateMotorCommand();
+  printStatus();
   updateMotor();
   checkForPiCommand();
  }

@@ -26,3 +26,5 @@
 // To constrain to 50% power use -.5 and .5
 #define MINIMUM_GAIN -1
 #define MAXIMUM_GAIN 1
+
+#define THETA_OFFSET -0.04 // due to minorly non-level IMU
