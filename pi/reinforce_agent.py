@@ -127,6 +127,7 @@ class Agent:
         step = step + 1
 
       if done:
+        self.env.updateMotors(0)
         return observations, actions, rewards
 
   def discount_rewards(self, rewards):
