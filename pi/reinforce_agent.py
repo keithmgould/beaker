@@ -63,7 +63,15 @@ class Agent:
         returns = returns * relative
         # returns = (returns - np.mean(returns)) / (np.std(returns) + 1e-10)
 
-
+        print("waiting on Beaker button to update Params...")
+        while 1:
+            if GPIO.input(self.buttonPin): # button is released
+              a = 1
+               # do Nothing
+            else: # button is pressed:
+              print("button pressed! Updating Params!")
+              print('\a')
+              break
         summaries = policy.update_parameters(observations, actions, returns)
         action_lengths.append(len(actions))
         avg_length = np.average(action_lengths[-10:])
