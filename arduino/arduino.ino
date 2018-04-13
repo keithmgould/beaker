@@ -5,7 +5,7 @@
 #include <sstream> // stringstream
 #include <Adafruit_Sensor.h> // IMU
 #include <Adafruit_BNO055.h> // IMU
-#include <Wire.h>
+#include <Wire.h> // I2C
 #include <cmath>
 #include <SPI.h>  // radio controls
 #include "RF24.h" // radio controls
@@ -101,13 +101,6 @@ void errorMode(const char* input) {
     turnBuzzerOff();
     delay(300);
   }
-}
-
-float accToRadians(float acc) {
-  float theta = (acc + BALANCED_OFFSET) / 9.8;
-  if(theta < -1) { theta = -1; }
-  if(theta > 1) { theta = 1; }
-  return asin(theta);
 }
 
 float degToRadians(float deg) {

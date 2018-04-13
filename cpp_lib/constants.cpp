@@ -13,10 +13,6 @@
 // pin for piezo buzzer
 #define BUZZER_PIN 9
 
-// pins for radio
-#define RADIO_CE 6
-#define RADIO_CSN 7
-
 // Duration (in millisecs) for each loop.
 // 10 => 100hz
 #define TIMESTEP 20
