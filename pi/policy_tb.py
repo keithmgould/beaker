@@ -6,7 +6,7 @@ class Policy:
     self.session = session
     self.lowest_action = lowest_action
     self.highest_action = highest_action
-    optimizer = tf.train.AdamOptimizer(.001)
+    optimizer = tf.train.AdamOptimizer(.0001)
     self.observations = tf.placeholder(tf.float32, shape=[None, observation_size], name="observations")
     self.actions = tf.placeholder(tf.float32, name="actions")
     self.returns = tf.placeholder(tf.float32, name="returns")
