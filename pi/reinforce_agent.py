@@ -78,6 +78,7 @@ class Agent:
               print("button pressed! Updating Params!")
               print('\a')
               break
+        time.sleep(0.5) # ghetto debouncing
         summaries = policy.update_parameters(observations, actions, returns)
         action_lengths.append(len(actions))
         avg_length = np.average(action_lengths[-10:])
