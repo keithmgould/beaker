@@ -68,7 +68,7 @@ class Agent:
         relative = len(actions) - np.average(action_lengths[-10:])
         returns = returns * relative
         # returns = (returns - np.mean(returns)) / (np.std(returns) + 1e-10)
-
+        print('\a') # episode done bell
         print("waiting on Beaker button to update Params...")
         while 1:
             if GPIO.input(self.buttonPin): # button is released
