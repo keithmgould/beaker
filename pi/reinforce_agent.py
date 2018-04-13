@@ -1,6 +1,7 @@
 import numpy as np
 import pdb, shutil, time, datetime
 import argparse
+import RPi.GPIO as GPIO # for reset button
 from lib.world import World
 import tensorflow as tf
 from scipy.stats import norm
@@ -14,6 +15,11 @@ class Agent:
   def __init__(self, args):
     self.args = args
     self.env = World()
+
+    # Pin Setup:
+    self.buttonPin = 4
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(self.buttonPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
   def print_episode_results(self, ep_index, action_lengths):
     print("Episode {0}. Steps {1}. Avg {2:.2f}".format(
