@@ -57,6 +57,7 @@ class World(BaseWorld):
     print("initiating reset...")
     self.arduino.stopMotors()
     self.arduino.resetPhi() # reset xPos to 0
+    print('\a')
     print("waiting on reset button...")
     while 1:
         if GPIO.input(self.buttonPin): # button is released
