@@ -2,7 +2,7 @@
 
 #include <StandardCplusplus.h>
 #include <sstream>      // std::istringstream
-#include <string>
+// #include <string>
 
 #include <cmath>
 #include <Adafruit_Sensor.h> // IMU
@@ -28,11 +28,10 @@ float previousError = 0;      // holds the previous timestep's error
 float deltaError = 0;         // holds the derivative of the error
 float accumulatedError = 0; // holds accumulated error (over time)
 
-// following variables used to control the loop time
-int loopTimeMs = 20; // desired loop time in milliseconds
-long nowish = 0;
-long timeDelta = 0;
-long timeMarker = 0;
+// following variables used to control the loop times
+long positionTimeMarker = 0;
+long motorTimeMarker = 0;
+long lastPrintNow = 0; // only used to verify final loop time
 
 float xPos = 0; // meters
 float lastXPos = 0;
@@ -50,19 +49,15 @@ char tmp_char;
 std::string str;
 
 void printStatus(){
-Serial.print(kP);
-Serial.print(", ");
-Serial.print(kI);
-Serial.print(", ");
-Serial.print(kD);
-Serial.print(", ");
-Serial.print(theta, 5);
-Serial.print(", ");
-Serial.print(accumulatedError, 5);
-Serial.print(", ");
-Serial.print(deltaError, 5);
-Serial.print(", ");
-Serial.println(motorCommand);
+  String str = "";
+  long printNow = millis();
+  str += String(printNow - lastPrintNow);
+  str += ", " + String(theta,5);
+  str += ", " + String(accumulatedError, 5);
+  str += ", " + String(deltaError, 5);
+  str += ", " + String(motorCommand, 1);
+  lastPrintNow = printNow;
+  Serial.println(str);
 }
 
 void turnIndicatorLightOff(){
@@ -88,42 +83,43 @@ float rawX() {
 }
 
 // in radians
-imu::Quaternion quat;
-imu::Vector<3> axis;
 float rawTheta() {
+  imu::Quaternion quat;
+  imu::Vector<3> axis;
+
   quat = bno.getQuat();
   axis = quat.toEuler();
   return axis.z();
 }
 
-// calculates and stores
-// theta and thetaDot
-void fetchTheta(){
+// calculates and stores theta and thetaDot
+// rads and rads/sec
+void fetchTheta(float dt, float timestep){
   theta = rawTheta() + THETA_OFFSET;
-  thetaDot = (theta - lastTheta); // no division by dt because only called once per loop
+  thetaDot = (theta - lastTheta) / (dt / timestep);
   lastTheta = theta;
 }
 
-// calculates and stores
-// x and xDot (Meters and Meters/Sec)
-void fetchX(){
+// calculates and stores x and xDot
+// meters and meters/sec
+void fetchX(float dt, float timestep){
   xPos = rawX();
-  xVel = (xPos - lastXPos);
+  xVel = (xPos - lastXPos) / (dt / timestep);
   lastXPos = xPos;
 }
 
-// calculates and stores
-// phi and phiDot
-void fetchPhi(){
+// calculates and stores phi and phiDot
+// rads and rads/sec
+void fetchPhi(float dt, float timestep){
   phi = rawPhi();
-  phiDot = (phi - lastPhi);
+  phiDot = (phi - lastPhi) / (dt / timestep);
   lastPhi = phi;
 }
 
-void fetchState(){
-  fetchTheta();
-  fetchPhi();
-  fetchX();
+void fetchState(float dt, float timestep){
+  fetchTheta(dt, timestep);
+  fetchPhi(dt, timestep);
+  fetchX(dt, timestep);
 }
 
 void calculateCurrentError(){
@@ -147,21 +143,16 @@ void beep(int durationOn, int durationOff){
 }
 
 void playInitSong(){
-  beep(150, 150);
-  beep(150, 75);
-  beep(75, 75);
-  beep(150, 150);
-  beep(250, 250);
-  beep(150, 150);
-  beep(250, 150);
+  beep(100, 50);
+  beep(100, 50);
+  beep(100, 50);
 }
 
 void updateMotor(){
   // safety first. ensure gain between these values
-  float newGain = constrain(motorCommand, -0.75, 0.75);
+  float newGain = constrain(motorCommand, -1, 1);
 
-  Serial.print("updatePower: ");
-  Serial.println(newGain);
+  if(newGain == previousGain){ return; }
 
   previousGain = newGain;
 
@@ -174,27 +165,11 @@ void stopMotors() {
   updateMotor();
 }
 
-// Sometimes the PI leaves the motors spinning when it dies.
-// When learning to balance:
-//    a meter is more than enough.
-void sanityCheck() {
-  if(previousGain == 0){ return; }
-  if(std::abs(xPos) > 0.5){
-    Serial.println("\n\nFailed Sanity Check!!\n\n");
-    stopMotors();
-    turnBuzzerOn();
-    delay(200);
-    turnBuzzerOff();
-  }
-}
-
 void leftEncoderEvent() {
-  sanityCheck();
   motorLeft.encoderEvent();
 }
 
 void rightEncoderEvent() {
-  sanityCheck();
   motorRight.encoderEvent();
 }
 
@@ -305,14 +280,27 @@ void checkForPiCommand(){
   }
 }
 
-// ensure main loop is TIMESTEP milliseconds long
-void wait_TIMESTEP_ms(){
+long wait_loop_ms(long &marker, int timestep){
+  long nowish = 0;
+  long timeDelta = 0;
+
   while(true){
     nowish = millis();
-    timeDelta = nowish - timeMarker;
-    if(timeDelta < TIMESTEP){return;}
-    timeMarker = nowish;
+    timeDelta = nowish - marker;
+    if(timeDelta < timestep){ continue; }
+    marker = nowish;
+    break;
   }
+
+  return timeDelta;
+}
+
+long wait_POSITION_CONTROL_TIMESTEP_ms(){
+  return wait_loop_ms(positionTimeMarker, POSITION_CONTROL_TIMESTEP);
+}
+
+long wait_MOTOR_CONTROL_TIMESTEP_ms(){
+  return wait_loop_ms(motorTimeMarker, MOTOR_CONTROL_TIMESTEP);
 }
 
 void setup(){
@@ -369,7 +357,7 @@ void setup(){
   turnIndicatorLightOn();
 
   // play init song :D
-  // playInitSong();
+  playInitSong();
 
   // print out two lines in case there
   // was garbage (noise) in serial setup
@@ -378,12 +366,13 @@ void setup(){
 }
 
 void loop(){
-  wait_TIMESTEP_ms();
-  fetchState();
+  long motor_delta = wait_MOTOR_CONTROL_TIMESTEP_ms();
+  fetchState(motor_delta, MOTOR_CONTROL_TIMESTEP);
+  generateMotorCommand();
+  wait_POSITION_CONTROL_TIMESTEP_ms();
   calculateCurrentError();
   calculateAccumulatedError();
   calculateDeltaError();
-  generateMotorCommand();
   printStatus();
   updateMotor();
   checkForPiCommand();

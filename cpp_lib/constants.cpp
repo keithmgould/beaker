@@ -18,8 +18,10 @@
 #define RADIO_CSN 7
 
 // Duration (in millisecs) for each loop.
-// 20 => 50hz
-#define TIMESTEP 20
+// MAKE SURE: that the position control is
+// 3-4 times slower than motor control
+#define MOTOR_CONTROL_TIMESTEP 5
+#define POSITION_CONTROL_TIMESTEP 20
 
 // Minimum/Maximum values to send to motor drivers
 // Should ALWAYS be between -1 and 1.
@@ -27,4 +29,4 @@
 #define MINIMUM_GAIN -1
 #define MAXIMUM_GAIN 1
 
-#define THETA_OFFSET -0.04 // due to minorly non-level IMU
+#define THETA_OFFSET 0 //-0.04 // due to minorly non-level IMU

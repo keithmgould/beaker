@@ -1,22 +1,19 @@
 from arduino import Arduino
-import argparse
-
 
 class Agent:
-  def __init__(self, args):
-    self.args = args
+  def __init__(self):
     self.arduino = Arduino()
 
   def run(self):
-    a = 1
+    while True:
+      print("Enter p,i,d   or x for 0,0,0")
+      pidString = input()
+      if pidString == "x":
+        print("stopping!")
+        pid = [0,0,0]
+      else:
+        pid = [float(x) for x in pidString.split(",")]
+      self.arduino.updatePIDValues(pid[0], pid[1], pid[2])
 
-
-parser = argparse.ArgumentParser(description='provide arguments for agent')
-parser.add_argument('--p', help='P value', default=0)
-parser.add_argument('--i', help='I value', default=0)
-parser.add_argument('--d', help='D value', default=0)
-args = vars(parser.parse_args())
-
-agent = Agent(args)
+agent = Agent()
 agent.run()
-

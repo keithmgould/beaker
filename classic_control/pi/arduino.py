@@ -15,7 +15,6 @@ class Arduino:
     self.updatePIDValues(0,0,0)
 
   def updatePIDValues(self, p, i, d):
-    # TODO: validations here?
     self.__writeMessage("U" + str(p) + " " + str(i) + " " + str(d))
 
   def __waitForArduinoMessage(self, expected):
