@@ -1,6 +1,6 @@
-#include "Arduino.h"
 #include <Math.h>
 
+// TODO Move these to constants file?
 #define WHEEL_RADIUS .042 // in meters
 #define FULL_ROTATION_EDGE_EVENTS 600 // 18.75 * 32
 #define RADS_PER_SEC_TO_RPM 9.5492965855137

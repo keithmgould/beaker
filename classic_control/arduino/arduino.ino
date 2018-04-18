@@ -2,46 +2,32 @@
 
 #include <StandardCplusplus.h>
 #include <sstream>      // std::istringstream
-// #include <string>
 
 #include <cmath>
-#include <Adafruit_Sensor.h> // IMU
-#include <Adafruit_BNO055.h> // IMU
-#include <Wire.h> // I2C
+
 #include "../../cpp_lib/constants.cpp"
 #include "../../cpp_lib/servoMotor.cpp"
+#include "../../cpp_lib/state.cpp"
+#include "../../cpp_lib/pid.cpp"
 
 ServoMotor motorLeft(LH_ENCODER_A,LH_ENCODER_B, 1);
 ServoMotor motorRight(RH_ENCODER_A,RH_ENCODER_B, -1);
 
-// IMU
-Adafruit_BNO055 bno = Adafruit_BNO055(55, 40);
+State state(motorLeft, motorRight);
 
-float kP = 0;       // holds the P parameter
-float kI = 0;       // holds the I parameter
-float kD = 0;       // holds the D parameter
+// motor control (inner) PID
+Pid motorPid(MOTOR_CONTROL_TIMESTEP);
+
+// position control (outer) PID
+Pid positionPid(POSITION_CONTROL_TIMESTEP);
 
 float motorCommand = 0; // holds the final command to motor
-
-float currentError = 0;       // error from offset. comes from phi for now
-float previousError = 0;      // holds the previous timestep's error
-float deltaError = 0;         // holds the derivative of the error
-float accumulatedError = 0; // holds accumulated error (over time)
 
 // following variables used to control the loop times
 long positionTimeMarker = 0;
 long motorTimeMarker = 0;
 long lastPrintNow = 0; // only used to verify final loop time
 
-float xPos = 0; // meters
-float lastXPos = 0;
-float xVel = 0; // meters / sec
-float phi = 0; // radians
-float phiDot = 0; // radians / sec
-float lastPhi = 0;
-float theta = 0; // radians
-float thetaDot = 0; // radians / sec
-float lastTheta = 0;
 float previousGain = 0;
 
 // vars to hold incoming serial messages from Pi
@@ -66,65 +52,6 @@ void turnIndicatorLightOff(){
 
 void turnIndicatorLightOn(){
   digitalWrite(INDICATOR, HIGH);
-}
-
-float degToRadians(float deg) {
-  return deg * PI_OVER_ONE_EIGHTY;
-}
-
-// in radians. Average of both wheels
-float rawPhi() {
-  return (motorLeft.getPhi() + motorRight.getPhi()) / 2.0;
-}
-
-// in meters. Average of both wheels
-float rawX() {
-  return (motorLeft.getDistance() + motorRight.getDistance()) / 2.0;
-}
-
-// in radians
-float rawTheta() {
-  imu::Quaternion quat;
-  imu::Vector<3> axis;
-
-  quat = bno.getQuat();
-  axis = quat.toEuler();
-  return axis.z();
-}
-
-// calculates and stores theta and thetaDot
-// rads and rads/sec
-void fetchTheta(float dt, float timestep){
-  theta = rawTheta() + THETA_OFFSET;
-  thetaDot = (theta - lastTheta) / (dt / timestep);
-  lastTheta = theta;
-}
-
-// calculates and stores x and xDot
-// meters and meters/sec
-void fetchX(float dt, float timestep){
-  xPos = rawX();
-  xVel = (xPos - lastXPos) / (dt / timestep);
-  lastXPos = xPos;
-}
-
-// calculates and stores phi and phiDot
-// rads and rads/sec
-void fetchPhi(float dt, float timestep){
-  phi = rawPhi();
-  phiDot = (phi - lastPhi) / (dt / timestep);
-  lastPhi = phi;
-}
-
-void fetchState(float dt, float timestep){
-  fetchTheta(dt, timestep);
-  fetchPhi(dt, timestep);
-  fetchX(dt, timestep);
-}
-
-void calculateCurrentError(){
-  previousError = currentError;
-  currentError = theta;
 }
 
 void turnBuzzerOn(){
@@ -208,28 +135,11 @@ void updatePIDValues(std::string message){
   kD = values[2];
 }
 
-void calculateAccumulatedError(){
-  // once we cross the 0 error mark, the past accumulated error
-  // is no longer helping us. Reset to 0.
-  if(currentError == 0){
-    accumulatedError = 0;
-    return;
-  }
-
-  accumulatedError += currentError;
-
-  // helps with windup (overaccumulating the error)
-  accumulatedError = constrain(accumulatedError, -1, 1);
-}
-
-// deltaError is used for the D component of the controller.
-// for that we need the derivative of the error.
-// since this is only called once per loop, we do not need to divide by time
-void calculateDeltaError(){
-  deltaError =  currentError - previousError;
-}
-
 void generateMotorCommand(){
+
+}
+
+void generatePositionCommand(){
   // this is the crux of the PID controller: adding togethe the P,I,D components
   float finalCommand = kP * currentError + kI * accumulatedError + kD * deltaError;
 
@@ -266,7 +176,7 @@ void handle_command_from_pi(std::string message){
   }
 }
 
-// fetch data from Pi.
+// update data from Pi.
 // If full command is here, process it.
 void checkForPiCommand(){
   while(Serial2.available()) {
@@ -304,6 +214,10 @@ long wait_MOTOR_CONTROL_TIMESTEP_ms(){
 }
 
 void setup(){
+
+  // these should not need to change
+  motorPid.updateParameters(0.1, 0.1, 0.1);
+
   // indicator pin is an output for LED
   pinMode(INDICATOR, OUTPUT);
   pinMode(BUZZER_PIN, OUTPUT);
@@ -342,14 +256,13 @@ void setup(){
   while (!Serial1) {;}
   Serial.println("Done!");
 
-  //Check to see if the Inertial Sensor is wired correctly and functioning normally
-  Serial.print("Initializing IMU...");
-  if (!bno.begin(bno.OPERATION_MODE_IMUPLUS)) {
-    Serial.println("Inertial Sensor failed, or not present");
-    errorMode("could not init IMU");
+  Serial.print("Initializing state and IMU...");
+  if(state.initialize()){
+    Serial.println("Done!");
+  }else{
+    Serial.println("Inertial Sensor failed, or not present. Halting.");
+    while(true){}
   }
-  bno.setExtCrystalUse(true);
-  Serial.println("Done!");
 
   // Turn on indicator light because we are ready to rock.
   Serial.println("Done Initializing like a boss!");
@@ -367,7 +280,7 @@ void setup(){
 
 void loop(){
   long motor_delta = wait_MOTOR_CONTROL_TIMESTEP_ms();
-  fetchState(motor_delta, MOTOR_CONTROL_TIMESTEP);
+  updateState(motor_delta, MOTOR_CONTROL_TIMESTEP);
   generateMotorCommand();
   wait_POSITION_CONTROL_TIMESTEP_ms();
   calculateCurrentError();

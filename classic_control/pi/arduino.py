@@ -8,14 +8,14 @@ class Arduino:
                   parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,
                   bytesize=serial.EIGHTBITS, timeout=1)
 
-  def playInitSong(self):
-    self.__writeMessage("S")
+def updateSetpoint(self, s):
+    self.__writeMessage("S" + str(s))
 
   def zeroes(self):
     self.updatePIDValues(0,0,0)
 
   def updatePIDValues(self, p, i, d):
-    self.__writeMessage("U" + str(p) + " " + str(i) + " " + str(d))
+    self.__writeMessage("K" + str(p) + " " + str(i) + " " + str(d))
 
   def __waitForArduinoMessage(self, expected):
     waiting = True
