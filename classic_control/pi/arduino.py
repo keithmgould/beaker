@@ -8,7 +8,7 @@ class Arduino:
                   parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,
                   bytesize=serial.EIGHTBITS, timeout=1)
 
-def updateSetpoint(self, s):
+  def updateSetpoint(self, s):
     self.__writeMessage("S" + str(s))
 
   def zeroes(self):
