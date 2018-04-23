@@ -1,17 +1,16 @@
 #include "./servoMotor.cpp"
-#include "../cpp_lib/pid.cpp"           // encapsulates PID functionality
-#include "../cpp_lib/waiter.cpp"        // waiter helper to help with...waiting
 
 class Wheels {
   private:
 
-  Waiter waiter(MOTOR_CONTROL_TIMESTEP);
-  Pid leftMotorPid(MOTOR_CONTROL_TIMESTEP);
-  Pid rightMotorPid(MOTOR_CONTROL_TIMESTEP);
+  Waiter waiter = Waiter(MOTOR_CONTROL_TIMESTEP);
+  Pid leftMotorPid = Pid(MOTOR_CONTROL_TIMESTEP);
+  Pid rightMotorPid = Pid(MOTOR_CONTROL_TIMESTEP);
 
   // bunch of variables for timing...
   float leftPhi, leftLastPhi, leftPhiDot;
   float rightPhi, rightLastPhi, rightPhiDot;
+  float leftCommand, rightCommand;
 
   ServoMotor motorLeft  = ServoMotor(LH_ENCODER_A, LH_ENCODER_B, 1);
   ServoMotor motorRight = ServoMotor(RH_ENCODER_A, RH_ENCODER_B, -1);
@@ -23,8 +22,8 @@ class Wheels {
   Wheels(){
     Serial1.begin(9600);
     while (!Serial1) {;}
-    leftPhi = leftLastPhi = leftPhiDot = 0;
-    rightPhi = rightLastPhi = rightPhiDot = 0;
+    leftPhi = leftLastPhi = leftPhiDot = leftCommand = 0;
+    rightPhi = rightLastPhi = rightPhiDot = rightCommand = 0;
     leftMotorPid.updateParameters(0.001,0,0); // P, I, D
     rightMotorPid.updateParameters(0.001,0,0); // P, I, D
     leftMotorPid.updateSetpoint(6.283);  // rads/sec rotational velocity of wheels (60rpm)
@@ -91,10 +90,20 @@ class Wheels {
   void spin() {
     int dt = waiter.wait(); // will be around 5ms
     updatePhi(dt);
-    float leftCommand = leftMotorPid.generateCommand(leftPhiDot, dt);
-    float rightCommand = rightMotorPid.generateCommand(rightPhiDot, dt);
+
+    float leftCommandDelta = leftMotorPid.generateCommand(leftPhiDot, dt);
+    float rightCommandDelta = rightMotorPid.generateCommand(rightPhiDot, dt);
+
+    leftCommand += leftCommandDelta;
+    rightCommand += rightCommandDelta;
+
     motorLeft.updatePower(leftCommand);
     motorRight.updatePower(rightCommand);
+
+
+    String foo = String(leftCommand) + "," + String(rightCommand);
+    foo += "," + String(leftPhiDot) + "," + String(rightPhiDot);
+    Serial.println(foo);
   }
 
   void updateRadsPerSec(float rps){
