@@ -5,10 +5,10 @@
 #define INDICATOR 8
 
 // pins for the motor encoders
-#define RH_ENCODER_A 2 // interupt pin
-#define RH_ENCODER_B 4
-#define LH_ENCODER_A 3 // interupt pin
-#define LH_ENCODER_B 5
+#define RH_ENCODER_A 3 // interupt pin
+#define RH_ENCODER_B 5
+#define LH_ENCODER_A 2 // interupt pin
+#define LH_ENCODER_B 4
 
 // pin for piezo buzzer
 #define BUZZER_PIN 9
