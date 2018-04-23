@@ -10,7 +10,7 @@ class ServoMotor
 {
   private:
 
-  int edgeCount;
+  long edgeCount;
   int firstEncoderPin, secondEncoderPin, tickDirection;
 
   void tickRight()
@@ -80,10 +80,11 @@ class ServoMotor
     return getPhi() * (float) WHEEL_RADIUS;
   }
 
-  int getEdgeCount() {
+  long getEdgeCount() {
     return edgeCount;
   }
 
+  // called by main encoder interrupt
   void encoderEvent() {
     if(digitalRead(firstEncoderPin) == digitalRead(secondEncoderPin)){
       tickLeft();
