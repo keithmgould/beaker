@@ -10,12 +10,26 @@ class Wheels {
   // bunch of variables for timing...
   float leftPhi, leftLastPhi, leftPhiDot;
   float rightPhi, rightLastPhi, rightPhiDot;
+
+  // actual commands sent to motors
   float leftCommand, rightCommand;
 
   ServoMotor motorLeft  = ServoMotor(LH_ENCODER_A, LH_ENCODER_B, 1);
   ServoMotor motorRight = ServoMotor(RH_ENCODER_A, RH_ENCODER_B, -1);
 
-  float motorCommand;
+  // calculates and stores phi and phiDot
+  // rads and rads/sec
+  void updateLeftPhi(float dt){
+    leftPhi = motorLeft.getPhi();
+    leftPhiDot = (1000.0 / dt) * (leftPhi - leftLastPhi) / (dt / MOTOR_CONTROL_TIMESTEP);
+    leftLastPhi = leftPhi;
+  }
+
+  void updateRightPhi(float dt){
+    rightPhi = motorRight.getPhi();
+    rightPhiDot = (1000.0 / dt) * (rightPhi - rightLastPhi) / (dt / MOTOR_CONTROL_TIMESTEP);
+    rightLastPhi = rightPhi;
+  }
 
   public:
 
@@ -48,10 +62,6 @@ class Wheels {
     return (motorLeft.getDistance() + motorRight.getDistance()) / 2.0;
   }
 
-  float getMotorCommand(){
-    return motorCommand;
-  }
-
   long getLeftMotorPhi(){
     return motorLeft.getPhi();
   }
@@ -68,27 +78,12 @@ class Wheels {
     return motorRight.getEdgeCount();
   }
 
-  // calculates and stores phi and phiDot
-  // rads and rads/sec
-  void updateLeftPhi(float dt){
-    leftPhi = motorLeft.getPhi();
-    leftPhiDot = (1000.0 / dt) * (leftPhi - leftLastPhi) / (dt / MOTOR_CONTROL_TIMESTEP);
-    leftLastPhi = leftPhi;
-  }
-
-  void updateRightPhi(float dt){
-    rightPhi = motorRight.getPhi();
-    rightPhiDot = (1000.0 / dt) * (rightPhi - rightLastPhi) / (dt / MOTOR_CONTROL_TIMESTEP);
-    rightLastPhi = rightPhi;
-  }
-
   void updatePhi(float dt){
     updateRightPhi(dt);
     updateLeftPhi(dt);
   }
 
-  void spin() {
-    int dt = waiter.wait(); // will be around 5ms
+  void spin(long dt) {
     updatePhi(dt);
 
     float leftCommandDelta = leftMotorPid.generateCommand(leftPhiDot, dt);
@@ -104,6 +99,11 @@ class Wheels {
     String foo = String(leftCommand) + "," + String(rightCommand);
     foo += "," + String(leftPhiDot) + "," + String(rightPhiDot);
     Serial.println(foo);
+  }
+
+  void updatePids(float kp, float ki, float kd){
+    leftMotorPid.updateParameters(kp, ki, kd);
+    rightMotorPid.updateParameters(kp, ki, kd);
   }
 
   void updateRadsPerSec(float rps){

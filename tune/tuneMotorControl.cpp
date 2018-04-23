@@ -18,7 +18,8 @@ of the motorControl PID
 #include "../cpp_lib/wheels.cpp"        // control get raw encoder state
 
 Wheels wheels;
-Waiter waiter(POSITION_CONTROL_TIMESTEP);
+Waiter outerWaiter(POSITION_CONTROL_TIMESTEP);
+Waiter innerWaiter(MOTOR_CONTROL_TIMESTEP);
 void leftEncoderEvent(){ wheels.leftEncoderEvent(); }
 void rightEncoderEvent(){ wheels.rightEncoderEvent(); }
 
@@ -35,8 +36,14 @@ void setup() {
   wheels.updateRadsPerSec(6.283); // 60 RPM
 }
 
-void loop() {
-  wheels.spin(); // about 5ms per loop
-  // int dt = waiter.wait(); // main (position) (outer) waiter
-  // Serial.print(".");
+long innerDt;
+void loop(){
+  innerDt = innerWaiter.wait();
+  wheels.spin(innerDt);
+  if(outerWaiter.isTime()){
+    long dt = outerWaiter.starting();
+    Serial.print("hi from Outer! Dt: ");
+    Serial.println(dt);
+  }
+
 }
