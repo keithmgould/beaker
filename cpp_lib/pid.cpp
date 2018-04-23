@@ -8,13 +8,13 @@ class Pid {
   float kI = 0;       // holds the I parameter
   float kD = 0;       // holds the D parameter
 
-  int dt;
-  long timestep;
-  float currentError;
-  float previousError;
-  float accumulatedError;
-  float deltaError;
-  float setpoint;
+  int dt = 0;
+  long timestep = 0;
+  float currentError = 0;
+  float previousError = 0;
+  float accumulatedError = 0;
+  float deltaError = 0;
+  float setpoint = 0;
 
     // currentError used for P component
   void setCurrentError(float newError){
@@ -53,6 +53,10 @@ class Pid {
     timestep = ts;
   }
 
+  float getSetpoint(){
+    return setpoint;
+  }
+
   void updateErrors(float currentState, long newDt){
     float newError = setpoint - currentState;
     dt = newDt;
@@ -69,6 +73,8 @@ class Pid {
 
   void updateSetpoint(float newSetpoint) {
     setpoint = newSetpoint;
+    Serial.print("updating setpoint to: ");
+    Serial.println(setpoint);
   }
 
   float generateCommand(){
