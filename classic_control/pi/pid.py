@@ -17,7 +17,7 @@ class Agent:
 
   def run(self):
     while True:
-      print("Enter K<p,i,d> or Kx for 0,0,0, S<setpoint> for new Setpoint")
+      print("Enter K<p,i,d> or Kx for 0,0,0, S<setpoint> for new Motor Setpoint, or P<p,i,d> for theta PID")
       pidString = input()
 
       if pidString.startswith("K"):

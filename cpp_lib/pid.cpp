@@ -57,6 +57,8 @@ class Pid {
     return setpoint;
   }
 
+  float getkp(){ return kP; }
+
   void updateErrors(float currentState, long newDt){
     float newError = setpoint - currentState;
     dt = newDt;
@@ -73,8 +75,6 @@ class Pid {
 
   void updateSetpoint(float newSetpoint) {
     setpoint = newSetpoint;
-    Serial.print("updating setpoint to: ");
-    Serial.println(setpoint);
   }
 
   float generateCommand(){
@@ -87,5 +87,3 @@ class Pid {
   }
 
 };
-
-// end of PID class------------------------------------

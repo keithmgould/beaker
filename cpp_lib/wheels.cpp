@@ -34,14 +34,12 @@ class Wheels {
   public:
 
   Wheels(){
+    // Serial1 used for communication with motor driver
     Serial1.begin(9600);
     while (!Serial1) {;}
+
     leftPhi = leftLastPhi = leftPhiDot = leftCommand = 0;
     rightPhi = rightLastPhi = rightPhiDot = rightCommand = 0;
-    leftMotorPid.updateParameters(0.001,0,0); // P, I, D
-    rightMotorPid.updateParameters(0.001,0,0); // P, I, D
-    leftMotorPid.updateSetpoint(6.283);  // rads/sec rotational velocity of wheels (60rpm)
-    rightMotorPid.updateSetpoint(6.283);  // rads/sec rotational velocity of wheels (60rpm)
   }
 
   void rightEncoderEvent(){
@@ -83,6 +81,12 @@ class Wheels {
     updateLeftPhi(dt);
   }
 
+
+
+  // float logs[2][200];
+  long counter = 0;
+  bool storeLogs = false;
+
   void spin(long dt) {
     updatePhi(dt);
 
@@ -95,10 +99,20 @@ class Wheels {
     motorLeft.updatePower(leftCommand);
     motorRight.updatePower(rightCommand);
 
-
-    String foo = String(leftCommand) + "," + String(rightCommand);
-    foo += "," + String(leftPhiDot) + "," + String(rightPhiDot);
-    Serial.println(foo);
+    // if(storeLogs){
+    //   logs[0][counter] = leftPhiDot;
+    //   logs[1][counter] = rightPhiDot;
+    //   counter++;
+    //   if(counter >= 195){
+    //     storeLogs = false;
+    //     counter = 0;
+    //     Serial.println("Log Time!");
+    //     for(int i = 0;i<195;i++){
+    //       String foo =  String(i) + "," +String(logs[0][i],5) + "," + String(logs[1][i],5);
+    //       Serial.println(foo);
+    //     }
+    //   }
+    // }
   }
 
   void updatePids(float kp, float ki, float kd){
@@ -109,5 +123,7 @@ class Wheels {
   void updateRadsPerSec(float rps){
     leftMotorPid.updateSetpoint(rps);
     rightMotorPid.updateSetpoint(rps);
+    counter = 0;
+    storeLogs = true;
   }
 };
