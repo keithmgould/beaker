@@ -5,7 +5,9 @@ class Wheels {
 
   ServoMotor motorLeft  = ServoMotor(LH_ENCODER_A, LH_ENCODER_B, 1);
   ServoMotor motorRight = ServoMotor(RH_ENCODER_A, RH_ENCODER_B, -1);
+
   float previousGain;
+  float motorCommand;
 
   public:
 
@@ -27,15 +29,28 @@ class Wheels {
     return (motorLeft.getPhi() + motorRight.getPhi()) / 2.0;
   }
 
+  // in meters. Average of both wheels
   float getX(){
     return (motorLeft.getDistance() + motorRight.getDistance()) / 2.0;
   }
 
-  void command(float motorCommand){
+  float getMotorCommand(){
+    return motorCommand;
+  }
+
+  void command(float mtrCmd){
+    motorCommand = mtrCmd;
+
     // safety first. ensure gain between these values
     float newGain = constrain(motorCommand, -1, 1);
+
+    // nothing to do here, so return
     if(newGain == previousGain){ return; }
+
+    // store for next time
     previousGain = newGain;
+
+    // update individual motors
     motorLeft.updatePower(newGain);
     motorRight.updatePower(newGain);
   }
