@@ -7,12 +7,16 @@ class Agent:
   def updateSetpoint(self, setpointString):
     self.arduino.updateSetpoint(setpointString[1:])
 
-  def updatePid(self, pidString):
+  def updateMotorPid(self, pidString):
     if pidString == "Kx":
       self.arduino.updatePIDValues(0, 0, 0)
     else:
       pid = [float(x) for x in pidString[1:].split(",")]
       self.arduino.updatePIDValues(pid[0], pid[1], pid[2])
+
+  def updateThetaPid(self, pidString):
+      pid = [float(x) for x in pidString[1:].split(",")]
+      self.arduino.updateThetaPIDValues(pid[0], pid[1], pid[2])
 
 
   def run(self):
@@ -21,9 +25,12 @@ class Agent:
       pidString = input()
 
       if pidString.startswith("K"):
-        self.updatePid(pidString)
+        self.updateMotorPid(pidString)
       elif pidString.startswith("S"):
         self.updateSetpoint(pidString)
+      elif pidString.startswith("P"):
+        self.updateThetaPid(pidString)
+
 
 agent = Agent()
 agent.run()

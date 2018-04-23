@@ -17,6 +17,9 @@ class Arduino:
   def updatePIDValues(self, p, i, d):
     self.__writeMessage("K" + str(p) + " " + str(i) + " " + str(d))
 
+  def updateThetaPIDValues(self, p, i, d):
+    self.__writeMessage("P" + str(p) + " " + str(i) + " " + str(d))
+
   def __waitForArduinoMessage(self, expected):
     waiting = True
     message = ""
