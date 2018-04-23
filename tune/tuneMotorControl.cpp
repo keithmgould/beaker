@@ -9,6 +9,7 @@ of the motorControl PID
 #include <Adafruit_BNO055.h>            // IMU
 #include <Wire.h>                       // I2C
 #include <StandardCplusplus.h>
+#include <stdlib.h>
 #include <string>
 #include <sstream> // stringstream
 #include "../cpp_lib/constants.cpp"     // yeah. Constants.
@@ -18,15 +19,14 @@ of the motorControl PID
 #include "../cpp_lib/waiter.cpp"        // waiter helper to help with...waiting
 
 Wheels wheels;
-State state(MOTOR_CONTROL_TIMESTEP, &wheels);
-Pid motorPid(MOTOR_CONTROL_TIMESTEP);
-Waiter waiter(MOTOR_CONTROL_TIMESTEP);
+State state(POSITION_CONTROL_TIMESTEP, &wheels);
+Pid motorPid(POSITION_CONTROL_TIMESTEP);
+Waiter waiter(POSITION_CONTROL_TIMESTEP);
 
 void leftEncoderEvent(){ wheels.leftEncoderEvent(); }
 void rightEncoderEvent(){ wheels.rightEncoderEvent(); }
 
 void printStatus(int dt, float command){
-  // String results = String(dt);
   String results = String(state.getPhiDot(), 5);
   results += ", " + String(command,5);
   Serial.println(results);
@@ -57,19 +57,10 @@ void updatePIDValues(std::string message){
 }
 
 void updateSetpoint(std::string message){
-  Serial.println("Updating Setpoint!!!");
+  Serial.print("Updating Setpoint to ");
   Serial.println(message.c_str());
-
-  float values[1];
-  std::istringstream ss( message );
-  std::copy(
-    std::istream_iterator <float> ( ss ),
-    std::istream_iterator <float> (),
-    values
-    );
-
-
-  motorPid.updateSetpoint(values[0]);
+  float newSetpoint = String(message.c_str()).toFloat();
+  motorPid.updateSetpoint(newSetpoint);
 }
 
 void handle_command_from_pi(std::string message){
@@ -121,15 +112,22 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(RH_ENCODER_A), rightEncoderEvent, CHANGE);
   Serial.println("Setting up interrupts...Done!");
 
-  motorPid.updateParameters(0,0,0); // P, I, D
-  motorPid.updateSetpoint(0); //(6.283);  // rads/sec rotational velocity of wheels
+  motorPid.updateParameters(0.001,0,0); // P, I, D
+  motorPid.updateSetpoint(6.283);  // rads/sec rotational velocity of wheels (60rpm)
+  motorPid.updateSetpoint(6.283 * 2);
+  wheels.command(0);
 }
 
+float lastCommand;
 void loop() {
   int dt = waiter.wait();
   state.updateState(dt);
-  float command = motorPid.generateCommand(state.getPhiDot(), dt);
-  wheels.command(command);
-  printStatus(dt, command);
-  checkForPiCommand();
+  float commandDelta = motorPid.generateCommand(state.getPhiDot(), dt);
+  float newCommand = wheels.getMotorCommand() + commandDelta;
+  wheels.command(newCommand);
+  printStatus(dt, newCommand);
+  long lmec = wheels.getLeftMotorEdgeCount();
+  long rmec = wheels.getRightMotorEdgeCount();
+  String foo = "EC: " + String(lmec) + ", " + String(rmec);
+  Serial.println(foo);
 }
