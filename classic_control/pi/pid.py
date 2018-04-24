@@ -7,6 +7,9 @@ class Agent:
   def updateSetpoint(self, setpointString):
     self.arduino.updateSetpoint(setpointString[1:])
 
+  def updateThetaBias(self, biasString):
+    self.arduino.updateThetaBias(biasString[1:])
+
   def updateMotorPid(self, pidString):
     if pidString == "Kx":
       self.arduino.updatePIDValues(0, 0, 0)
@@ -30,6 +33,8 @@ class Agent:
         self.updateSetpoint(pidString)
       elif pidString.startswith("P"):
         self.updateThetaPid(pidString)
+      elif pidString.startswith("B"):
+        self.updateThetaBias(pidString)
 
 
 agent = Agent()

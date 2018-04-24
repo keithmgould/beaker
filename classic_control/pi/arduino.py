@@ -11,6 +11,9 @@ class Arduino:
   def updateSetpoint(self, s):
     self.__writeMessage("S" + str(s))
 
+  def updateThetaBias(self, bias):
+    self.__writeMessage("B" + str(bias))
+
   def zeroes(self):
     self.updatePIDValues(0,0,0)
 

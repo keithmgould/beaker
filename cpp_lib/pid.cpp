@@ -58,6 +58,8 @@ class Pid {
   }
 
   float getkp(){ return kP; }
+  float getki(){ return kI; }
+  float getkd(){ return kD; }
 
   void updateErrors(float currentState, long newDt){
     float newError = setpoint - currentState;

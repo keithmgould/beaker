@@ -28,6 +28,8 @@ void rightEncoderEvent(){ wheels.rightEncoderEvent(); }
 // bunch of variables for timing...
 float theta, lastTheta, thetaDot;
 
+float thetaBias = 0;
+
 
 //-------------------------------
 // Comm w Pi. Can this be in a lib?
@@ -59,6 +61,12 @@ void updateRadsPerSec(std::string message){
   wheels.updateRadsPerSec(newSetpoint);
 }
 
+void updateThetaBias(std::string message){
+  Serial.print("Updating Theta Bias to ");
+  Serial.println(message.c_str());
+  thetaBias = String(message.c_str()).toFloat();
+}
+
 void updateThetaPIDValues(std::string message){
   Serial.println("Updating Theta PID Values!!!");
   Serial.println(message.c_str());
@@ -87,6 +95,7 @@ void handle_command_from_pi(std::string message){
               break;
     case 'P': updateThetaPIDValues(message.substr(1));
               break;
+    case 'B': updateThetaBias(message.substr(1));
   }
 }
 
@@ -105,21 +114,19 @@ void checkForPiCommand(){
 }
 
 // in radians
-imu::Quaternion quat;
-imu::Vector<3> axis;
 float rawTheta() {
-  quat = bno.getQuat();
-  axis = quat.toEuler();
-  return axis.z();
+  imu::Vector<3> eulerDegrees = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+  return 0.0174533 * eulerDegrees.z();
 }
 
-// calculates and stores
-// theta and thetaDot
+// calculates and stores theta and thetaDot
+//
+// rads and rads/sec
 void updateTheta(){
-  theta = rawTheta();
-  thetaDot = (theta - lastTheta); // no division by dt because only called once per loop
+  theta = rawTheta() + thetaBias;
+  thetaDot = (theta - lastTheta);
   lastTheta = theta;
-}
+ }
 
 //------------------------------------------------
 
@@ -152,12 +159,17 @@ void setup() {
   wheels.updateRadsPerSec(0);
   wheels.updatePids(0.015,0,0.05);
 
+  thetaBias = THETA_OFFSET;
+
   thetaPid.updateSetpoint(0);
 }
 
 float newRadPerSec;
 void printStuff(float dt){
-  String foo = String(dt) + ", " + String(theta) + ", " + newRadPerSec + ", " + thetaPid.getkp();
+  String foo = String(dt) + ", " + String(theta,5) + ", " + newRadPerSec;
+  foo += ", " + String(thetaPid.getkp());
+  foo += ", " + String(thetaPid.getki());
+  foo += ", " + String(thetaPid.getkd());
   Serial.println(foo);
 }
 
@@ -168,7 +180,7 @@ void loop(){
   if(outerWaiter.isTime()){
     long dt = outerWaiter.starting();
     updateTheta();
-    float newRadPerSec = thetaPid.generateCommand(theta, dt);
+    newRadPerSec = thetaPid.generateCommand(theta, dt);
     wheels.updateRadsPerSec(newRadPerSec);
     checkForPiCommand();
     printStuff(dt);
