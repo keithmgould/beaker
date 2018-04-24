@@ -20,7 +20,7 @@ class Agent:
 
   def updateControlValues(self, userString):
       values = [float(x) for x in userString[1:].split(",")]
-      self.arduino.updateThetavaluesValues(values[0], values[1], values[2], values[3])
+      self.arduino.updateControlValues(values[0], values[1], values[2], values[3])
 
 
   def run(self):
