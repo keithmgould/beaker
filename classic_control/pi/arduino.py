@@ -23,6 +23,9 @@ class Arduino:
   def updateThetaPIDValues(self, p, i, d):
     self.__writeMessage("P" + str(p) + " " + str(i) + " " + str(d))
 
+  def updateControlValues(self, theta, thetaDot, phi, phiDot):
+    self.__writeMessage("C" + str(theta) + " " + str(thetaDot) + " " + str(phi) + " " + str(phiDot))
+
   def __waitForArduinoMessage(self, expected):
     waiting = True
     message = ""

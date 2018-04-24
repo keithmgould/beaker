@@ -28,8 +28,13 @@ void rightEncoderEvent(){ wheels.rightEncoderEvent(); }
 // bunch of variables for timing...
 float theta, lastTheta, thetaDot;
 
+// control values
+float kTheta, kThetaDot, kPhi, kPhiDot;
+
+// allows for minor variations on where "Balanced" really is.
 float thetaBias = 0;
 
+float newRadPerSec;
 
 //-------------------------------
 // Comm w Pi. Can this be in a lib?
@@ -83,6 +88,25 @@ void updateThetaPIDValues(std::string message){
   thetaPid.updateParameters(values[0], values[1], values[2]);
 }
 
+void updateControlValues(std::string message){
+  Serial.println("Updating Control Values!!!");
+  Serial.println(message.c_str());
+
+  float values[4];
+  std::istringstream ss( message );
+  std::copy(
+    std::istream_iterator <float> ( ss ),
+    std::istream_iterator <float> (),
+    values
+    );
+
+
+  kTheta = values[0];
+  kThetaDot = values[1];
+  kPhi = values[2];
+  kPhiDot = values[3];
+}
+
 void handle_command_from_pi(std::string message){
   Serial.print("got the message from Pi: ");
   Serial.println(message.c_str());
@@ -96,6 +120,9 @@ void handle_command_from_pi(std::string message){
     case 'P': updateThetaPIDValues(message.substr(1));
               break;
     case 'B': updateThetaBias(message.substr(1));
+              break;
+    case 'C': updateControlValues(message.substr(1));
+              break;
   }
 }
 
@@ -128,8 +155,29 @@ void updateTheta(){
   lastTheta = theta;
  }
 
-//------------------------------------------------
+void computeNewRadsPerSec(long dt){
+  newRadPerSec = theta * kTheta;
+  newRadPerSec += thetaDot * kThetaDot;
+  newRadPerSec += wheels.getPhi() * kPhi;
+  // missing phiDot
+}
 
+void printStuff(float dt){
+  String foo = "";
+  foo += String(dt) + ", " + String(theta,5) + ", " + newRadPerSec;
+  // foo += ", " + String(thetaPid.getkp());
+  // foo += ", " + String(thetaPid.getki());
+  // foo += ", " + String(thetaPid.getkd());
+  // foo += String(thetaPid.pTerm());
+  // foo += ", " + String(thetaPid.iTerm());
+  // foo += ", " + String(thetaPid.dTerm());
+  // foo += ", " + String(thetaBias);
+  foo += String(kTheta);
+  foo += ", " + String(kThetaDot);
+  foo += String(kPhi);
+  foo += ", " + String(kPhiDot);
+  Serial.println(foo);
+}
 
 void setup() {
   // Open console serial communications
@@ -162,25 +210,17 @@ void setup() {
   thetaBias = THETA_OFFSET;
 
   thetaPid.updateSetpoint(0);
+  kTheta = kThetaDot = kPhi = kPhiDot = 0;
 }
 
-float newRadPerSec;
-void printStuff(float dt){
-  String foo = String(dt) + ", " + String(theta,5) + ", " + newRadPerSec;
-  foo += ", " + String(thetaPid.getkp());
-  foo += ", " + String(thetaPid.getki());
-  foo += ", " + String(thetaPid.getkd());
-  Serial.println(foo);
-}
-
-long innerDt;
 void loop(){
-  innerDt = innerWaiter.wait();
+  long innerDt = innerWaiter.wait();
   wheels.spin(innerDt);
   if(outerWaiter.isTime()){
     long dt = outerWaiter.starting();
     updateTheta();
-    newRadPerSec = thetaPid.generateCommand(theta, dt);
+    // newRadPerSec = thetaPid.generateCommand(theta, dt);
+    computeNewRadsPerSec(dt);
     wheels.updateRadsPerSec(newRadPerSec);
     checkForPiCommand();
     printStuff(dt);

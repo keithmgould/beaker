@@ -29,4 +29,4 @@
 #define MINIMUM_GAIN -1
 #define MAXIMUM_GAIN 1
 
-#define THETA_OFFSET 0 //-0.04 // due to minorly non-level IMU
+#define THETA_OFFSET 0.01 //-0.04 // due to minorly non-level IMU

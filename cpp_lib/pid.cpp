@@ -79,13 +79,13 @@ class Pid {
     setpoint = newSetpoint;
   }
 
-  float generateCommand(){
-    return kP * currentError + kI * accumulatedError + kD * deltaError;
-  }
+  // broken out for reporting
+  float pTerm(){ return kP * currentError; }
+  float iTerm() { return kI * accumulatedError; }
+  float dTerm() { return kD * deltaError; }
 
   float generateCommand(float currentState, long newDt){
     updateErrors(currentState, newDt);
-    return kP * currentError + kI * accumulatedError + kD * deltaError;
+    return pTerm() + iTerm() + dTerm();
   }
-
 };
