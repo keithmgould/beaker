@@ -8,6 +8,8 @@ of the motorControl PID
 #include <Adafruit_Sensor.h>            // IMU
 #include <Adafruit_BNO055.h>            // IMU
 #include <Wire.h>                       // I2C
+#include <SPI.h>          // for sending telemetry over radio
+#include "RF24.h"         // for sending telemetry over radio
 #include <StandardCplusplus.h>
 #include <stdlib.h>
 #include <string>
@@ -29,12 +31,15 @@ void rightEncoderEvent(){ wheels.rightEncoderEvent(); }
 float theta, lastTheta, thetaDot;
 
 // control values
-float kTheta, kThetaDot, kPhi, kPhiDot;
+int kTheta, kThetaDot, kPhi, kPhiDot;
 
 // allows for minor variations on where "Balanced" really is.
 float thetaBias = 0;
 
 float newRadPerSec;
+
+// PINS 6, 7 for radio ce / csn
+RF24 radio(6,7);
 
 //-------------------------------
 // Comm w Pi. Can this be in a lib?
@@ -155,28 +160,39 @@ void updateTheta(){
   lastTheta = theta;
  }
 
+float kThetaTerm(){ return theta * kTheta * -1; }
+float kThetaDotTerm() { return thetaDot * kThetaDot * -1; }
+float kPhiTerm() { return wheels.getPhi() * kPhi; }
+float kPhiDotTerm() { return wheels.getPhiDot() * kPhiDot; }
+
 void computeNewRadsPerSec(long dt){
-  newRadPerSec = theta * kTheta;
-  newRadPerSec += thetaDot * kThetaDot;
-  newRadPerSec += wheels.getPhi() * kPhi;
-  // missing phiDot
+  newRadPerSec = kThetaTerm();
+  newRadPerSec += kThetaDotTerm();
+  newRadPerSec += kPhiTerm();
+  newRadPerSec += kPhiDotTerm();
 }
 
 void printStuff(float dt){
-  String foo = "";
-  foo += String(dt) + ", " + String(theta,5) + ", " + newRadPerSec;
-  // foo += ", " + String(thetaPid.getkp());
-  // foo += ", " + String(thetaPid.getki());
-  // foo += ", " + String(thetaPid.getkd());
-  // foo += String(thetaPid.pTerm());
-  // foo += ", " + String(thetaPid.iTerm());
-  // foo += ", " + String(thetaPid.dTerm());
-  // foo += ", " + String(thetaBias);
-  foo += String(kTheta);
-  foo += ", " + String(kThetaDot);
-  foo += String(kPhi);
-  foo += ", " + String(kPhiDot);
-  Serial.println(foo);
+  String messageOne = String(dt);
+  messageOne += "," + String(theta,4);
+  messageOne += "," + String(thetaDot,4);
+  messageOne += "," + String(wheels.getPhi(),4);
+
+  String messageTwo = "," + String(wheels.getPhiDot(),4);
+  messageTwo = "," + String(kTheta);
+  messageTwo += "," + String(kThetaDot);
+  messageTwo += "," + String(kPhi);
+  messageTwo += "," + String(kPhiDot);
+  messageTwo += ";"; // end of line character (natch)
+
+  char packetOne[32];
+  char packetTwo[32];
+
+  messageOne.toCharArray(packetOne, 32);
+  messageTwo.toCharArray(packetTwo, 32);
+
+  radio.write(packetOne, sizeof(packetOne));
+  radio.write(packetTwo, sizeof(packetTwo));
 }
 
 void setup() {
@@ -198,6 +214,15 @@ void setup() {
     while(true) {;}
   }
   bno.setExtCrystalUse(true);
+  Serial.println("Done!");
+
+  // radio setup
+  Serial.print("Initializing Radio....");
+  const byte address[6] = "00001";
+  radio.begin();
+  radio.openWritingPipe(address);
+  radio.setPALevel(RF24_PA_MIN);
+  radio.stopListening();
   Serial.println("Done!");
 
   attachInterrupt(digitalPinToInterrupt(LH_ENCODER_A), leftEncoderEvent, CHANGE);
@@ -225,5 +250,4 @@ void loop(){
     checkForPiCommand();
     printStuff(dt);
   }
-
 }

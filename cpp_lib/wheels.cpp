@@ -50,23 +50,17 @@ class Wheels {
     motorLeft.encoderEvent();
   }
 
-  // in radians. Average of both wheels
-  float getPhi(){
-    return (motorLeft.getPhi() + motorRight.getPhi()) / 2.0;
-  }
-
   // in meters. Average of both wheels
   float getX(){
     return (motorLeft.getDistance() + motorRight.getDistance()) / 2.0;
   }
 
-  long getLeftMotorPhi(){
-    return motorLeft.getPhi();
-  }
-
-  long getRightMotorPhi(){
-    return motorRight.getPhi();
-  }
+  float getPhi(){ return (leftPhi + rightPhi) / 2.0; }  // rads. avg of 2 whls
+  float getPhiDot(){ return (leftPhiDot + rightPhiDot) / 2.0; }  // rads. avg of 2 whls
+  long getLeftPhi(){ return leftPhi; }                  // rads
+  long getLeftPhiDot(){ return leftPhiDot; }            // rads/sec
+  long getRightPhi(){ return rightPhi; }                // rads
+  long getRightPhiDot(){ return rightPhiDot; }          // rads/sec
 
   long getLeftMotorEdgeCount(){
     return motorLeft.getEdgeCount();
@@ -84,8 +78,8 @@ class Wheels {
 
 
   // float logs[2][200];
-  long counter = 0;
-  bool storeLogs = false;
+  // long counter = 0;
+  // bool storeLogs = false;
 
   void spin(long dt) {
     updatePhi(dt);
@@ -123,7 +117,7 @@ class Wheels {
   void updateRadsPerSec(float rps){
     leftMotorPid.updateSetpoint(rps);
     rightMotorPid.updateSetpoint(rps);
-    counter = 0;
-    storeLogs = true;
+    // counter = 0;
+    // storeLogs = true;
   }
 };
