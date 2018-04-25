@@ -1,3 +1,6 @@
+#ifndef __BEAKER_WAITER__
+#define __BEAKER_WAITER__
+
 class Waiter {
   private:
     long timestep;
@@ -10,8 +13,7 @@ class Waiter {
     marker = millis();
   }
 
-  // wait is used when you want blocking behavior for a loop,
-  // such as when testing for an inner loop.
+  // wait is used when you want blocking behavior for a loop.
   long wait() {
     long nowish = 0;
     long timeDelta = 0;
@@ -28,7 +30,7 @@ class Waiter {
   }
 
   // isTime and starting are used when you want non-blocking behavior
-  // for a loop, such as when testing for an outer loop.
+  // for a loop.
   bool isTime() {
     long dt = millis() - marker;
     return dt >= timestep;
@@ -41,3 +43,5 @@ class Waiter {
     return dt;
   }
 };
+
+#endif

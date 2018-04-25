@@ -1,3 +1,6 @@
+#ifndef __BEAKER_P4__
+#define __BEAKER_P4__
+
 class P4 {
   private:
 
@@ -39,3 +42,5 @@ class P4 {
   }
 
 };
+
+#endif

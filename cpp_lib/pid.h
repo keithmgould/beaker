@@ -1,3 +1,6 @@
+#ifndef __BEAKER_PID__
+#define __BEAKER_PID__
+
 #include "Arduino.h"
 
 class Pid {
@@ -89,3 +92,5 @@ class Pid {
     return pTerm() + iTerm() + dTerm();
   }
 };
+
+#endif

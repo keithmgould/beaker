@@ -5,6 +5,8 @@
 
 */
 
+#ifndef __BEAKER_PITALK__
+#define __BEAKER_PITALK__
 
 class PiTalk {
   private:
@@ -50,3 +52,5 @@ std::string str;
     return str;
   }
 };
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef __BEAKER_CONSTANTS__
+#define __BEAKER_CONSTANTS__
+
 // pi / 180, for degrees to radians
 #define PI_OVER_ONE_EIGHTY 0.017453292519943
 
@@ -34,3 +37,5 @@
 #define MOTOR_P_PARAM 0.015
 #define MOTOR_I_PARAM 0
 #define MOTOR_D_PARAM 0.05
+
+#endif

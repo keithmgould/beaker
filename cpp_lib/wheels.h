@@ -1,5 +1,9 @@
-#include "./servoMotor.cpp"
-#include "./pid.cpp"            // Basic PID algorithm
+#ifndef __BEAKER_WHEELS__
+#define __BEAKER_WHEELS__
+
+#include "./servoMotor.h"     // low level motor control
+#include "./pid.h"            // Basic PID algorithm
+
 
 class Wheels {
   private:
@@ -127,3 +131,5 @@ class Wheels {
     // storeLogs = true;
   }
 };
+
+#endif

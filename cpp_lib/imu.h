@@ -1,3 +1,6 @@
+#ifndef __BEAKER_IMU__
+#define __BEAKER_IMU__
+
 #include <Adafruit_Sensor.h>            // IMU
 #include <Adafruit_BNO055.h>            // IMU
 #include <Wire.h>                       // I2C for IMU
@@ -47,3 +50,5 @@ class Imu{
     lastTheta = theta;
    }
 };
+
+#endif

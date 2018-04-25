@@ -1,3 +1,6 @@
+#ifndef __BEAKER_SERVOMOTOR__
+#define __BEAKER_SERVOMOTOR__
+
 #include <Math.h>
 
 // TODO Move these to constants file?
@@ -94,3 +97,5 @@ class ServoMotor
     }
   }
 };
+
+#endif
