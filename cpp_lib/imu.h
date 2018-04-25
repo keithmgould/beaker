@@ -37,6 +37,8 @@ class Imu{
 
   float getTheta(){ return theta; }
   float getThetaDot(){ return thetaDot; }
+  float getThetaOffset(){ return thetaOffset; }
+  void setThetaOffset(float newOffset){ thetaOffset = newOffset; }
 
   // calculates and stores theta and thetaDot.
   //
