@@ -173,26 +173,27 @@ void computeNewRadsPerSec(long dt){
 }
 
 void printStuff(float dt){
-  String messageOne = String(dt);
+  String messageOne = "A" + String(dt);
   messageOne += "," + String(theta,4);
   messageOne += "," + String(thetaDot,4);
-  messageOne += "," + String(wheels.getPhi(),4);
+  messageOne += "," + String(wheels.getPhi(),4) + ",";
 
-  String messageTwo = "," + String(wheels.getPhiDot(),4);
-  messageTwo = "," + String(kTheta);
+  String messageTwo = "B" + String(wheels.getPhiDot(),4);
+  messageTwo += "," + String(kTheta);
   messageTwo += "," + String(kThetaDot);
   messageTwo += "," + String(kPhi);
   messageTwo += "," + String(kPhiDot);
-  messageTwo += ";"; // end of line character (natch)
+  Serial.print(messageOne);
+  Serial.println(messageTwo);
 
-  char packetOne[32];
-  char packetTwo[32];
+  // char packetOne[32];
+  // char packetTwo[32];
 
-  messageOne.toCharArray(packetOne, 32);
-  messageTwo.toCharArray(packetTwo, 32);
+  // messageOne.toCharArray(packetOne, 32);
+  // messageTwo.toCharArray(packetTwo, 32);
 
-  radio.write(packetOne, sizeof(packetOne));
-  radio.write(packetTwo, sizeof(packetTwo));
+  // radio.write(packetOne, sizeof(packetOne));
+  // radio.write(packetTwo, sizeof(packetTwo));
 }
 
 void setup() {

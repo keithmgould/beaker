@@ -1,15 +1,17 @@
-#include <SPI.h>
-#include "RF24.h"         // for radio controls
+#include <SPI.h>          // for communication with radio
+#include "RF24.h"         // radio library
 
-// PINS 6, 7 for radio ce / csn
-RF24 radio(7,8);
+RF24 radio(7,8); // ce / csn
+
+String line;
 
 void setup(){
-  // Open console serial communications
   Serial.begin(115200);
   while (!Serial) {;}
   Serial.println("\n\nBeginning initializations...");
 
+  // prep our line string
+  line = "";
 
   // radio setup
   Serial.print("Initializing Radio...");
@@ -22,20 +24,37 @@ void setup(){
   Serial.println("Done!");
 }
 
-String line = "";
+//bool terminated(char * text){
+//  char term[] = ";";
+//  char *output = NULL;
+//  output = strstr (text,term);
+//  return (bool) output;
+//}
+
+// 0 means ready for A
+// 1 means ready for B
+int state = 0;
+String str_text;
 
 void loop(){
+//  Serial.print(".");
   if (radio.available()) {
     char text[32] = "";
-    char term[] = ";";
     radio.read(&text, sizeof(text));
-    // check for termination character
-    char *output = NULL;
-    output = strstr (text,term);
-    line += String(text);
-    if(output){
-      line = line.substring(0,line.length() - 1);
-      Serial.println(line); line = "";
-    }
+    str_text = String(text);
+    Serial.println(str_text);
+    
+//    if(str_text.startsWith(String("A"))){
+//      line = str_text.substring(1);
+//      state = 1;
+//    }else if(str_text.startsWith(String("B")) && state == 1){
+//      line += str_text.substring(1);
+//      state = 0;
+//      Serial.println(line);
+//      line = "";
+//    }else{
+//      state = 0;
+//      line = "";
+//    }
   }
 }
