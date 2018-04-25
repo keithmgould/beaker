@@ -16,7 +16,7 @@ of the motorControl PID
 #include <sstream> // stringstream
 #include "../../cpp_lib/constants.cpp"     // yeah. Constants.
 #include "../../cpp_lib/waiter.cpp"        // waiter helper to help with...waiting
-#include "../../cpp_lib/pid.cpp"        // waiter helper to help with...waiting
+#include "../../cpp_lib/pid.cpp"        // PID library
 #include "../../cpp_lib/wheels.cpp"        // control get raw encoder state
 
 Wheels wheels;

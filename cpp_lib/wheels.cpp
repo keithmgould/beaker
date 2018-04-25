@@ -1,4 +1,5 @@
 #include "./servoMotor.cpp"
+#include "./pid.cpp"            // Basic PID algorithm
 
 class Wheels {
   private:
@@ -40,6 +41,11 @@ class Wheels {
 
     leftPhi = leftLastPhi = leftPhiDot = leftCommand = 0;
     rightPhi = rightLastPhi = rightPhiDot = rightCommand = 0;
+  }
+
+  void initialize(){
+    updateRadsPerSec(0);
+    updatePids(MOTOR_P_PARAM,MOTOR_I_PARAM,MOTOR_D_PARAM);
   }
 
   void rightEncoderEvent(){
