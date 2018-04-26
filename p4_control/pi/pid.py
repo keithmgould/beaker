@@ -28,7 +28,7 @@ class Agent:
       print("Enter Command Type followed by Command. Ex: P1 2 3")
       userString = input()
 
-      self.arduino.
+      self.arduino.writeMessage(userString)
 
 agent = Agent()
 agent.run()
