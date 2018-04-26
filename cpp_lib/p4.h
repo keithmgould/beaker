@@ -23,6 +23,13 @@ class P4 {
   float getKPhi(){ return kPhi; }
   float getKPhiDot(){ return kPhiDot; }
 
+  void updateParameters(int newKTheta, int newKThetaDot, int newKPhi, int newKPhiDot){
+    kTheta = newKTheta;
+    kThetaDot = newKThetaDot;
+    kPhi = newKPhi;
+    kPhiDot = newKPhiDot;
+  }
+
   String getKString() {
     String ks = String(kTheta);
     ks += "," + String(kThetaDot);

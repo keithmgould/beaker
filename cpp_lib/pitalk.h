@@ -21,12 +21,15 @@ class PiTalk {
 
   Wheels *wheels;
   Imu *my_imu;
+  void (*callbackFunction) (char, std::string) = NULL;
 
   void updateThetaOffset(std::string message){
     float newOffset = String(message.c_str()).toFloat();
     my_imu->setThetaOffset(newOffset);
   }
 
+  // Try for the universal commands, and if nothing matches,
+  // hit the callback for the algorithm-specific commands
   void handleCommandFromPi(std::string command_plus_message){
     std::string message = command_plus_message.substr(1);
     char command;
@@ -34,6 +37,7 @@ class PiTalk {
 
     switch(command){
       case 'B': updateThetaOffset(message); break;
+      default : callbackFunction(command, message); break;
     }
   }
 
@@ -45,9 +49,10 @@ class PiTalk {
     str = "";
   }
 
-  void setup(Wheels *w, Imu *i){
+  void setup(Wheels *w, Imu *i, void (*callbk) (char, std::string)){
     wheels = w;
     my_imu = i;
+    callbackFunction = callbk;
   }
 
   // update data from Pi.

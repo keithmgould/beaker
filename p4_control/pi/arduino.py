@@ -8,23 +8,8 @@ class Arduino:
                   parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,
                   bytesize=serial.EIGHTBITS, timeout=1)
 
-  def updateSetpoint(self, s):
-    self.__writeMessage("S" + str(s))
-
-  def updateThetaBias(self, bias):
-    self.__writeMessage("B" + str(bias))
-
-  def zeroes(self):
-    self.updatePIDValues(0,0,0)
-
-  def updatePIDValues(self, p, i, d):
-    self.__writeMessage("K" + str(p) + " " + str(i) + " " + str(d))
-
-  def updateThetaPIDValues(self, p, i, d):
-    self.__writeMessage("P" + str(p) + " " + str(i) + " " + str(d))
-
-  def updateControlValues(self, theta, thetaDot, phi, phiDot):
-    self.__writeMessage("C" + str(theta) + " " + str(thetaDot) + " " + str(phi) + " " + str(phiDot))
+  def writeMessage(self, message):
+    __writeMessage(message)
 
   def __waitForArduinoMessage(self, expected):
     waiting = True

@@ -31,8 +31,35 @@ void printStuff(float dt){
   Serial.println(log);
 }
 
+void updateP4Parameters(std::string message){
+  Serial.println("Hi from updateP4Parameters!!");
+  Serial.println(message.c_str());
+
+  float values[4];
+  std::istringstream ss( message );
+  std::copy(
+    std::istream_iterator <float> ( ss ),
+    std::istream_iterator <float> (),
+    values
+    );
+
+  Serial.println("post conversion");
+
+  p4.updateParameters(values[0], values[1], values[2], values[3]);
+}
+
+void handlePiTalk(char command, std::string message){
+  Serial.println("Hi From Da Callback!");
+
+  switch(command){
+    case 'K': updateP4Parameters(message); break;
+  }
+
+  Serial.println("All done in handlePiTalk");
+}
+
 void setup() {
-  piTalk.setup(&wheels, &my_imu);
+  piTalk.setup(&wheels, &my_imu, &handlePiTalk);
   Serial.begin(115200); while (!Serial) {;}
   Serial.println("\n\nBeginning initializations...");
   my_imu.setup();
