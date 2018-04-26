@@ -39,7 +39,7 @@ class Wheels {
   public:
 
   Wheels(){
-    // Serial1 used for communication with motor driver
+    // Serial1 used for communication with motor driver (Sabertooth)
     Serial1.begin(9600);
     while (!Serial1) {;}
 
@@ -71,13 +71,14 @@ class Wheels {
   long getLeftPhiDot(){ return leftPhiDot; }            // rads/sec
   long getRightPhi(){ return rightPhi; }                // rads
   long getRightPhiDot(){ return rightPhiDot; }          // rads/sec
+  long getLeftMotorEdgeCount(){ return motorLeft.getEdgeCount(); }
+  long getRightMotorEdgeCount(){ return motorRight.getEdgeCount(); }
 
-  long getLeftMotorEdgeCount(){
-    return motorLeft.getEdgeCount();
-  }
-
-  long getRightMotorEdgeCount(){
-    return motorRight.getEdgeCount();
+  String getPidValues(){
+    String str = String(leftMotorPid.getkp()) + ",";
+    str += String(leftMotorPid.getki()) + ",";
+    str += String(leftMotorPid.getkd()) + ",";
+    return str;
   }
 
   void updatePhi(float dt){
@@ -119,11 +120,17 @@ class Wheels {
     // }
   }
 
+  // For tuning the motor PIDs. This should not
+  // be needed, as default values in the constants.h
+  // are pretty good, but it's here if needed.
   void updatePids(float kp, float ki, float kd){
     leftMotorPid.updateParameters(kp, ki, kd);
     rightMotorPid.updateParameters(kp, ki, kd);
   }
 
+  // This is the main method used to control the wheels.
+  // Send the required rads/sec, and Wheels will make sure
+  // that happens via PID
   void updateRadsPerSec(float rps){
     leftMotorPid.updateSetpoint(rps);
     rightMotorPid.updateSetpoint(rps);

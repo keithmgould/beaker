@@ -9,7 +9,7 @@ class Arduino:
                   bytesize=serial.EIGHTBITS, timeout=1)
 
   def writeMessage(self, message):
-    __writeMessage(message)
+    self.__writeMessage(message)
 
   def __waitForArduinoMessage(self, expected):
     waiting = True

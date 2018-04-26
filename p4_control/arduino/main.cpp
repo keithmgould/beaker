@@ -28,24 +28,14 @@ void printStuff(float dt){
   log += "," + String(wheels.getPhi(),4) + "," + String(wheels.getPhiDot(),4);
   log += "," + String(my_imu.getThetaOffset());
   log += "," + p4.getKString();
+  log += "," + wheels.getPidValues();
   Serial.println(log);
 }
 
 void updateP4Parameters(std::string message){
-  Serial.println("Hi from updateP4Parameters!!");
-  Serial.println(message.c_str());
-
-  float values[4];
-  std::istringstream ss( message );
-  std::copy(
-    std::istream_iterator <float> ( ss ),
-    std::istream_iterator <float> (),
-    values
-    );
-
-  Serial.println("post conversion");
-
-  p4.updateParameters(values[0], values[1], values[2], values[3]);
+  float paramVals[4] = {}; // all zeros
+  piTalk.stringToFloats(message, paramVals);
+  p4.updateParameters(paramVals[0], paramVals[1], paramVals[2], paramVals[3]);
 }
 
 void handlePiTalk(char command, std::string message){

@@ -16,16 +16,26 @@
 class PiTalk {
   private:
 
-  // vars to hold incoming serial messages from Pi
-  std::string str;
+  std::string str; // holds incoming serial messages from Pi
 
   Wheels *wheels;
   Imu *my_imu;
   void (*callbackFunction) (char, std::string) = NULL;
 
+  // The IMU's theta value does not deliver a perfeft 0(zero)
+  // when robot is balanced. This allows you to update.
   void updateThetaOffset(std::string message){
     float newOffset = String(message.c_str()).toFloat();
     my_imu->setThetaOffset(newOffset);
+  }
+
+  // Update the low-level PID values for the motors. This should
+  // not be needed when working with various algorithms. You
+  // should prob just leave the values found in constants.h.
+  void updateMotorPids(std::string message){
+    float newPIDs[3] = {};
+    stringToFloats(message, newPIDs);
+    wheels->updatePids(newPIDs[0], newPIDs[1], newPIDs[2]);
   }
 
   // Try for the universal commands, and if nothing matches,
@@ -37,6 +47,7 @@ class PiTalk {
 
     switch(command){
       case 'B': updateThetaOffset(message); break;
+      case 'M': updateMotorPids(message); break;
       default : callbackFunction(command, message); break;
     }
   }
@@ -50,9 +61,9 @@ class PiTalk {
   }
 
   void setup(Wheels *w, Imu *i, void (*callbk) (char, std::string)){
-    wheels = w;
-    my_imu = i;
-    callbackFunction = callbk;
+    wheels = w;                 // regardless of algorithm, wheels is needed
+    my_imu = i;                 // regardless of algorithm, IMU is needed
+    callbackFunction = callbk;  // algorithm specific continuation of switch statement
   }
 
   // update data from Pi.
@@ -68,6 +79,19 @@ class PiTalk {
       }else{
         str += tmp_char;
       }
+    }
+  }
+
+  // copy(is, eos, floats) was crashing. not sure why...
+  // it was only crashing once I used this method via callback.
+  // when I used it in main copy worked fine.  ¯\_(ツ)_/¯
+  void stringToFloats(std::string &message, float *floats){
+    std::istringstream ss( message );
+    std::istream_iterator <float> is( ss );
+    std::istream_iterator <float> eos;
+    for(unsigned int i = 0; i<sizeof(*floats);i++){
+      if (is!=eos) floats[i] = *is;
+      is++;
     }
   }
 };
