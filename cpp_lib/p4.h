@@ -7,8 +7,8 @@ class P4 {
   // P4 control values
   int kTheta, kThetaDot, kPhi, kPhiDot;
 
-  float kThetaTerm(float theta){ return theta * kTheta * -1; }
-  float kThetaDotTerm(float thetaDot) { return thetaDot * kThetaDot * -1; }
+  float kThetaTerm(float theta){ return theta * kTheta; }
+  float kThetaDotTerm(float thetaDot) { return thetaDot * kThetaDot; }
   float kPhiTerm(float phi) { return phi * kPhi; }
   float kPhiDotTerm(float phiDot) { return phiDot * kPhiDot; }
 

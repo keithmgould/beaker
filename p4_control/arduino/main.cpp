@@ -39,13 +39,9 @@ void updateP4Parameters(std::string message){
 }
 
 void handlePiTalk(char command, std::string message){
-  Serial.println("Hi From Da Callback!");
-
   switch(command){
     case 'K': updateP4Parameters(message); break;
   }
-
-  Serial.println("All done in handlePiTalk");
 }
 
 void setup() {
