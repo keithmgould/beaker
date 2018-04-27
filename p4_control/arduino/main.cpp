@@ -11,6 +11,7 @@
 #include "../../cpp_lib/wheels.h"       // control get raw encoder state
 #include "../../cpp_lib/p4.h"           // P4 Control Algorithm
 #include "../../cpp_lib/pitalk.h"       // communication with Raspberry Pi
+#include "../../cpp_lib/outputs.h"      // bells and whistles (leds, buzzer)
 
 P4 p4;
 Imu my_imu;
@@ -27,9 +28,9 @@ void printStuff(float dt){
   log += "," + String(my_imu.getTheta(),4) + "," + String(my_imu.getThetaDot(),4);
   log += "," + String(wheels.getPhi(),4) + "," + String(wheels.getPhiDot(),4);
   log += "," + String(my_imu.getThetaOffset());
-  log += "," + p4.getKString();
-  log += "," + wheels.getPidValues();
-  Serial.println(log);
+  log += "," + p4.getParamString();
+  log += "," + p4.getTermString();
+  Serial3.println(log);
 }
 
 void updateP4Parameters(std::string message){
@@ -47,12 +48,14 @@ void handlePiTalk(char command, std::string message){
 void setup() {
   piTalk.setup(&wheels, &my_imu, &handlePiTalk);
   Serial.begin(115200); while (!Serial) {;}
+  Serial3.begin(115200); while (!Serial3) {;}
   Serial.println("\n\nBeginning initializations...");
   my_imu.setup();
   attachInterrupt(digitalPinToInterrupt(LH_ENCODER_A), leftEncoderEvent, CHANGE);
   attachInterrupt(digitalPinToInterrupt(RH_ENCODER_A), rightEncoderEvent, CHANGE);
   Serial.println("Setting up interrupts...Done!");
   wheels.initialize();
+  Outputs::init();
 }
 
 void loop(){

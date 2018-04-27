@@ -7,36 +7,63 @@ class P4 {
   // P4 control values
   int kTheta, kThetaDot, kPhi, kPhiDot;
 
-  float kThetaTerm(float theta){ return theta * kTheta; }
-  float kThetaDotTerm(float thetaDot) { return thetaDot * kThetaDot; }
-  float kPhiTerm(float phi) { return phi * kPhi; }
-  float kPhiDotTerm(float phiDot) { return phiDot * kPhiDot; }
+  // presentation strings
+  String paramString, termString;
+
+  float kThetaTerm(float theta){
+    float results = theta * kTheta;
+    termString = String(results, 4);
+
+    return results;
+  }
+
+  float kThetaDotTerm(float thetaDot) {
+    float results = thetaDot * kThetaDot;
+    termString += "," + String(results, 4);
+
+    return results;
+  }
+  float kPhiTerm(float phi) {
+    float results = phi * kPhi;
+    termString += "," + String(results, 4);
+
+    return results;
+  }
+
+  float kPhiDotTerm(float phiDot) {
+    float results = phiDot * kPhiDot;
+    termString += "," + String(results, 4);
+
+    return results;
+  }
+
+  void buildParamString() {
+    paramString = String(kTheta);
+    paramString += "," + String(kThetaDot);
+    paramString += "," + String(kPhi);
+    paramString += "," + String(kPhiDot);
+  }
 
   public:
 
   P4(){
     kTheta = kThetaDot = kPhi = kPhiDot = 0;
+    buildParamString();
   }
 
   float getKTheta(){ return kTheta; }
   float getKThetaDot(){ return kThetaDot; }
   float getKPhi(){ return kPhi; }
   float getKPhiDot(){ return kPhiDot; }
+  String getParamString() { return paramString; }
+  String getTermString() { return termString; }
 
   void updateParameters(int newKTheta, int newKThetaDot, int newKPhi, int newKPhiDot){
     kTheta = newKTheta;
     kThetaDot = newKThetaDot;
     kPhi = newKPhi;
     kPhiDot = newKPhiDot;
-  }
-
-  String getKString() {
-    String ks = String(kTheta);
-    ks += "," + String(kThetaDot);
-    ks += "," + String(kPhi);
-    ks += "," + String(kPhiDot);
-
-    return ks;
+    buildParamString();
   }
 
   float computeNewRadsPerSec(float theta, float thetaDot, float phi, float phiDot){

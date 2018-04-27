@@ -77,7 +77,7 @@ class Wheels {
   String getPidValues(){
     String str = String(leftMotorPid.getkp()) + ",";
     str += String(leftMotorPid.getki()) + ",";
-    str += String(leftMotorPid.getkd()) + ",";
+    str += String(leftMotorPid.getkd());
     return str;
   }
 
