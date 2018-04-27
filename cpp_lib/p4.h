@@ -11,14 +11,14 @@ class P4 {
   String paramString, termString;
 
   float kThetaTerm(float theta){
-    float results = theta * kTheta;
+    float results = pow(theta,3) * kTheta;
     termString = String(results, 4);
 
     return results;
   }
 
   float kThetaDotTerm(float thetaDot) {
-    float results = thetaDot * kThetaDot;
+    float results = pow(thetaDot,3) * kThetaDot;
     termString += "," + String(results, 4);
 
     return results;
@@ -31,7 +31,7 @@ class P4 {
   }
 
   float kPhiDotTerm(float phiDot) {
-    float results = phiDot * kPhiDot;
+    float results = pow(phiDot,3) * kPhiDot;
     termString += "," + String(results, 4);
 
     return results;

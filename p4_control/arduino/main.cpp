@@ -23,13 +23,14 @@ Waiter innerWaiter(MOTOR_CONTROL_TIMESTEP);
 void leftEncoderEvent(){ wheels.leftEncoderEvent(); }
 void rightEncoderEvent(){ wheels.rightEncoderEvent(); }
 
-void printStuff(float dt){
+void printStuff(float dt, float newRadPerSec){
   String log = String(dt);
   log += "," + String(my_imu.getTheta(),4) + "," + String(my_imu.getThetaDot(),4);
   log += "," + String(wheels.getPhi(),4) + "," + String(wheels.getPhiDot(),4);
   log += "," + String(my_imu.getThetaOffset());
   log += "," + p4.getParamString();
   log += "," + p4.getTermString();
+  log += "," + String(newRadPerSec);
   Serial3.println(log);
 }
 
@@ -72,7 +73,7 @@ void loop(){
     my_imu.update(dt_ratio);
     float newRadPerSec = p4.computeNewRadsPerSec(my_imu.getTheta(), my_imu.getThetaDot(), wheels.getPhi(), wheels.getPhiDot());
     wheels.updateRadsPerSec(newRadPerSec);
-    printStuff(outerDt);
+    printStuff(outerDt, newRadPerSec);
     piTalk.checkForPiCommand();
   }
 }
