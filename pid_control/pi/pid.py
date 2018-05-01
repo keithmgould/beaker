@@ -25,19 +25,10 @@ class Agent:
 
   def run(self):
     while True:
-      print("Enter K<p,i,d> or Kx for 0,0,0, S<setpoint> for new Motor Setpoint, or P<p,i,d> for theta PID")
+      print("Enter Command Type followed by Command. Ex: P1 2 3")
       userString = input()
 
-      if userString.startswith("K"):
-        self.updateMotorPid(userString)
-      elif userString.startswith("P"):
-        self.updateThetaPid(userString)
-      elif userString.startswith("S"):
-        self.arduino.updateSetpoint(userString[1:])
-      elif userString.startswith("B"):
-        self.arduino.updateThetaBias(userString[1:])
-      elif userString.startswith("C"):
-        self.updateControlValues(userString)
+      self.arduino.writeMessage(userString)
 
 agent = Agent()
 agent.run()

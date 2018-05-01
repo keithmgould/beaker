@@ -19,6 +19,9 @@ class Pid {
   float deltaError = 0;
   float setpoint = 0;
 
+  // presentation strings
+  String paramString, termString;
+
     // currentError used for P component
   void setCurrentError(float newError){
     previousError = currentError;
@@ -50,6 +53,12 @@ class Pid {
     deltaError =  currentError - previousError;
   }
 
+  void buildParamString() {
+    paramString = String(kP);
+    paramString += "," + String(kI);
+    paramString += "," + String(kD);
+  }
+
   public:
 
   Pid(long ts){
@@ -64,6 +73,27 @@ class Pid {
   float getki(){ return kI; }
   float getkd(){ return kD; }
 
+  float pTerm(){ 
+    float results = kP * currentError;
+    termString = String(results,4);
+    return  results;
+  }
+
+  float iTerm() { 
+    float results = kI * accumulatedError;
+    termString += "," + String(results,4);
+    return results;
+  }
+
+  float dTerm() { 
+    float results = kD * deltaError;
+    termString += "," + String(results,4);
+    return kD * deltaError; 
+  }
+
+  String getParamString() { return paramString; }
+  String getTermString() { return termString; }
+
   void updateErrors(float currentState, long newDt){
     float newError = setpoint - currentState;
     dt = newDt;
@@ -76,16 +106,12 @@ class Pid {
     kP = p;
     kI = i;
     kD = d;
+    buildParamString();
   }
 
   void updateSetpoint(float newSetpoint) {
     setpoint = newSetpoint;
   }
-
-  // broken out for reporting
-  float pTerm(){ return kP * currentError; }
-  float iTerm() { return kI * accumulatedError; }
-  float dTerm() { return kD * deltaError; }
 
   float generateCommand(float currentState, long newDt){
     updateErrors(currentState, newDt);
