@@ -1,18 +1,11 @@
-/*
-
-This little arduino script is to tune and play with the parameters
-of the motorControl PID
-
-*/
-
 #include <Adafruit_Sensor.h>            // IMU
 #include <Adafruit_BNO055.h>            // IMU
 #include <Wire.h>                       // I2C for IMU
 #include <StandardCplusplus.h>
 #include <stdlib.h>
 #include <string>
-#include <sstream> // stringstream
-#include "../../cpp_lib/includes.h"
+#include <sstream>                      // stringstream
+#include "../../cpp_lib/includes.h"     // common Beaker functionality
 
 Imu my_imu;
 Wheels wheels;

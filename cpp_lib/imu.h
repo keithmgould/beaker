@@ -9,7 +9,7 @@ class Imu{
   private:
 
   Adafruit_BNO055 bno = Adafruit_BNO055(55, 40);
-  float thetaOffset, theta, thetaDot, lastTheta;
+  float thetaOffset, theta, thetaDot;
 
   // in radians
   float rawTheta() {
@@ -19,15 +19,15 @@ class Imu{
 
   // in radians/sec
   float rawThetaDot() {
-    imu::Vector<3> acc = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
-    return acc.z();
+    imu::Vector<3> gyr = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
+    return gyr.z();
   }
 
   public:
 
   Imu(){
     thetaOffset = THETA_OFFSET;
-    theta = thetaDot = lastTheta = 0;
+    theta = thetaDot = 0;
   }
 
   void setup(){
@@ -47,15 +47,9 @@ class Imu{
   void setThetaOffset(float newOffset){ thetaOffset = newOffset; }
 
   // calculates and stores theta and thetaDot.
-  //
-  // dt is assumed to be loop unit. so values should be around 1:
-  // dt = actual_loop_time / expected_loop_time.
-  //
-  // rads and rads/sec
-  void update(float dt){
+  void update(){
     theta = rawTheta() + thetaOffset;
-    thetaDot = rawThetaDot(); // (theta - lastTheta) / dt;
-    lastTheta = theta;
+    thetaDot = rawThetaDot()
    }
 };
 
