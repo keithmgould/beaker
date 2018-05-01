@@ -12,13 +12,7 @@ of the motorControl PID
 #include <stdlib.h>
 #include <string>
 #include <sstream> // stringstream
-#include "../../cpp_lib/constants.h"     // yeah. Constants.
-#include "../../cpp_lib/imu.h"
-#include "../../cpp_lib/waiter.h"        // waiter helper to help with...waiting
-#include "../../cpp_lib/pitalk.h"
-#include "../../cpp_lib/pid.h"        // PID library
-#include "../../cpp_lib/wheels.h"        // control get raw encoder state
-#include "../../cpp_lib/outputs.h"      // bells and whistles (leds, buzzer)
+#include "../../cpp_lib/includes.h"
 
 Imu my_imu;
 Wheels wheels;

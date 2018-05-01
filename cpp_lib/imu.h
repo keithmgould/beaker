@@ -17,6 +17,12 @@ class Imu{
     return 0.0174533 * eulerDegrees.z();
   }
 
+  // in radians/sec
+  float rawThetaDot() {
+    imu::Vector<3> acc = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
+    return acc.z();
+  }
+
   public:
 
   Imu(){
@@ -48,7 +54,7 @@ class Imu{
   // rads and rads/sec
   void update(float dt){
     theta = rawTheta() + thetaOffset;
-    thetaDot = (theta - lastTheta) / dt;
+    thetaDot = rawThetaDot(); // (theta - lastTheta) / dt;
     lastTheta = theta;
    }
 };

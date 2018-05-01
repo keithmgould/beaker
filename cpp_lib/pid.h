@@ -63,6 +63,7 @@ class Pid {
 
   Pid(long ts){
     timestep = ts;
+    buildParamString();
   }
 
   float getSetpoint(){
