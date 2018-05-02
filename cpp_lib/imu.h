@@ -49,7 +49,7 @@ class Imu{
   // calculates and stores theta and thetaDot.
   void update(){
     theta = rawTheta() + thetaOffset;
-    thetaDot = rawThetaDot()
+    thetaDot = rawThetaDot();
    }
 };
 

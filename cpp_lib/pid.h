@@ -6,7 +6,6 @@
 class Pid {
   private:
 
-
   float kP = 0;       // holds the P parameter
   float kI = 0;       // holds the I parameter
   float kD = 0;       // holds the D parameter

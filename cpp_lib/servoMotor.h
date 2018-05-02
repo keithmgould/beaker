@@ -1,101 +1,34 @@
 #ifndef __BEAKER_SERVOMOTOR__
 #define __BEAKER_SERVOMOTOR__
 
+#include "Arduino.h"
+#include "./motor.h"
 #include <Math.h>
 
-// TODO Move these to constants file?
-#define WHEEL_RADIUS .042 // in meters
-#define FULL_ROTATION_EDGE_EVENTS 600 // 18.75 * 32
-#define RADS_PER_SEC_TO_RPM 9.5492965855137
-#define CLICKS_TO_RADIANS 2 * PI / FULL_ROTATION_EDGE_EVENTS
-
-class ServoMotor
-{
+/*
+    This class is used if the Sabertooth motor driver is configured for PWM
+    communication.
+*/
+class ServoMotor: public Motor{
   private:
 
-  long edgeCount;
-  int firstEncoderPin, secondEncoderPin, tickDirection;
+  Servo servo;
 
-  void tickRight()
-  {
-    edgeCount -= tickDirection;
-  }
-
-  void tickLeft()
-  {
-    edgeCount += tickDirection;
-  }
-
-  //-------------------------------------------------------------------
   public:
-  //-------------------------------------------------------------------
 
-  ServoMotor(int firstEncoderPinArg, int secondEncoderPinArg, int tickDirectionArg)
-  {
-    firstEncoderPin = firstEncoderPinArg;
-    secondEncoderPin = secondEncoderPinArg;
-    tickDirection = tickDirectionArg;
+  ServoMotor(int encoderA, int encoderB, int direction): Motor(encoderA, encoderB, direction){}
+
+  void attach(int pinNumber){
+    servo.attach( pinNumber, 1000, 2000);
   }
 
-  void init()
-  {
-
-    pinMode(firstEncoderPin, INPUT_PULLUP); // interupt
-    pinMode(secondEncoderPin, INPUT_PULLUP); // non-interupt
-    edgeCount = 0;
-  }
-
-  /*
-  Because Sabertooth controls two motors with one 8 byte character,
-  when operating in Simplified Serial mode, each motor has 7 bits of resolution.
-  Sending a character between 1 and 127 will control motor 1. 1 is full reverse,
-  64 is stop and 127 is full forward. Sending a character between 128 and 255
-  will control motor 2. 128 is full reverse, 192 is stop and 255 is full forward.
-  Character 0 (hex 0x00) is a special case.
-  Sending this character will shut down both motors.
-
-  We have seven bits (0-127) so:
-  range between -63 and 63.
-  -63 is full reverse
-  0 is stop
-  63 is full forward
-
-  input is a float between -1 and 1
-  */
   void updatePower(float raw_power) {
-    raw_power *= -1; // keep this or reverse the wiring.
     raw_power = constrain(raw_power, -1, 1);  // safety first
-    raw_power *= 63;
+    raw_power *= 90; // scale to 90 in either direction (+/-)
     int power = roundf(raw_power);
-    byte command = tickDirection > 0 ? 64 + power : 192 + power;
-    Serial1.write(command);
-  }
-
-  void resetCount() {
-    edgeCount = 0;
-  }
-
-  // in radians
-  float getPhi() {
-    return (float) edgeCount * (float) CLICKS_TO_RADIANS;
-  }
-
-  // in meters
-  float getDistance() {
-    return getPhi() * (float) WHEEL_RADIUS;
-  }
-
-  long getEdgeCount() {
-    return edgeCount;
-  }
-
-  // called by main encoder interrupt
-  void encoderEvent() {
-    if(digitalRead(firstEncoderPin) == digitalRead(secondEncoderPin)){
-      tickLeft();
-    } else {
-      tickRight();
-    }
+    power += 90;
+    Serial.println(power);
+    servo.write(power);
   }
 };
 

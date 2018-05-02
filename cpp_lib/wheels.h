@@ -2,8 +2,21 @@
 #define __BEAKER_WHEELS__
 
 #include "./servoMotor.h"     // low level motor control
+#include "./waiter.h"
 #include "./pid.h"            // Basic PID algorithm
 
+/*
+    The Wheels object abstracts away the business of wheels maintaining requested speeds.
+    The API is very simple. You tell the Wheels object the desired rads/sec, and the 
+    Wheels object will ensure that each wheel exhibits that rads/sec, via the PIDs.
+
+    Each wheel has its own motor. Each motor has a quadrature encoder.
+    Each wheel's rotational velocity is controlled by its own PID controller.
+
+    The main loop of the application is expected to have a fast inner loop, around
+    5ms, which calls wheels.spin() ever loop. Each of these calls allows the Wheels
+    object to adjust the command given to the motor control based on the PID output.
+*/
 
 class Wheels {
   private:
@@ -12,9 +25,8 @@ class Wheels {
   Pid leftMotorPid = Pid(MOTOR_CONTROL_TIMESTEP);
   Pid rightMotorPid = Pid(MOTOR_CONTROL_TIMESTEP);
 
-  // bunch of variables for timing...
-  float leftPhi, leftLastPhi, leftPhiDot;
-  float rightPhi, rightLastPhi, rightPhiDot;
+  long leftPhi, leftLastPhi, rightPhi, rightLastPhi;
+  float leftPhiDot, rightPhiDot;
 
   // actual commands sent to motors
   float leftCommand, rightCommand;
@@ -22,18 +34,29 @@ class Wheels {
   ServoMotor motorLeft  = ServoMotor(LH_ENCODER_A, LH_ENCODER_B, 1);
   ServoMotor motorRight = ServoMotor(RH_ENCODER_A, RH_ENCODER_B, -1);
 
-  // calculates and stores phi and phiDot
-  // rads and rads/sec
+  // calculates and stores LEFT phi and phiDot
   void updateLeftPhi(float dt){
     leftPhi = motorLeft.getPhi();
-    leftPhiDot = (1000.0 / dt) * (leftPhi - leftLastPhi) / (dt / MOTOR_CONTROL_TIMESTEP);
+    leftPhiDot = (1000.0 / dt) * (float) (leftPhi - leftLastPhi) / (dt / MOTOR_CONTROL_TIMESTEP);
     leftLastPhi = leftPhi;
   }
 
+  // calculates and stores RIGHT phi and phiDot
   void updateRightPhi(float dt){
     rightPhi = motorRight.getPhi();
-    rightPhiDot = (1000.0 / dt) * (rightPhi - rightLastPhi) / (dt / MOTOR_CONTROL_TIMESTEP);
+    rightPhiDot = (1000.0 / dt) * (float) (rightPhi - rightLastPhi) / (dt / MOTOR_CONTROL_TIMESTEP);
     rightLastPhi = rightPhi;
+  }
+
+  void updatePhi(float dt){
+    updateRightPhi(dt);
+    updateLeftPhi(dt);
+  }
+
+  // resets the quad encoder tick count for each motor.
+  void resetPhi(){
+    motorLeft.resetCount();
+    motorRight.resetCount();
   }
 
   public:
@@ -48,14 +71,19 @@ class Wheels {
   }
 
   void initialize(){
+    motorLeft.attach(LEFT_MOTOR_DRIVER);
+    motorRight.attach(RIGHT_MOTOR_DRIVER);
     updateRadsPerSec(0);
     updatePids(MOTOR_P_PARAM,MOTOR_I_PARAM,MOTOR_D_PARAM);
+    resetPhi();
   }
 
+  // called by interrupt callback
   void rightEncoderEvent(){
     motorRight.encoderEvent();
   }
 
+  // called by interrupt callback  
   void leftEncoderEvent(){
     motorLeft.encoderEvent();
   }
@@ -65,14 +93,17 @@ class Wheels {
     return (motorLeft.getDistance() + motorRight.getDistance()) / 2.0;
   }
 
-  float getPhi(){ return (leftPhi + rightPhi) / 2.0; }  // rads. avg of 2 whls
-  float getPhiDot(){ return (leftPhiDot + rightPhiDot) / 2.0; }  // rads. avg of 2 whls
-  long getLeftPhi(){ return leftPhi; }                  // rads
-  long getLeftPhiDot(){ return leftPhiDot; }            // rads/sec
-  long getRightPhi(){ return rightPhi; }                // rads
-  long getRightPhiDot(){ return rightPhiDot; }          // rads/sec
-  long getLeftMotorEdgeCount(){ return motorLeft.getEdgeCount(); }
-  long getRightMotorEdgeCount(){ return motorRight.getEdgeCount(); }
+  long getPhi(){ return (leftPhi + rightPhi) / 2.0; }            // rads. avg of 2 whls
+  float getPhiDot(){ return (leftPhiDot + rightPhiDot) / 2.0; }   // rads/sec. avg of 2 whls
+  
+  long getLeftPhi(){ return leftPhi; }                            // rads
+  float getLeftPhiDot(){ return leftPhiDot; }                      // rads/sec
+  
+  long getRightPhi(){ return rightPhi; }                          // rads
+  float getRightPhiDot(){ return rightPhiDot; }                    // rads/sec
+  
+  long getLeftMotorEdgeCount(){ return motorLeft.getEdgeCount(); }     // encoder ticks
+  long getRightMotorEdgeCount(){ return motorRight.getEdgeCount(); }   // encoder ticks
 
   String getPidValues(){
     String str = String(leftMotorPid.getkp()) + ",";
@@ -80,17 +111,6 @@ class Wheels {
     str += String(leftMotorPid.getkd());
     return str;
   }
-
-  void updatePhi(float dt){
-    updateRightPhi(dt);
-    updateLeftPhi(dt);
-  }
-
-
-
-  // float logs[2][200];
-  // long counter = 0;
-  // bool storeLogs = false;
 
   void spin(long dt) {
     updatePhi(dt);
@@ -103,21 +123,6 @@ class Wheels {
 
     motorLeft.updatePower(leftCommand);
     motorRight.updatePower(rightCommand);
-
-    // if(storeLogs){
-    //   logs[0][counter] = leftPhiDot;
-    //   logs[1][counter] = rightPhiDot;
-    //   counter++;
-    //   if(counter >= 195){
-    //     storeLogs = false;
-    //     counter = 0;
-    //     Serial.println("Log Time!");
-    //     for(int i = 0;i<195;i++){
-    //       String foo =  String(i) + "," +String(logs[0][i],5) + "," + String(logs[1][i],5);
-    //       Serial.println(foo);
-    //     }
-    //   }
-    // }
   }
 
   // For tuning the motor PIDs. This should not
@@ -134,8 +139,6 @@ class Wheels {
   void updateRadsPerSec(float rps){
     leftMotorPid.updateSetpoint(rps);
     rightMotorPid.updateSetpoint(rps);
-    // counter = 0;
-    // storeLogs = true;
   }
 };
 

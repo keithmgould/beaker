@@ -20,6 +20,10 @@
 #define RADIO_CE 6
 #define RADIO_CSN 7
 
+// pins for PWM Motor Control
+#define LEFT_MOTOR_DRIVER 10
+#define RIGHT_MOTOR_DRIVER 11
+
 // Duration (in millisecs) for each loop.
 // MAKE SURE: that the position control is
 // 3-4 times slower than motor control

@@ -62,8 +62,7 @@ void loop(){
   // outer loop behavior
   if(outerWaiter.isTime()){
     float outerDt = outerWaiter.starting();
-    float dt_ratio = outerDt / (float) POSITION_CONTROL_TIMESTEP;
-    my_imu.update(dt_ratio);
+    my_imu.update();
     float newRadPerSec = thetaPid.generateCommand(my_imu.getTheta(), outerDt);
     wheels.updateRadsPerSec(newRadPerSec);
     printStuff(outerDt, newRadPerSec);

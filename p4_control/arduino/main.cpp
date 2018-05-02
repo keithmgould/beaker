@@ -5,13 +5,7 @@
 #include <stdlib.h>
 #include <string>
 #include <sstream>                      // stringstream
-#include "../../cpp_lib/constants.h"    // These apply regardless of control method
-#include "../../cpp_lib/imu.h"          // class to wrap IMU, which holds theta and thetaDot
-#include "../../cpp_lib/waiter.h"       // waiter helper to help with...waiting
-#include "../../cpp_lib/wheels.h"       // control get raw encoder state
-#include "../../cpp_lib/p4.h"           // P4 Control Algorithm
-#include "../../cpp_lib/pitalk.h"       // communication with Raspberry Pi
-#include "../../cpp_lib/outputs.h"      // bells and whistles (leds, buzzer)
+#include "../../cpp_lib/includes.h"     // common Beaker functionality
 
 P4 p4;
 Imu my_imu;
@@ -69,8 +63,7 @@ void loop(){
   // outer loop behavior
   if(outerWaiter.isTime()){
     float outerDt = outerWaiter.starting();
-    float dt_ratio = outerDt / (float) POSITION_CONTROL_TIMESTEP;
-    my_imu.update(dt_ratio);
+    my_imu.update();
     float newRadPerSec = p4.computeNewRadsPerSec(my_imu.getTheta(), my_imu.getThetaDot(), wheels.getPhi(), wheels.getPhiDot());
     wheels.updateRadsPerSec(newRadPerSec);
     printStuff(outerDt, newRadPerSec);
