@@ -25,8 +25,7 @@ class Wheels {
   Pid leftMotorPid = Pid(MOTOR_CONTROL_TIMESTEP);
   Pid rightMotorPid = Pid(MOTOR_CONTROL_TIMESTEP);
 
-  long leftPhi, leftLastPhi, rightPhi, rightLastPhi;
-  float leftPhiDot, rightPhiDot;
+  float leftPhi, leftLastPhi, rightPhi, rightLastPhi, leftPhiDot, rightPhiDot;
 
   // actual commands sent to motors
   float leftCommand, rightCommand;
@@ -61,7 +60,7 @@ class Wheels {
     float pDelta = phiDelta(leftPhi, leftLastPhi, motorLeft.getDirection());
     leftPhiDot = (1000.0 / dt) * pDelta / (dt / MOTOR_CONTROL_TIMESTEP);
     String foo = "dt: " + String(dt) + ", leftPhi: " + String(leftPhi) + ", leftLastPhi: " + String(leftLastPhi) + ", phiDelta: " + String(pDelta); 
-    Serial.println(foo);
+    // Serial.println(foo);
     leftLastPhi = leftPhi;
   }
 
@@ -118,24 +117,14 @@ class Wheels {
     return (motorLeft.getDistance() + motorRight.getDistance()) / 2.0;
   }
 
-  long getPhi(){ return (leftPhi + rightPhi) / 2.0; }            // rads. avg of 2 whls
-  float getPhiDot(){ return (leftPhiDot + rightPhiDot) / 2.0; }   // rads/sec. avg of 2 whls
-  
-  long getLeftPhi(){ return leftPhi; }                            // rads
-  float getLeftPhiDot(){ return leftPhiDot; }                      // rads/sec
-  
-  long getRightPhi(){ return rightPhi; }                          // rads
-  float getRightPhiDot(){ return rightPhiDot; }                    // rads/sec
-  
-  long getLeftMotorEdgeCount(){ return motorLeft.getEdgeCount(); }     // encoder ticks
-  long getRightMotorEdgeCount(){ return motorRight.getEdgeCount(); }   // encoder ticks
-
-  String getPidValues(){
-    String str = String(leftMotorPid.getkp()) + ",";
-    str += String(leftMotorPid.getki()) + ",";
-    str += String(leftMotorPid.getkd());
-    return str;
-  }
+  long getPhi(){ return (leftPhi + rightPhi) / 2.0; }                   // rads. avg of 2 whls
+  float getPhiDot(){ return (leftPhiDot + rightPhiDot) / 2.0; }         // rads/sec. avg of 2 whls
+  long getLeftPhi(){ return leftPhi; }                                  // rads
+  float getLeftPhiDot(){ return leftPhiDot; }                           // rads/sec
+  long getRightPhi(){ return rightPhi; }                                // rads
+  float getRightPhiDot(){ return rightPhiDot; }                         // rads/sec
+  long getLeftMotorEdgeCount(){ return motorLeft.getEdgeCount(); }      // encoder ticks
+  long getRightMotorEdgeCount(){ return motorRight.getEdgeCount(); }    // encoder ticks
 
   void spin(long dt) {
     updatePhi(dt);
@@ -146,6 +135,8 @@ class Wheels {
     leftCommand += leftCommandDelta;
     rightCommand += rightCommandDelta;
 
+    String foo = "setPoint: " + String(leftMotorPid.getSetpoint()) + ", lpd: " + String(leftPhiDot) + ", dt: " + String(dt) + ", leftCommandDelta: " + String(leftCommandDelta) + ", leftCommand: " + String(leftCommand); 
+    Serial.println(foo);
     motorLeft.updatePower(leftCommand);
     motorRight.updatePower(rightCommand);
   }

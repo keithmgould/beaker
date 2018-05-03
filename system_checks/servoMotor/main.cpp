@@ -17,8 +17,8 @@
 	2. that negative calls to updatePower make the phu/distance values decrease.
 */
 
-ServoMotor motorLeft  = ServoMotor(LH_ENCODER_A, LH_ENCODER_B, 1);
-ServoMotor motorRight  = ServoMotor(RH_ENCODER_A, RH_ENCODER_B, -1);
+ServoMotor motorLeft  = ServoMotor(LH_ENCODER_A, LH_ENCODER_B, FORWARD);
+ServoMotor motorRight  = ServoMotor(RH_ENCODER_A, RH_ENCODER_B, BACKWARD);
 
 void leftEncoderEvent(){ motorLeft.encoderEvent(); }
 void rightEncoderEvent(){ motorRight.encoderEvent(); }
@@ -29,8 +29,8 @@ void setup(){
 	motorRight.attach(RIGHT_MOTOR_DRIVER);
 	attachInterrupt(digitalPinToInterrupt(LH_ENCODER_A), leftEncoderEvent, CHANGE);
   attachInterrupt(digitalPinToInterrupt(RH_ENCODER_A), rightEncoderEvent, CHANGE);
-  motorLeft.updatePower(0.05); 	// power ranges from -1 to 1
-  motorRight.updatePower(0.05);	// power ranges from -1 to 1
+  motorLeft.updatePower(0.1); 	// power ranges from -1 to 1
+  motorRight.updatePower(0.1);	// power ranges from -1 to 1
 }
 
 void loop(){

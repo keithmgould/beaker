@@ -65,13 +65,12 @@ class Pid {
     buildParamString();
   }
 
-  float getSetpoint(){
-    return setpoint;
-  }
-
   float getkp(){ return kP; }
   float getki(){ return kI; }
   float getkd(){ return kD; }
+  float getSetpoint(){ return setpoint; }
+  String getParamString() { return paramString; }
+  String getTermString() { return termString; }
 
   float pTerm(){ 
     float results = kP * currentError;
@@ -90,9 +89,6 @@ class Pid {
     termString += "," + String(results,4);
     return kD * deltaError; 
   }
-
-  String getParamString() { return paramString; }
-  String getTermString() { return termString; }
 
   void updateErrors(float currentState, long newDt){
     float newError = setpoint - currentState;

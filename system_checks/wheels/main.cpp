@@ -13,10 +13,10 @@
 
     In this system check, check for the following:
 
-    0. Wheels spin
-    0. Get a tachometer (seriously) and make sure the commanded rads/sec is actually happening.
-    0. Make sure the printout of rads/sec matches expected rads/sec, and also matches tachometer.
-    0. Make sure direction between expected rads/sec and printed rads/sec matches
+    0. Wheels both spin in same direction
+    1. Get a tachometer (seriously) and make sure the commanded rads/sec is actually happening.
+    2. Make sure the printout of rads/sec matches expected rads/sec, and also matches tachometer.
+    3. Make sure direction between expected rads/sec and printed rads/sec matches
 */
 
 Wheels wheels;
@@ -51,6 +51,6 @@ void loop(){
   // outer loop behavior
   if(outerWaiter.isTime()){
     float outerDt = outerWaiter.starting();
-    printStuff(outerDt);
+    // printStuff(outerDt);
   }
 }
