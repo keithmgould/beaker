@@ -8,6 +8,17 @@
 #include <sstream>                      // stringstream
 #include "../../cpp_lib/includes.h"     // common Beaker functionality
 
+/*
+    Find out more about the wheels object in the comments of the wheels.h file.
+
+    In this system check, check for the following:
+
+    0. Wheels spin
+    0. Get a tachometer (seriously) and make sure the commanded rads/sec is actually happening.
+    0. Make sure the printout of rads/sec matches expected rads/sec, and also matches tachometer.
+    0. Make sure direction between expected rads/sec and printed rads/sec matches
+*/
+
 Wheels wheels;
 Waiter innerWaiter(MOTOR_CONTROL_TIMESTEP);
 Waiter outerWaiter(POSITION_CONTROL_TIMESTEP);

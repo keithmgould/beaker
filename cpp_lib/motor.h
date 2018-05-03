@@ -9,6 +9,17 @@
 #define FULL_ROTATION_EDGE_EVENTS 600 // 18.75 * 32
 #define CLICKS_TO_RADIANS 2 * PI / FULL_ROTATION_EDGE_EVENTS
 
+/*
+    The motor object encapsulates the encoders which means
+    it is in charge of phi (wheel position) and x (linear distance).
+
+    Subclasses of motor (servoMotor and serialMotor) encapsulate 
+    telling the motor how much voltage to apply.
+
+    The motor class, and its subclasses, are not aware of time, so they 
+    do not keep track of speeds, either rotational or linear.
+*/
+
 class Motor
 {
   private:
@@ -77,6 +88,10 @@ class Motor
 
   long getEdgeCount() {
     return edgeCount;
+  }
+
+  int getDirection(){
+    return tickDirection;
   }
 
   // this should be called by encoder interrupts

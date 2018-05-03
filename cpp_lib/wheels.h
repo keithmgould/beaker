@@ -34,7 +34,9 @@ class Wheels {
   ServoMotor motorLeft  = ServoMotor(LH_ENCODER_A, LH_ENCODER_B, FORWARD);
   ServoMotor motorRight = ServoMotor(RH_ENCODER_A, RH_ENCODER_B, BACKWARD);
 
-  // calculates phi delta given the modulus nature of phi, and direction of rotation
+  // phiDelta is distance in radians between current and prev phi value.
+  // given the modulus nature of phi (always has a value betwenm 0 to FULL_ROTATION_EDGE_EVENTS),
+  // and direction of rotation, there are four different ways to calculate phiDelta.
   float phiDelta(float phi, float lastPhi, int direction){
     if(phi == lastPhi) { return 0; }
 
@@ -56,22 +58,18 @@ class Wheels {
   // calculates and stores LEFT phi and phiDot
   void updateLeftPhi(float dt){
     leftPhi = motorLeft.getPhi();
-    float leftPhiDelta = phiDelta(leftPhi, leftLastPhi, FORWARD);
-    leftPhiDot = (1000.0 / dt) * (float) (leftPhi - leftLastPhi) / (dt / MOTOR_CONTROL_TIMESTEP);
-    String foo = "dt: " + String(dt) + ", leftPhi: " + String(leftPhi) + ", leftLastPhi: " + String(leftLastPhi); 
+    float pDelta = phiDelta(leftPhi, leftLastPhi, motorLeft.getDirection());
+    leftPhiDot = (1000.0 / dt) * pDelta / (dt / MOTOR_CONTROL_TIMESTEP);
+    String foo = "dt: " + String(dt) + ", leftPhi: " + String(leftPhi) + ", leftLastPhi: " + String(leftLastPhi) + ", phiDelta: " + String(pDelta); 
     Serial.println(foo);
-    foo = "left - leftLast: " + String((leftPhi - leftLastPhi));
-    Serial.println(foo);
-    foo = "dt / MCT: " + String((dt / MOTOR_CONTROL_TIMESTEP));
-    Serial.println(foo);
-
     leftLastPhi = leftPhi;
   }
 
   // calculates and stores RIGHT phi and phiDot
   void updateRightPhi(float dt){
     rightPhi = motorRight.getPhi();
-    rightPhiDot = (1000.0 / dt) * (float) (rightPhi - rightLastPhi) / (dt / MOTOR_CONTROL_TIMESTEP);
+    float pDelta = phiDelta(rightPhi, rightLastPhi, motorRight.getDirection());
+    rightPhiDot = (1000.0 / dt) * pDelta / (dt / MOTOR_CONTROL_TIMESTEP);
     rightLastPhi = rightPhi;
   }
 

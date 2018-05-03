@@ -28,8 +28,8 @@ class ServoMotor: public Motor{
     raw_power *= 90; // scale to 90 in either direction (+/-)
     int power = roundf(raw_power);
     power += 90;
-    Serial.print("final power to servo: ");
-    Serial.println(power);
+    // Serial.print("final power to servo: ");
+    // Serial.println(power);
     power = constrain(power, 80, 100); // TEMPORARY!!!!-----------------------------------
     servo.write(power);
   }

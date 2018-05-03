@@ -6,8 +6,10 @@
 /*
 	This tests the most basic Servo PWM functionality.
 
-	Note this will only work when Beaer is wired and 
+	Note this will only work when Beaker is wired and 
 	configured for PWM (vs Serial)
+
+	If the wheels spin, then this check passes.
 */
 
 
