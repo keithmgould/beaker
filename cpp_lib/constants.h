@@ -42,4 +42,8 @@
 #define MOTOR_I_PARAM 0
 #define MOTOR_D_PARAM 0.05
 
+// Used by motors for direction of rotation
+#define FORWARD = 1
+#define BACKWARD = -1
+
 #endif

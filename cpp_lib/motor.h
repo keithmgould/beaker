@@ -5,30 +5,49 @@
 
 // TODO Move these to constants file?
 #define WHEEL_RADIUS .042 // in meters
+#define WHEEL_CIRCUMFERECE 2 * PI * WHEEL_RADIUS
 #define FULL_ROTATION_EDGE_EVENTS 600 // 18.75 * 32
-#define RADS_PER_SEC_TO_RPM 9.5492965855137
 #define CLICKS_TO_RADIANS 2 * PI / FULL_ROTATION_EDGE_EVENTS
 
 class Motor
 {
   private:
 
-  long edgeCount;
-  int firstEncoderPin, secondEncoderPin, tickDirection;
+  int edgeCount; // holds the edge counts within a single rotation. always between 0 and FULL_ROTATION_EDGE_EVENTS
+  long rotations; // keeps track of rotations. Needed for X position.
+  int tickDirection; // keeps track of increment/decrement when the interrupt from encoder hits.
+  int firstEncoderPin, secondEncoderPin;
+
+  void handleInfinity(){
+    if (edgeCount < 0){
+      rotations--;
+      edgeCount = FULL_ROTATION_EDGE_EVENTS;
+    }
+    if (edgeCount > FULL_ROTATION_EDGE_EVENTS){
+      rotations++;
+      edgeCount = 0;
+    }
+  }
 
   void tickRight()
   {
     edgeCount -= tickDirection;
+    handleInfinity();
   }
 
   void tickLeft()
   {
     edgeCount += tickDirection;
+    handleInfinity();
   }
 
   //-------------------------------------------------------------------
   public:
   //-------------------------------------------------------------------
+
+  void resetCount() {
+    edgeCount = rotations = 0;
+  }
 
   Motor(int firstEncoderPinArg, int secondEncoderPinArg, int tickDirectionArg)
   {
@@ -38,11 +57,7 @@ class Motor
 
     pinMode(firstEncoderPin, INPUT_PULLUP); // interupt
     pinMode(secondEncoderPin, INPUT_PULLUP); // non-interupt
-    edgeCount = 0;
-  }
-
-  void resetCount() {
-    edgeCount = 0;
+    resetCount();
   }
 
   // in radians
@@ -50,16 +65,21 @@ class Motor
     return (float) edgeCount * (float) CLICKS_TO_RADIANS;
   }
 
+  // in meters  
+  float rotationsToMeters(){
+    return rotations * WHEEL_CIRCUMFERECE;
+  }
+
   // in meters
   float getDistance() {
-    return getPhi() * (float) WHEEL_RADIUS;
+    return rotationsToMeters() + getPhi() * (float) WHEEL_RADIUS;
   }
 
   long getEdgeCount() {
     return edgeCount;
   }
 
-  // called by main encoder interrupt
+  // this should be called by encoder interrupts
   void encoderEvent() {
     if(digitalRead(firstEncoderPin) == digitalRead(secondEncoderPin)){
       tickLeft();

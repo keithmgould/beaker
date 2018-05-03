@@ -4,11 +4,7 @@
 #include "../../cpp_lib/servoMotor.h"
 
 /*
-	Stepping up from the pwmMotor system check, this script makes use of the
-	ServoMotor class.
-
-	Like pwmMotor system check, this will only work if Beaker is wired and configured
-	for PWM commands to motor driver (vs Serial)
+	Spin the wheels. Make sure the phi and x position work properly.
 */
 
 ServoMotor motorLeft  = ServoMotor(LH_ENCODER_A, LH_ENCODER_B, 1);
@@ -19,17 +15,13 @@ void rightEncoderEvent(){ motorRight.encoderEvent(); }
 
 void setup(){
 	Serial.begin(115200); while (!Serial) {;}
-	motorLeft.attach(LEFT_MOTOR_DRIVER);
-	motorRight.attach(RIGHT_MOTOR_DRIVER);
 	attachInterrupt(digitalPinToInterrupt(LH_ENCODER_A), leftEncoderEvent, CHANGE);
   attachInterrupt(digitalPinToInterrupt(RH_ENCODER_A), rightEncoderEvent, CHANGE);
-  motorLeft.updatePower(-0.1);
-  motorRight.updatePower(-0.1);
 }
 
 void loop(){
-	Serial.print(motorLeft.getPhi());
-	Serial.print(", ");
-	Serial.println(motorLeft.getDistance());
+	String foo = "phiLeft: " + String(motorLeft.getPhi()) + ", xLeft: " + String(motorLeft.getDistance());
+	foo += ", phiRight: " + String(motorRight.getPhi()) + ", xRight: " + String(motorRight.getDistance());
+	Serial.println(foo);
 	delay(500);
 }
