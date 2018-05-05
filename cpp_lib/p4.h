@@ -1,6 +1,22 @@
 #ifndef __BEAKER_P4__
 #define __BEAKER_P4__
 
+/*
+    This class encapsulates a simple control algorithm which I named P4.
+
+    The 'P' comes from 'Proportional' and the '4' comes from the fact that
+    there are four parameters for the state (theta, thetaDot, phi, phiDot).
+
+    This algorithm simply takes the state, and for each parameter in the state,
+    it multiplies by an associated constant, then adds all terms together:
+
+    command = theta * Ktheta + thetaDot * KthetaDot + phi * Kphi + phiDot * kPhiDot.
+
+    The command could theoretically be simply a voltage, however in our case the 
+    output will be a rotational velocity (rads/sec), which will be passed to
+    Beaker's Wheels object.
+*/
+
 class P4 {
   private:
 
