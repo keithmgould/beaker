@@ -8,6 +8,7 @@
 #define WHEEL_CIRCUMFERECE 2 * PI * WHEEL_RADIUS
 #define FULL_ROTATION_EDGE_EVENTS 600 // 18.75 * 32
 #define CLICKS_TO_RADIANS 2 * PI / FULL_ROTATION_EDGE_EVENTS
+#define THETA_OFFSET 0.01 // due to minorly non-level IMU
 
 // LED on side of robot
 #define INDICATOR 8
@@ -40,9 +41,6 @@
 // To constrain to 50% power use -.5 and .5
 #define MINIMUM_GAIN -1
 #define MAXIMUM_GAIN 1
-
-// Used by IMU object
-#define THETA_OFFSET 0.01 // due to minorly non-level IMU
 
 // default Motor PID values
 #define MOTOR_P_PARAM 0.015
