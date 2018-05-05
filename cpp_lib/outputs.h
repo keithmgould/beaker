@@ -32,6 +32,16 @@ class Outputs{
     beep(100,100);
   }
 
+  // since Arduino does not have an OS outside of the application, when
+  // the app really crashes, and we don't want it to reboot, then call
+  // this method.
+  // Consider adding an OLED so Beaker can tell you exactly why you are here.
+  static void permaError(){
+    while(true){
+      beep(500,500);
+    }
+  }
+
   static void init(){
     // indicator pin is an output for LED
     pinMode(INDICATOR, OUTPUT);

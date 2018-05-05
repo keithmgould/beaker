@@ -45,9 +45,7 @@ class Imu{
     Serial.print("Initializing IMU...");
     if (!bno.begin(bno.OPERATION_MODE_IMUPLUS)) {
       Serial.println("Inertial Sensor failed, or not present");
-      // Arduino does not have an error state. Consider having an Error class
-      // that flashes LED and buzzes buzzer, rather than the following.
-      while(true) {;} 
+      Outputs::permaError();
     }
     bno.setExtCrystalUse(true);
     Serial.println("Done!");
