@@ -1,8 +1,13 @@
 #ifndef __BEAKER_CONSTANTS__
 #define __BEAKER_CONSTANTS__
 
-// pi / 180, for degrees to radians
-#define PI_OVER_ONE_EIGHTY 0.017453292519943
+// These constants have to do with Beaker's
+// physical characteristics, or related computations
+#define PI_OVER_ONE_EIGHTY 0.017453292519943 // for degrees to radians
+#define WHEEL_RADIUS .042 // in meters
+#define WHEEL_CIRCUMFERECE 2 * PI * WHEEL_RADIUS
+#define FULL_ROTATION_EDGE_EVENTS 600 // 18.75 * 32
+#define CLICKS_TO_RADIANS 2 * PI / FULL_ROTATION_EDGE_EVENTS
 
 // LED on side of robot
 #define INDICATOR 8
