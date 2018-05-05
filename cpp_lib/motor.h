@@ -3,7 +3,7 @@
 #include "Arduino.h"
 #include <Math.h>
 
-// TODO Move these to constants file?
+// TODO Move these to constant.h?
 #define WHEEL_RADIUS .042 // in meters
 #define WHEEL_CIRCUMFERECE 2 * PI * WHEEL_RADIUS
 #define FULL_ROTATION_EDGE_EVENTS 600 // 18.75 * 32

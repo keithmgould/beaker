@@ -4,7 +4,17 @@
 #include <Adafruit_Sensor.h>            // IMU
 #include <Adafruit_BNO055.h>            // IMU
 #include <Wire.h>                       // I2C for IMU
+/*
+    The Inertial Measurement Unit (IMU) reads from (currently) the BNO055.
+    We might want to abstract away the specific chip at a later date. For now
+    this class is simply a convenience wrapper for the BNO055 IMU.
 
+    The readouts involve theta, Beakers angle from "balanced," and 
+    thetaDot, which is the rate of change of theta.
+
+    Theta is produced via black-box IMU magic, and thetaDot is produced
+    via the IMU's gyrometer.
+*/
 class Imu{
   private:
 
@@ -35,7 +45,9 @@ class Imu{
     Serial.print("Initializing IMU...");
     if (!bno.begin(bno.OPERATION_MODE_IMUPLUS)) {
       Serial.println("Inertial Sensor failed, or not present");
-      while(true) {;}
+      // Arduino does not have an error state. Consider having an Error class
+      // that flashes LED and buzzes buzzer, rather than the following.
+      while(true) {;} 
     }
     bno.setExtCrystalUse(true);
     Serial.println("Done!");
@@ -44,6 +56,10 @@ class Imu{
   float getTheta(){ return theta; }
   float getThetaDot(){ return thetaDot; }
   float getThetaOffset(){ return thetaOffset; }
+
+  // Due to micro leveling imperfections, the IMU is not perfectly level when Beaker
+  // is balanced. This offset allows software to account for this and update when
+  // necessary.
   void setThetaOffset(float newOffset){ thetaOffset = newOffset; }
 
   // calculates and stores theta and thetaDot.

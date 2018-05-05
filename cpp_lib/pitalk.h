@@ -29,6 +29,13 @@ class PiTalk {
     my_imu->setThetaOffset(newOffset);
   }
 
+  // This is the main method for controlling Beaker, if the algorithm
+  // is housed in the Raspberry Pi (such as with Reinforcement Learning)
+  void updateWheelRadsPerSec(std::string message){
+    float newRadsPerSec = String(message.c_str()).toFloat();
+    wheels->updateRadsPerSec(newRadsPerSec);
+  }
+
   // Update the low-level PID values for the motors. This should
   // not be needed when working with various algorithms. You
   // should prob just leave the values found in constants.h.
@@ -48,6 +55,7 @@ class PiTalk {
     switch(command){
       case 'B': updateThetaOffset(message); break;
       case 'M': updateMotorPids(message); break;
+      case 'W': updateWheelRadsPerSec(message); break;
       default : callbackFunction(command, message); break;
     }
   }
@@ -58,6 +66,10 @@ class PiTalk {
     Serial2.begin(115200);
     while (!Serial2) {;}
     str = "";
+  }
+
+  void setup(Wheels *w){
+    wheels = w;
   }
 
   void setup(Wheels *w, Imu *i, void (*callbk) (char, std::string)){

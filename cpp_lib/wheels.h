@@ -125,18 +125,17 @@ class Wheels {
   float getRightPhiDot(){ return rightPhiDot; }                         // rads/sec
   long getLeftMotorEdgeCount(){ return motorLeft.getEdgeCount(); }      // encoder ticks
   long getRightMotorEdgeCount(){ return motorRight.getEdgeCount(); }    // encoder ticks
+  float getLeftSetpoint(){ return leftMotorPid.getSetpoint(); }         // rads/sec
+  float getRightSetpoint(){ return rightMotorPid.getSetpoint(); }         // rads/sec
+  String getLeftPidParams(){ return leftMotorPid.getParamString(); }      // Kp, Ki, Kd values
+  String getRightPidParams(){ return rightMotorPid.getParamString(); }    // Kp, Ki, Kd values
 
   void spin(long dt) {
     updatePhi(dt);
-
     float leftCommandDelta = leftMotorPid.generateCommand(leftPhiDot, dt);
     float rightCommandDelta = rightMotorPid.generateCommand(rightPhiDot, dt);
-
     leftCommand += leftCommandDelta;
     rightCommand += rightCommandDelta;
-
-    String foo = "setPoint: " + String(leftMotorPid.getSetpoint()) + ", lpd: " + String(leftPhiDot) + ", dt: " + String(dt) + ", leftCommandDelta: " + String(leftCommandDelta) + ", leftCommand: " + String(leftCommand); 
-    Serial.println(foo);
     motorLeft.updatePower(leftCommand);
     motorRight.updatePower(rightCommand);
   }

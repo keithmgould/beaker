@@ -14,31 +14,35 @@
     In this system check, check for the following:
 
     0. Wheels both spin in same direction
-    1. Get a tachometer (seriously) and make sure the commanded rads/sec is actually happening.
+    1. Using a tachometer, make sure the commanded rads/sec is actually happening.
     2. Make sure the printout of rads/sec matches expected rads/sec, and also matches tachometer.
     3. Make sure direction between expected rads/sec and printed rads/sec matches
 */
 
 Wheels wheels;
+PiTalk piTalk;
+
 Waiter innerWaiter(MOTOR_CONTROL_TIMESTEP);
 Waiter outerWaiter(POSITION_CONTROL_TIMESTEP);
-
 void leftEncoderEvent(){ wheels.leftEncoderEvent(); }
 void rightEncoderEvent(){ wheels.rightEncoderEvent(); }
 
 void printStuff(int outerDt){
 	String str = String(outerDt) + ",";
-	str += String(wheels.getLeftPhiDot()) + ",";
-	str += String(wheels.getRightPhiDot()) + ",";
+  str += "setpoint: " + String(wheels.getLeftSetpoint()) + ",";
+	str += "leftPhiDot: " + String(wheels.getLeftPhiDot()) + ",";
+	str += "rightPhiDot: " + String(wheels.getRightPhiDot()) + ",";
+  str += "left mtr PID: " + wheels.getLeftPidParams();
 	Serial.println(str);
 }
 
 void setup(){
+  piTalk.setup(&wheels);
 	Serial.begin(115200); while (!Serial) {;}
 	attachInterrupt(digitalPinToInterrupt(LH_ENCODER_A), leftEncoderEvent, CHANGE);
   attachInterrupt(digitalPinToInterrupt(RH_ENCODER_A), rightEncoderEvent, CHANGE);
   wheels.initialize();
-  wheels.updateRadsPerSec(0.01);
+  wheels.updateRadsPerSec(0.0);
 }
 
 void loop(){
@@ -51,6 +55,7 @@ void loop(){
   // outer loop behavior
   if(outerWaiter.isTime()){
     float outerDt = outerWaiter.starting();
-    // printStuff(outerDt);
+    piTalk.checkForPiCommand();
+    printStuff(outerDt);
   }
 }

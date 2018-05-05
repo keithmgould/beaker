@@ -36,8 +36,10 @@
 #define MINIMUM_GAIN -1
 #define MAXIMUM_GAIN 1
 
-// Used by Wheels object
+// Used by IMU object
 #define THETA_OFFSET 0.01 // due to minorly non-level IMU
+
+// default Motor PID values
 #define MOTOR_P_PARAM 0.015
 #define MOTOR_I_PARAM 0
 #define MOTOR_D_PARAM 0.05
