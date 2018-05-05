@@ -5,6 +5,20 @@
 
   This library facilitates.
 
+  When a command comes down from the Pi, PiTalk checks to see if it can 
+  handle the command itself. If it can't, it passes the command off
+  to the main algorithm via callback.
+
+  Commands take the form <single letter command><details of command>
+
+  **If the details are an array, they are space delimited.**
+
+  Ex: 
+
+  M0.15 0.001 0.5 // updates motor PID values. Notice space delimited
+  W6.28           // updates wheels rads/sec
+
+
 */
 
 #ifndef __BEAKER_PITALK__
@@ -96,7 +110,7 @@ class PiTalk {
 
   // copy(is, eos, floats) was crashing. not sure why...
   // it was only crashing once I used this method via callback.
-  // when I used it in main copy worked fine.  ¯\_(ツ)_/¯
+  // when I used it in main, 'copy' worked fine.  ¯\_(ツ)_/¯
   void stringToFloats(std::string &message, float *floats){
     std::istringstream ss( message );
     std::istream_iterator <float> is( ss );

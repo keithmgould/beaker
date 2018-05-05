@@ -3,6 +3,12 @@
 
 #include "Arduino.h"
 
+/*
+    This is the classic PID control algorithm. This is probably 
+    the most common control algorithm on the planet so not much to add
+    here in these comments about how it works.
+*/
+
 class Pid {
   private:
 
