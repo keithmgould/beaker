@@ -34,7 +34,7 @@ class PiTalk {
 
   Wheels *wheels;
   Imu *my_imu;
-  void (*callbackFunction) (char, std::string) = NULL;
+  void (*callbackFunction) (char, std::string) = nullptr;
 
   // The IMU's theta value does not deliver a perfeft 0(zero)
   // when robot is balanced. This allows you to update.
