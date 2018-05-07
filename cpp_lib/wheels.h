@@ -25,7 +25,7 @@ class Wheels {
   Pid leftMotorPid = Pid(MOTOR_CONTROL_TIMESTEP);
   Pid rightMotorPid = Pid(MOTOR_CONTROL_TIMESTEP);
 
-  float leftPhi, leftLastPhi, rightPhi, rightLastPhi, leftPhiDot, rightPhiDot;
+  float leftPhi, leftLastPhi, rightPhi, rightLastPhi, leftPhiDot, rightPhiDot, rightPhiDelta, leftPhiDelta;
 
   // actual commands sent to motors
   float leftCommand, rightCommand;
@@ -43,11 +43,11 @@ class Wheels {
       if(phi > lastPhi){
         return phi - lastPhi;
       }else{
-        return FULL_ROTATION_EDGE_EVENTS - lastPhi + phi;
+        return TWO_PI - lastPhi + phi;
       }
     }else{
       if(phi > lastPhi){
-        return phi - FULL_ROTATION_EDGE_EVENTS - lastPhi;
+        return phi - TWO_PI - lastPhi;
       }else{
         return 0 - lastPhi + phi;
       }
@@ -57,18 +57,16 @@ class Wheels {
   // calculates and stores LEFT phi and phiDot
   void updateLeftPhi(float dt){
     leftPhi = motorLeft.getPhi();
-    float pDelta = phiDelta(leftPhi, leftLastPhi, motorLeft.getDirection());
-    leftPhiDot = (1000.0 / dt) * pDelta / (dt / MOTOR_CONTROL_TIMESTEP);
-    String foo = "dt: " + String(dt) + ", leftPhi: " + String(leftPhi) + ", leftLastPhi: " + String(leftLastPhi) + ", phiDelta: " + String(pDelta); 
-    // Serial.println(foo);
+    leftPhiDelta = phiDelta(leftPhi, leftLastPhi, motorLeft.getDirection());
+    leftPhiDot = (1000.0 / dt) * leftPhiDelta / (dt / MOTOR_CONTROL_TIMESTEP);
     leftLastPhi = leftPhi;
   }
 
   // calculates and stores RIGHT phi and phiDot
   void updateRightPhi(float dt){
     rightPhi = motorRight.getPhi();
-    float pDelta = phiDelta(rightPhi, rightLastPhi, motorRight.getDirection());
-    rightPhiDot = (1000.0 / dt) * pDelta / (dt / MOTOR_CONTROL_TIMESTEP);
+    rightPhiDelta = phiDelta(rightPhi, rightLastPhi, motorRight.getDirection());
+    rightPhiDot = (1000.0 / dt) * rightPhiDelta / (dt / MOTOR_CONTROL_TIMESTEP);
     rightLastPhi = rightPhi;
   }
 
@@ -117,18 +115,21 @@ class Wheels {
     return (motorLeft.getDistance() + motorRight.getDistance()) / 2.0;
   }
 
-  long getPhi(){ return (leftPhi + rightPhi) / 2.0; }                   // rads. avg of 2 whls
+  float getPhi(){ return (leftPhi + rightPhi) / 2.0; }                  // rads. avg of 2 whls
   float getPhiDot(){ return (leftPhiDot + rightPhiDot) / 2.0; }         // rads/sec. avg of 2 whls
-  long getLeftPhi(){ return leftPhi; }                                  // rads
+  float getLeftPhi(){ return leftPhi; }                                 // rads
+  float getLeftLastPhi(){ return leftLastPhi; }                         // rads
+  float getLeftPhiDelta(){ return leftPhiDelta; }                       // rads
+  float getRightPhiDelta(){ return rightPhiDelta; }                     // rads
   float getLeftPhiDot(){ return leftPhiDot; }                           // rads/sec
-  long getRightPhi(){ return rightPhi; }                                // rads
+  float getRightPhi(){ return rightPhi; }                               // rads
   float getRightPhiDot(){ return rightPhiDot; }                         // rads/sec
   long getLeftMotorEdgeCount(){ return motorLeft.getEdgeCount(); }      // encoder ticks
   long getRightMotorEdgeCount(){ return motorRight.getEdgeCount(); }    // encoder ticks
   float getLeftSetpoint(){ return leftMotorPid.getSetpoint(); }         // rads/sec
-  float getRightSetpoint(){ return rightMotorPid.getSetpoint(); }         // rads/sec
-  String getLeftPidParams(){ return leftMotorPid.getParamString(); }      // Kp, Ki, Kd values
-  String getRightPidParams(){ return rightMotorPid.getParamString(); }    // Kp, Ki, Kd values
+  float getRightSetpoint(){ return rightMotorPid.getSetpoint(); }       // rads/sec
+  String getLeftPidParams(){ return leftMotorPid.getParamString(); }    // Kp, Ki, Kd values
+  String getRightPidParams(){ return rightMotorPid.getParamString(); }  // Kp, Ki, Kd values
 
   void spin(long dt) {
     updatePhi(dt);
