@@ -39,9 +39,6 @@
 # IntelliJ
 .idea/
 
-# Makefile
-Makefile
-
 # CMake
 build/
 build-*/

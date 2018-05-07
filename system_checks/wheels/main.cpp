@@ -32,7 +32,7 @@ void printStuff(int outerDt){
   str += "setpoint: " + String(wheels.getLeftSetpoint()) + ",";
 	str += "leftPhiDot: " + String(wheels.getLeftPhiDot()) + ",";
 	str += "rightPhiDot: " + String(wheels.getRightPhiDot()) + ",";
-  str += "left mtr PID: " + wheels.getLeftPidParams();
+  str += "left params PID: " + wheels.getLeftPidParams();
 	Serial.println(str);
 }
 
