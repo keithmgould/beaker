@@ -1,6 +1,15 @@
 #ifndef __BEAKER_WAITER__
 #define __BEAKER_WAITER__
 
+/*
+    For dynamic robots, having precise loop times is very important. 
+    Furthermore, there might be more than one loop in the main loop, such as an outer
+    slower loop, and an inner faster loop.  These inner/outer loops facilitate what is 
+    commonly called cascading control.
+
+    The Waiter class facilitates easy loop management.
+*/
+
 class Waiter {
   private:
     long timestep;

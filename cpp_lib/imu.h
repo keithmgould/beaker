@@ -4,6 +4,7 @@
 #include <Adafruit_Sensor.h>            // IMU
 #include <Adafruit_BNO055.h>            // IMU
 #include <Wire.h>                       // I2C for IMU
+
 /*
     The Inertial Measurement Unit (IMU) reads from (currently) the BNO055.
     We might want to abstract away the specific chip at a later date. For now

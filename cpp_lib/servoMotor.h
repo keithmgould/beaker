@@ -3,6 +3,7 @@
 
 #include "Arduino.h"
 #include "./motor.h"
+#include <Servo.h>
 #include <Math.h>
 
 /*

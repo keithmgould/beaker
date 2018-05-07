@@ -1,6 +1,7 @@
 #include <Adafruit_Sensor.h>            // IMU
 #include <Adafruit_BNO055.h>            // IMU
 #include <Wire.h>                       // I2C for IMU
+#include <Servo.h>
 #include <StandardCplusplus.h>
 #include <stdlib.h>
 #include <string>
