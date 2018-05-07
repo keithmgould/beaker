@@ -7,8 +7,8 @@ constexpr float PI_OVER_ONE_EIGHTY = 0.017453292519943; // for degrees to radian
 constexpr float WHEEL_RADIUS = .042; // in meters
 constexpr int FULL_ROTATION_EDGE_EVENTS = 600; // 18.75 * 32
 constexpr float THETA_OFFSET = 0.01; // due to minorly non-level IMU
-constexpr float WHEEL_CIRCUMFERECE = 2 * PI * WHEEL_RADIUS;
-constexpr float CLICKS_TO_RADIANS = 2 * PI / FULL_ROTATION_EDGE_EVENTS;
+constexpr float WHEEL_CIRCUMFERECE = (2 * PI * WHEEL_RADIUS);
+constexpr float CLICKS_TO_RADIANS = (2 * PI / FULL_ROTATION_EDGE_EVENTS);
 
 // LED on side of robot
 constexpr int INDICATOR = 8;
