@@ -4,7 +4,7 @@
 #include "../../cpp_lib/servoMotor.h"
 
 /*
-	Stepping up from the pwmMotor system check, this script makes use of the
+	Stepping up from the rawPWMMotor system check, this script makes use of the
 	ServoMotor class.
 
 	Like pwmMotor system check, this will only work if Beaker is wired and configured

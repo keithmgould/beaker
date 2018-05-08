@@ -20,12 +20,17 @@
 
 class Motor
 {
+  protected:
+
+  // keeps track of increment/decrement when the interrupt from encoder hits. 
+  int tickDirection; 
+
+
   private:
 
   int edgeCount; // holds the edge counts within a single rotation. always between 0 and FULL_ROTATION_EDGE_EVENTS
   long totalEdgeCount; // holds the edge counts across all rotations.
   long rotations; // keeps track of number of rotations. Needed for X position.
-  int tickDirection; // keeps track of increment/decrement when the interrupt from encoder hits.
   int firstEncoderPin, secondEncoderPin;
 
   void handleInfinity(){

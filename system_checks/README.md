@@ -9,9 +9,16 @@ low-level functionality.
 
 Each system check tells you exactly what to check for in the comments.
 
+### Suggested Order of System Checks if using Serial for Motor Control:
+
+1. Encoders
+2. rawSerialMotor
+3. serialMotor
+4. wheels
+
 ### Suggested Order of System Checks if using PWM for Motor Control:
 
 1. Encoders
-2. pwmMotor
+2. rawPWMMotor
 3. servoMotor
 4. wheels

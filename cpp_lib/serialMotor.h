@@ -1,6 +1,7 @@
 #ifndef __BEAKER_SERIALMOTOR__
 #define __BEAKER_SERIALMOTOR__
 #include "Arduino.h"
+#include "./motor.h"
 #include <Math.h>
 
 /*
@@ -9,6 +10,8 @@
 */
 class SerialMotor: public Motor{
   public:
+
+  SerialMotor(int encoderA, int encoderB, int direction): Motor(encoderA, encoderB, direction){}
 
   /*
   Because Sabertooth controls two motors with one 8 byte character,
@@ -35,6 +38,6 @@ class SerialMotor: public Motor{
     byte command = tickDirection > 0 ? 64 + power : 192 + power;
     Serial1.write(command);
   }
-}
+};
 
 #endif

@@ -11,6 +11,8 @@
 /*
     Find out more about the wheels object in the comments of the wheels.h file.
 
+    NOTE: Make sure in wheels.h, the motor subclass is the one you want (Servo vs Serial)
+  
     In this system check, check for the following:
 
     0. Wheels both spin in same direction

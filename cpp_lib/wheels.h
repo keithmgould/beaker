@@ -43,8 +43,8 @@ class Wheels {
   // actual commands sent to motors
   float leftCommand, rightCommand;
 
-  ServoMotor motorLeft  = ServoMotor(LH_ENCODER_A, LH_ENCODER_B, LEFT);
-  ServoMotor motorRight = ServoMotor(RH_ENCODER_A, RH_ENCODER_B, RIGHT);
+  SerialMotor motorLeft  = ServoMotor(LH_ENCODER_A, LH_ENCODER_B, LEFT);
+  SerialMotor motorRight = ServoMotor(RH_ENCODER_A, RH_ENCODER_B, RIGHT);
 
   // In rads.
   float phiDelta(long totalEdgeCount, long lastTotalEdgeCount){

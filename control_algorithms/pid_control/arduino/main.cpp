@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string>
 #include <sstream>                      // stringstream
-#include "../../cpp_lib/includes.h"     // common Beaker functionality
+#include "../../../cpp_lib/includes.h"     // common Beaker functionality
 
 Imu my_imu;
 Wheels wheels;
@@ -43,7 +43,7 @@ void handlePiTalk(char command, std::string message){
 void setup() {
   piTalk.setup(&wheels, &my_imu, &handlePiTalk);
   Serial.begin(115200); while (!Serial) {;}
-  Serial3.begin(115200); while (!Serial3) {;}
+  Serial3.begin(115200); while (!Serial3) {;} // Bluetooth
   Serial.println("\n\nBeginning initializations...");
   my_imu.setup();
   attachInterrupt(digitalPinToInterrupt(LH_ENCODER_A), leftEncoderEvent, CHANGE);
