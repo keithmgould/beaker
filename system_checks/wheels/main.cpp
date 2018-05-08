@@ -29,10 +29,11 @@ void rightEncoderEvent(){ wheels.rightEncoderEvent(); }
 
 void printStuff(int outerDt){
 	String str = String(outerDt) + ",";
-  str += "setpoint: " + String(wheels.getLeftSetpoint()) + ",";
-	str += "leftPhiDot: " + String(wheels.getLeftPhiDot()) + ",";
-	str += "rightPhiDot: " + String(wheels.getRightPhiDot()) + ",";
-  str += "left params PID: " + wheels.getLeftPidParams();
+  str += "setpoint: " + String(wheels.getLeftSetpoint());
+	str += ", leftPhiDot: " + String(wheels.getLeftPhiDot(),4);
+  str += ", leftPhiDelta: " + String(wheels.getLeftPhiDelta(),4);
+  str += ", leftCommand: " + String(wheels.getLeftCommand(),4);
+  str += ", left params PID: " + wheels.getLeftPidParams();
 	Serial.println(str);
 }
 
@@ -56,6 +57,6 @@ void loop(){
   if(outerWaiter.isTime()){
     float outerDt = outerWaiter.starting();
     piTalk.checkForPiCommand();
-    printStuff(outerDt);
+    // printStuff(outerDt);
   }
 }

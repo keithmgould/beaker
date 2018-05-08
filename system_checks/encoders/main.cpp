@@ -39,8 +39,8 @@ void setup(){
 }
 
 void loop(){
-	String foo = "phiLeft: " + String(motorLeft.getPhi()) + ", xLeft: " + String(motorLeft.getDistance());
-	foo += ", phiRight: " + String(motorRight.getPhi()) + ", xRight: " + String(motorRight.getDistance());
+	String foo = "phiLeft: " + String(motorLeft.getPhi(), 4) + ", xLeft: " + String(motorLeft.getDistance(), 4);
+	foo += ", phiRight: " + String(motorRight.getPhi(), 4) + ", xRight: " + String(motorRight.getDistance(), 4);
 	Serial.println(foo);
-	delay(500);
+	delay(100);
 }
