@@ -37,6 +37,9 @@ class Wheels {
   // XPos is distance. In Meters.
   float leftXPos, leftLastXPos, rightXPos, rightLastXPos;
 
+  // totalEdgeCount used for calculating phiDelta
+  long leftTotalEdgeCount, leftLastTotalEdgeCount, rightTotalEdgeCount, rightLastTotalEdgeCount;
+
   // result of motor PIDs
   float leftCommandDelta, rightCommandDelta;
 
@@ -50,48 +53,59 @@ class Wheels {
   // given the modulus nature of phi (always has a value betwenm 0 to 2*PI),
   // and direction of rotation, there are four different ways to calculate phiDelta.
   // Direction of rotation is inferred from distanfe being positive or negative
-  float phiDelta(float phi, float lastPhi, float distance){
-    if(phi == lastPhi) { return 0; }
+  // float phiDelta(float phi, float lastPhi, float distance){
+  //   if(phi == lastPhi || distance == 0) { return 0; }
 
-    if(distance > 0){                         // If true, wheel moving forward
-      if(phi > lastPhi){                      // if true, phi did not reset
-        // Serial.print("A!!!");
-        return phi - lastPhi;                 // vanilla case of higher new phi minus lower old phi
-      }else{                                  // phi passed 2PI and reset
-        // Serial.print("B!!!");
-        return TWO_PI - lastPhi + phi;        // calculate delta across the reset point
-      }
-    }else{                                    // wheel moving backward
-      if(phi > lastPhi){                      // phi passed 0/2PI and reset
-        // Serial.print("C!!!");
-        return phi - TWO_PI - lastPhi;        // calculate delta across reset point
-      }else{                                  // vanilla case of subtracting within a rotation
-        // Serial.print("D!!!");
-        return 0 - lastPhi + phi;             // calculate phiDelta
-      }
-    }
+  //   if(distance > 0){                         // If true, wheel moving forward
+  //     if(phi > lastPhi){                      // if true, phi did not reset
+  //       return phi - lastPhi;                 // vanilla case of higher new phi minus lower old phi
+  //     }else{                                  // phi passed 2PI and reset
+  //       return TWO_PI - lastPhi + phi;        // calculate delta across the reset point
+  //     }
+  //   }else{                                    // wheel moving backward
+  //     if(phi > lastPhi){                      // phi passed 0/2PI and reset
+  //       return phi - TWO_PI - lastPhi;        // calculate delta across reset point
+  //     }else{                                  // vanilla case of subtracting within a rotation
+  //       return 0 - lastPhi + phi;             // calculate phiDelta
+  //     }
+  //   }
+  // }
+
+  // This casting from long to float works because the subtraction
+  // will always be a very small number, under FULL_ROTATION_EDGE_EVENTS.
+  // We can't use use phi - oldPhi, because phi never exceeds 2*PI, and that 
+  // function starts to look ugly with case statements.
+  //
+  // In rads.
+  float phiDelta(long totalEdgeCount, long oldTotalEdgeCount){
+    float edgeDelta = totalEdgeCount - oldTotalEdgeCount;
+    return edgeDelta * CLICKS_TO_RADIANS;
   }
 
   // calculates and stores LEFT phi and phiDot
   void updateLeftWheelState(float dt){
+    leftTotalEdgeCount = motorLeft.getTotalEdgeCount();
     leftXPos = motorLeft.getDistance();
     leftPhi = motorLeft.getPhi();
-    // Serial.print("phi: "); Serial.print(leftPhi,5); Serial.print(", lastPhi: "); Serial.print(leftLastPhi,5);
-    // Serial.print(", xPos: "); Serial.print(leftXPos,5);Serial.print(", lastxPos: "); Serial.print(leftLastXPos,5);
-    leftPhiDelta = phiDelta(leftPhi, leftLastPhi, leftXPos - leftLastXPos);
+    Serial.print("phi: "); Serial.print(leftPhi,5); Serial.print(", lastPhi: "); Serial.print(leftLastPhi,5);
+    Serial.print(", xPos: "); Serial.print(leftXPos,5);Serial.print(", lastxPos: "); Serial.print(leftLastXPos,5);
+    leftPhiDelta = phiDelta(leftTotalEdgeCount, leftLastTotalEdgeCount);
     leftPhiDot = (1000.0 / dt) * leftPhiDelta / (dt / MOTOR_CONTROL_TIMESTEP);
     leftLastPhi = leftPhi;
     leftLastXPos = leftXPos;
+    leftLastTotalEdgeCount = leftTotalEdgeCount;
   }
 
   // calculates and stores RIGHT phi and phiDot
   void updateRightWheelState(float dt){
+    rightTotalEdgeCount = motorRight.getTotalEdgeCount();
     rightXPos = motorRight.getDistance();
     rightPhi = motorRight.getPhi();
-    rightPhiDelta = phiDelta(rightPhi, rightLastPhi, rightXPos - rightLastXPos);
+    rightPhiDelta = phiDelta(rightTotalEdgeCount, rightLastTotalEdgeCount);
     rightPhiDot = (1000.0 / dt) * rightPhiDelta / (dt / MOTOR_CONTROL_TIMESTEP);
     rightLastPhi = rightPhi;
     rightLastXPos = rightXPos;
+    rightLastTotalEdgeCount = rightTotalEdgeCount;
   }
 
   void updateWheelStates(float dt){
@@ -105,6 +119,7 @@ class Wheels {
     leftPhiDot = rightPhiDot = 0;
     leftXPos = leftLastXPos = rightXPos = rightLastXPos = 0;
     leftCommandDelta = rightCommandDelta = 0;
+    leftTotalEdgeCount = leftLastTotalEdgeCount = rightTotalEdgeCount = rightLastTotalEdgeCount = 0;
     motorLeft.resetCount();
     motorRight.resetCount();
   }
@@ -113,7 +128,7 @@ class Wheels {
 
   Wheels(){
     // Serial1 used for communication with motor driver (Sabertooth)
-    Serial1.begin(9600); while (!Serial1) { delay(100); }
+    Serial1.begin(9600); while (!Serial1) { delay(10); }
   }
 
   void initialize(){
@@ -152,10 +167,6 @@ class Wheels {
   float getLeftPhiDot(){ return leftPhiDot; }                           // rads/sec
   float getRightPhi(){ return rightPhi; }                               // rads
   float getRightPhiDot(){ return rightPhiDot; }                         // rads/sec
-  float getLeftDistance() { return motorLeft.getDistance(); }           // meters
-  float getRightDistance() { return motorRight.getDistance(); }         // meters
-  long getLeftMotorEdgeCount(){ return motorLeft.getEdgeCount(); }      // encoder ticks
-  long getRightMotorEdgeCount(){ return motorRight.getEdgeCount(); }    // encoder ticks
   float getLeftSetpoint(){ return leftMotorPid.getSetpoint(); }         // rads/sec
   float getRightSetpoint(){ return rightMotorPid.getSetpoint(); }       // rads/sec
   String getLeftPidParams(){ return leftMotorPid.getParamString(); }    // Kp, Ki, Kd values
@@ -170,9 +181,9 @@ class Wheels {
 
     String foo = ", dt: " + String(dt);
     foo += ", leftPhiDot: " + String(leftPhiDot,5);
-    // foo += ", leftPhiDelta: " + String(leftPhiDelta,5);
-    // foo += ", leftCommandDelta: " + String(leftCommandDelta,5);
-    // foo += ", leftCommand: " + String(leftCommand,5);
+    foo += ", leftPhiDelta: " + String(leftPhiDelta,5);
+    foo += ", leftCommandDelta: " + String(leftCommandDelta,5);
+    foo += ", leftCommand: " + String(leftCommand,5);
 
     Serial.println(foo); 
     motorLeft.updatePower(leftCommand);

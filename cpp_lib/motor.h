@@ -12,6 +12,10 @@
 
     The motor class, and its subclasses, are not aware of time, so they 
     do not keep track of speeds, either rotational or linear.
+
+    Phi is determined using the motor's quadrature encoders.
+    One rotation has FULL_ROTATION_EDGE_EVENTS ticks or "edge events."
+    The "edge count" is how many ticks registered in current rotation.
 */
 
 class Motor
@@ -19,7 +23,8 @@ class Motor
   private:
 
   int edgeCount; // holds the edge counts within a single rotation. always between 0 and FULL_ROTATION_EDGE_EVENTS
-  long rotations; // keeps track of rotations. Needed for X position.
+  long totalEdgeCount; // holds the edge counts across all rotations.
+  long rotations; // keeps track of number of rotations. Needed for X position.
   int tickDirection; // keeps track of increment/decrement when the interrupt from encoder hits.
   int firstEncoderPin, secondEncoderPin;
 
@@ -37,12 +42,14 @@ class Motor
   void tickRight()
   {
     edgeCount += tickDirection;
+    totalEdgeCount += tickDirection;
     handleInfinity();
   }
 
   void tickLeft()
   {
     edgeCount -= tickDirection;
+    totalEdgeCount -= tickDirection;
     handleInfinity();
   }
 
@@ -67,7 +74,7 @@ class Motor
 
   // in radians
   float getPhi() {
-    return (float) edgeCount * (float) CLICKS_TO_RADIANS;
+    return (float) edgeCount * CLICKS_TO_RADIANS;
   }
 
   // in meters  
@@ -77,7 +84,11 @@ class Motor
 
   // in meters
   float getDistance() {
-    return rotationsToMeters() + getPhi() * (float) WHEEL_RADIUS;
+    return rotationsToMeters() + getPhi() * WHEEL_RADIUS;
+  }
+
+  long getTotalEdgeCount() {
+    return totalEdgeCount;
   }
 
   long getEdgeCount() {
@@ -87,6 +98,11 @@ class Motor
   int getDirection(){
     return tickDirection;
   }
+
+  // float getPhiDelta(long newEdgeCount, long oldEdgeCount){
+  //   float edgeDelta = newEdgeCount - oldEdgeCount;
+  //   return edgeDelta * CLICKS_TO_RADIANS;
+  // }
 
   // this should be called by encoder interrupts
   void encoderEvent() {

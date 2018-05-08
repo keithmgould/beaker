@@ -24,12 +24,12 @@ class ServoMotor: public Motor{
   }
 
   void updatePower(float raw_power) {
-    raw_power = -raw_power; // because forward is values ranging from 0-90
     raw_power = constrain(raw_power, -1, 1);  // safety first
-    raw_power *= 90; // scale to 90 in either direction (+/-)
-    int power = roundf(raw_power);
-    power += 90;
-    servo.write(power);
+    raw_power = -raw_power;                   // because "forward" is values ranging from 0-90
+    raw_power *= 90;                          // scale to 90 in either direction (+/-)
+    int power = roundf(raw_power);            // the servo object wants an int
+    power += 90;                              // 90 is stopped. Add to it the (+/-) offset
+    servo.write(power);                       // send actual command to motor driver
   }
 };
 
