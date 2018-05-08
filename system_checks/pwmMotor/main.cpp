@@ -9,7 +9,15 @@
 	Note this will only work when Beaker is wired and 
 	configured for PWM (vs Serial)
 
-	If the wheels spin, then this check passes.
+	90 is stopped.
+	Power ranges from 0 (full forward) to 180 (full reverse)
+
+	
+	Check: 
+
+	If the wheels spin forward then this check passes.
+	See encoder system check for clarification on forward.
+  
 */
 
 
@@ -19,8 +27,8 @@ void setup()
 {
   servo.attach( 11, 1000, 2000);
   servo2.attach(10, 1000, 2000);
-  servo.write(99);
-  servo2.write(99);
+  servo.write(80);
+  servo2.write(80);
 }
 
 void loop(){}
