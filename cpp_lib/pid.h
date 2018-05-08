@@ -59,9 +59,9 @@ class Pid {
   }
 
   void buildParamString() {
-    paramString = String(kP);
-    paramString += "," + String(kI);
-    paramString += "," + String(kD);
+    paramString = String(kP,4);
+    paramString += "," + String(kI,4);
+    paramString += "," + String(kD,4);
   }
 
   public:

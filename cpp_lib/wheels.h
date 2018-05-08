@@ -1,7 +1,8 @@
 #ifndef __BEAKER_WHEELS__
 #define __BEAKER_WHEELS__
 
-#include "./servoMotor.h"     // low level motor control
+#include "./servoMotor.h"     // low level servo motor control
+#include "./serialMotor.h"     // low level serial motor control
 #include "./waiter.h"
 #include "./pid.h"            // Basic PID algorithm
 
@@ -43,8 +44,8 @@ class Wheels {
   // actual commands sent to motors
   float leftCommand, rightCommand;
 
-  SerialMotor motorLeft  = ServoMotor(LH_ENCODER_A, LH_ENCODER_B, LEFT);
-  SerialMotor motorRight = ServoMotor(RH_ENCODER_A, RH_ENCODER_B, RIGHT);
+  SerialMotor motorLeft  = SerialMotor(LH_ENCODER_A, LH_ENCODER_B, LEFT);
+  SerialMotor motorRight = SerialMotor(RH_ENCODER_A, RH_ENCODER_B, RIGHT);
 
   // In rads.
   float phiDelta(long totalEdgeCount, long lastTotalEdgeCount){
@@ -96,8 +97,7 @@ class Wheels {
   }
 
   void initialize(){
-    motorLeft.attach(LEFT_MOTOR_DRIVER);
-    motorRight.attach(RIGHT_MOTOR_DRIVER);
+    Serial1.begin(9600); while (!Serial1) {delay(1);}
     motorLeft.updatePower(0);
     motorRight.updatePower(0);
     delay(500);

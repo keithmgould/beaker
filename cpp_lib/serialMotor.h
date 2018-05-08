@@ -35,7 +35,7 @@ class SerialMotor: public Motor{
     raw_power = constrain(raw_power, -1, 1);  // safety first
     raw_power *= 63;
     int power = roundf(raw_power);
-    byte command = tickDirection > 0 ? 64 + power : 192 + power;
+    byte command = tickDirection == RIGHT ? 64 + power : 192 + power;
     Serial1.write(command);
   }
 };
