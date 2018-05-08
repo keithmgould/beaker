@@ -34,9 +34,6 @@ class Wheels {
   // phiDot is wheel velocity. in rads/sec.
   float leftPhiDot, rightPhiDot;
 
-  // XPos is distance. In Meters.
-  float leftXPos, leftLastXPos, rightXPos, rightLastXPos;
-
   // totalEdgeCount used for calculating phiDelta
   long leftTotalEdgeCount, leftLastTotalEdgeCount, rightTotalEdgeCount, rightLastTotalEdgeCount;
 
@@ -49,67 +46,35 @@ class Wheels {
   ServoMotor motorLeft  = ServoMotor(LH_ENCODER_A, LH_ENCODER_B, LEFT);
   ServoMotor motorRight = ServoMotor(RH_ENCODER_A, RH_ENCODER_B, RIGHT);
 
-  // phiDelta is distance in radians between current and prev phi value.
-  // given the modulus nature of phi (always has a value betwenm 0 to 2*PI),
-  // and direction of rotation, there are four different ways to calculate phiDelta.
-  // Direction of rotation is inferred from distanfe being positive or negative
-  // float phiDelta(float phi, float lastPhi, float distance){
-  //   if(phi == lastPhi || distance == 0) { return 0; }
-
-  //   if(distance > 0){                         // If true, wheel moving forward
-  //     if(phi > lastPhi){                      // if true, phi did not reset
-  //       return phi - lastPhi;                 // vanilla case of higher new phi minus lower old phi
-  //     }else{                                  // phi passed 2PI and reset
-  //       return TWO_PI - lastPhi + phi;        // calculate delta across the reset point
-  //     }
-  //   }else{                                    // wheel moving backward
-  //     if(phi > lastPhi){                      // phi passed 0/2PI and reset
-  //       return phi - TWO_PI - lastPhi;        // calculate delta across reset point
-  //     }else{                                  // vanilla case of subtracting within a rotation
-  //       return 0 - lastPhi + phi;             // calculate phiDelta
-  //     }
-  //   }
-  // }
-
-  // This casting from long to float works because the subtraction
-  // will always be a very small number, under FULL_ROTATION_EDGE_EVENTS.
-  // We can't use use phi - oldPhi, because phi never exceeds 2*PI, and that 
-  // function starts to look ugly with case statements.
-  //
   // In rads.
-  float phiDelta(long totalEdgeCount, long oldTotalEdgeCount){
-    float edgeDelta = totalEdgeCount - oldTotalEdgeCount;
+  float phiDelta(long totalEdgeCount, long lastTotalEdgeCount){
+    // casting safe because edgeDelta <= FULL_ROTATION_EDGE_EVENTS
+    float edgeDelta = totalEdgeCount - lastTotalEdgeCount;
     return edgeDelta * CLICKS_TO_RADIANS;
   }
 
   // calculates and stores LEFT phi and phiDot
   void updateLeftWheelState(float dt){
     leftTotalEdgeCount = motorLeft.getTotalEdgeCount();
-    leftXPos = motorLeft.getDistance();
     leftPhi = motorLeft.getPhi();
-    Serial.print("phi: "); Serial.print(leftPhi,5); Serial.print(", lastPhi: "); Serial.print(leftLastPhi,5);
-    Serial.print(", xPos: "); Serial.print(leftXPos,5);Serial.print(", lastxPos: "); Serial.print(leftLastXPos,5);
     leftPhiDelta = phiDelta(leftTotalEdgeCount, leftLastTotalEdgeCount);
     leftPhiDot = (1000.0 / dt) * leftPhiDelta / (dt / MOTOR_CONTROL_TIMESTEP);
     leftLastPhi = leftPhi;
-    leftLastXPos = leftXPos;
     leftLastTotalEdgeCount = leftTotalEdgeCount;
   }
 
   // calculates and stores RIGHT phi and phiDot
   void updateRightWheelState(float dt){
     rightTotalEdgeCount = motorRight.getTotalEdgeCount();
-    rightXPos = motorRight.getDistance();
     rightPhi = motorRight.getPhi();
     rightPhiDelta = phiDelta(rightTotalEdgeCount, rightLastTotalEdgeCount);
     rightPhiDot = (1000.0 / dt) * rightPhiDelta / (dt / MOTOR_CONTROL_TIMESTEP);
     rightLastPhi = rightPhi;
-    rightLastXPos = rightXPos;
     rightLastTotalEdgeCount = rightTotalEdgeCount;
   }
 
   void updateWheelStates(float dt){
-    // updateRightWheelState(dt);
+    updateRightWheelState(dt);
     updateLeftWheelState(dt);
   }
 
@@ -117,7 +82,6 @@ class Wheels {
     leftPhi = leftLastPhi = rightPhi = rightLastPhi = 0;
     leftPhiDelta = rightPhiDelta = 0;
     leftPhiDot = rightPhiDot = 0;
-    leftXPos = leftLastXPos = rightXPos = rightLastXPos = 0;
     leftCommandDelta = rightCommandDelta = 0;
     leftTotalEdgeCount = leftLastTotalEdgeCount = rightTotalEdgeCount = rightLastTotalEdgeCount = 0;
     motorLeft.resetCount();
@@ -179,15 +143,9 @@ class Wheels {
     leftCommand += leftCommandDelta;
     rightCommand += rightCommandDelta;
 
-    String foo = ", dt: " + String(dt);
-    foo += ", leftPhiDot: " + String(leftPhiDot,5);
-    foo += ", leftPhiDelta: " + String(leftPhiDelta,5);
-    foo += ", leftCommandDelta: " + String(leftCommandDelta,5);
-    foo += ", leftCommand: " + String(leftCommand,5);
-
-    Serial.println(foo); 
+  
     motorLeft.updatePower(leftCommand);
-    // motorRight.updatePower(rightCommand);
+    motorRight.updatePower(rightCommand);
   }
 
   // For tuning the motor PIDs. This should not
