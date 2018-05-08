@@ -36,13 +36,13 @@ class Motor
 
   void tickRight()
   {
-    edgeCount -= tickDirection;
+    edgeCount += tickDirection;
     handleInfinity();
   }
 
   void tickLeft()
   {
-    edgeCount += tickDirection;
+    edgeCount -= tickDirection;
     handleInfinity();
   }
 

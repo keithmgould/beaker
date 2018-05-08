@@ -24,12 +24,11 @@ class ServoMotor: public Motor{
   }
 
   void updatePower(float raw_power) {
-    raw_power = -raw_power; // its either this or swap the power wires to the motors.
+    raw_power = -raw_power; // because forward is values ranging from 0-90
     raw_power = constrain(raw_power, -1, 1);  // safety first
     raw_power *= 90; // scale to 90 in either direction (+/-)
     int power = roundf(raw_power);
     power += 90;
-    power = constrain(power, 80, 100); // TEMPORARY!!!!-----------------------------------
     servo.write(power);
   }
 };
