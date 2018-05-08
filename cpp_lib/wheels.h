@@ -136,14 +136,19 @@ class Wheels {
   String getLeftPidParams(){ return leftMotorPid.getParamString(); }    // Kp, Ki, Kd values
   String getRightPidParams(){ return rightMotorPid.getParamString(); }  // Kp, Ki, Kd values
 
+  // ths method is called every inner (fast) loop, usually 
+  // around every 5ms.
+  //
+  // its job is to keep the wheels spinning at the desired rad/sec.
+  //
+  // it fetches the wheel states, then uses each motor's PID controller
+  // to calculate a new command. Finally it issues that command.
   void spin(long dt) {
     updateWheelStates(dt);
     leftCommandDelta = leftMotorPid.generateCommand(leftPhiDot, dt);
     rightCommandDelta = rightMotorPid.generateCommand(rightPhiDot, dt);
     leftCommand += leftCommandDelta;
     rightCommand += rightCommandDelta;
-
-  
     motorLeft.updatePower(leftCommand);
     motorRight.updatePower(rightCommand);
   }

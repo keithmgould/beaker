@@ -44,9 +44,9 @@ constexpr int MINIMUM_GAIN = -1;
 constexpr int MAXIMUM_GAIN = 1;
 
 // default Motor PID values
-constexpr float MOTOR_P_PARAM = 0.001;
+constexpr float MOTOR_P_PARAM = 0.003;
 constexpr float MOTOR_I_PARAM = 0;
-constexpr float MOTOR_D_PARAM = 0; //0.05;
+constexpr float MOTOR_D_PARAM = 0;
 
 // Used by motors for direction of rotation
 constexpr int FORWARD = 1;
