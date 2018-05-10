@@ -21,7 +21,7 @@ void rightEncoderEvent(){ wheels.rightEncoderEvent(); }
 void printStuff(float dt, float newRadPerSec){
   String log = String(dt);
   log += "," + String(my_imu.getTheta(),4) + "," + String(my_imu.getThetaDot(),4);
-  log += "," + String(wheels.getPhi(),4) + "," + String(wheels.getPhiDot(),4);
+  log += "," + String(wheels.getX(),4) + "," + String(wheels.getPhiDot(),4);
   log += "," + String(my_imu.getThetaOffset());
   log += "," + p4.getParamString();
   log += "," + p4.getTermString();
@@ -35,9 +35,14 @@ void updateP4Parameters(std::string message){
   p4.updateParameters(paramVals[0], paramVals[1], paramVals[2], paramVals[3]);
 }
 
+void zeroP4Parameters(std::string message){
+ p4.updateParameters(0,0,0,0); 
+}
+
 void handlePiTalk(char command, std::string message){
   switch(command){
     case 'K': updateP4Parameters(message); break;
+    case 'Z': zeroP4Parameters(message); break;
   }
 }
 
@@ -59,6 +64,7 @@ void loop(){
   if(innerWaiter.isTime()){
     float innerDt = innerWaiter.starting();
     wheels.spin(innerDt);
+    my_imu.pushThetaDotData();
   }
 
   // outer loop behavior
