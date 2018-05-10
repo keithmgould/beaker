@@ -15,6 +15,7 @@
   63 is full forward
 
 
+  NOTE: This test is meant to be performed with Beaker hanging, wheels NOT touching the ground.
 	
 	Check: 
 

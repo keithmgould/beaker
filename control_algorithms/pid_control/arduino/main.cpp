@@ -19,12 +19,15 @@ void rightEncoderEvent(){ wheels.rightEncoderEvent(); }
 
 void printStuff(float dt, float newRadPerSec){
   String log = String(dt);
-  log += "," + String(my_imu.getTheta(),4) + "," + String(my_imu.getThetaDot(),4);
-  log += "," + String(wheels.getPhi(),4) + "," + String(wheels.getPhiDot(),4);
-  log += "," + String(my_imu.getThetaOffset());
-  log += "," + thetaPid.getParamString();
-  log += "," + thetaPid.getTermString();
+  log += "," + String(my_imu.getTheta(),4);
+  log += "," + String(my_imu.getThetaDot(),4);
+  log += "," + String(wheels.getPhi(),4);
+  log += "," + String(wheels.getPhiDot(),4);
+  log += "," + thetaPid.getParamString(); // Kp, Ki, Kd values
+  log += "," + thetaPid.getTermString();  // Kp * theta, etc....
   log += "," + String(newRadPerSec);
+  log += "," + String(my_imu.getThetaOffset());
+  log += "," + String(thetaPid.getCurrentError());
   Serial3.println(log);
 }
 
@@ -42,8 +45,8 @@ void handlePiTalk(char command, std::string message){
 
 void setup() {
   piTalk.setup(&wheels, &my_imu, &handlePiTalk);
-  Serial.begin(115200); while (!Serial) {;}
-  Serial3.begin(115200); while (!Serial3) {;} // Bluetooth
+  Serial.begin(115200); while (!Serial) {delay(1);}    // main serial out
+  Serial3.begin(115200); while (!Serial3) {delay(1);}  // Bluetooth
   Serial.println("\n\nBeginning initializations...");
   my_imu.setup();
   attachInterrupt(digitalPinToInterrupt(LH_ENCODER_A), leftEncoderEvent, CHANGE);
@@ -65,6 +68,7 @@ void loop(){
     float outerDt = outerWaiter.starting();
     my_imu.update();
     float newRadPerSec = thetaPid.generateCommand(my_imu.getTheta(), outerDt);
+    newRadPerSec = -newRadPerSec;
     wheels.updateRadsPerSec(newRadPerSec);
     printStuff(outerDt, newRadPerSec);
     piTalk.checkForPiCommand();

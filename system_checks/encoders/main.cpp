@@ -14,6 +14,8 @@
 	Given the notion of "forward," spinning a wheel in the direction
 	that moves Beaker forward is the same as spinning the wheel forward.
 
+	NOTE: This test is meant to be performed with Beaker hanging, wheels NOT touching the ground.
+
 	Checks:
 
 	0. manually rotate the left wheel FORWARD . Make sure phiLeft and xLeft INCREASE.

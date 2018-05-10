@@ -5,7 +5,8 @@
 #include <stdlib.h>
 #include <string>
 #include <sstream>                      // stringstream
-#include "../../cpp_lib/includes.h"     // common Beaker functionality
+#include "../../../cpp_lib/includes.h"     // common Beaker functionality
+#include "../../../cpp_lib/p4.h"
 
 P4 p4;
 Imu my_imu;
@@ -43,7 +44,7 @@ void handlePiTalk(char command, std::string message){
 void setup() {
   piTalk.setup(&wheels, &my_imu, &handlePiTalk);
   Serial.begin(115200); while (!Serial) {;}
-  Serial3.begin(115200); while (!Serial3) {;}
+  Serial3.begin(115200); while (!Serial3) {;} // bluetooth
   Serial.println("\n\nBeginning initializations...");
   my_imu.setup();
   attachInterrupt(digitalPinToInterrupt(LH_ENCODER_A), leftEncoderEvent, CHANGE);
@@ -64,7 +65,7 @@ void loop(){
   if(outerWaiter.isTime()){
     float outerDt = outerWaiter.starting();
     my_imu.update();
-    float newRadPerSec = p4.computeNewRadsPerSec(my_imu.getTheta(), my_imu.getThetaDot(), wheels.getPhi(), wheels.getPhiDot());
+    float newRadPerSec = p4.computeNewRadsPerSec(my_imu.getTheta(), my_imu.getThetaDot(), wheels.getX(), wheels.getPhiDot());
     wheels.updateRadsPerSec(newRadPerSec);
     printStuff(outerDt, newRadPerSec);
     piTalk.checkForPiCommand();

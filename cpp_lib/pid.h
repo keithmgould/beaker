@@ -38,10 +38,10 @@ class Pid {
     // once we cross the 0 error mark,
     // the past accumulated error
     // is no longer helping us. Reset to 0.
-    if(currentError == 0){
-      accumulatedError = 0;
-      return;
-    }
+    // if(currentError == 0){
+    //   accumulatedError = 0;
+    //   return;
+    // }
 
     accumulatedError += currentError;
 
@@ -53,7 +53,6 @@ class Pid {
   // for that we need the derivative of the error.
   // since this is only called once per loop,
   // we do not need to divide by time.
-  // deltaError used for D component
   void calculateDeltaError(){
     deltaError =  currentError - previousError;
   }
@@ -75,6 +74,7 @@ class Pid {
   float getki(){ return kI; }
   float getkd(){ return kD; }
   float getSetpoint(){ return setpoint; }
+  float getCurrentError(){ return currentError; }
   String getParamString() { return paramString; }
   String getTermString() { return termString; }
 

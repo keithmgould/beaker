@@ -1,7 +1,6 @@
 #ifndef __BEAKER_WHEELS__
 #define __BEAKER_WHEELS__
 
-#include "./servoMotor.h"     // low level servo motor control
 #include "./serialMotor.h"     // low level serial motor control
 #include "./waiter.h"
 #include "./pid.h"            // Basic PID algorithm
@@ -135,6 +134,7 @@ class Wheels {
   float getRightSetpoint(){ return rightMotorPid.getSetpoint(); }       // rads/sec
   String getLeftPidParams(){ return leftMotorPid.getParamString(); }    // Kp, Ki, Kd values
   String getRightPidParams(){ return rightMotorPid.getParamString(); }  // Kp, Ki, Kd values
+  String getLeftPidTerms(){ return leftMotorPid.getTermString(); }  // Kp, Ki, Kd values
 
   // ths method is called every inner (fast) loop, usually 
   // around every 5ms.

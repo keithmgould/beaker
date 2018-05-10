@@ -12,6 +12,8 @@
 
 	Argument to updatePower ranges from -1 to 1.
 
+	NOTE: This test is meant to be performed with Beaker hanging, wheels NOT touching the ground.
+
 	Checks:
 
 	0. Given a positive value, check that the wheels spin forward. 

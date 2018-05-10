@@ -12,6 +12,7 @@
 	90 is stopped.
 	Power ranges from 0 (full forward) to 180 (full reverse)
 
+	NOTE: This test is meant to be performed with Beaker hanging, wheels NOT touching the ground.
 	
 	Check: 
 

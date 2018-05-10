@@ -13,6 +13,8 @@
 
     NOTE: Make sure in wheels.h, the motor subclass is the one you want (Servo vs Serial)
   
+    NOTE: This test is meant to be performed with Beaker hanging, wheels NOT touching the ground.
+
     In this system check, check for the following:
 
     0. Wheels both spin in same direction
