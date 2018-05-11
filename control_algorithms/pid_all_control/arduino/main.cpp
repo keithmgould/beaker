@@ -74,7 +74,12 @@ void loadAllPidParameters(){
 }
 
 void showPidValues(){
-  piTalk.sendToPi('H', thetaPid.getParamString());
+  String response = "theta: " + thetaPid.getParamString() + ",";
+  response += "thetaDot: " + thetaDotPid.getParamString() + ",";
+  response += "xPost: " + xPosPid.getParamString() + ",";
+  response += "phiDot: " + phiDotPid.getParamString();
+  
+  piTalk.sendToPi('H', response);
 }
 
 void updatePidParameters(int component, std::string message){
