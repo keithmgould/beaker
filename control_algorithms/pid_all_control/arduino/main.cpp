@@ -73,6 +73,10 @@ void loadAllPidParameters(){
   phiDotPid.loadParameters(addr);
 }
 
+void showPidValues(){
+  piTalk.sendToPi('H', thetaPid.getParamString());
+}
+
 void updatePidParameters(int component, std::string message){
   float paramVals[3] = {}; // all zeros
   piTalk.stringToFloats(message, paramVals);
@@ -100,6 +104,7 @@ void handlePiTalk(char command, std::string message){
     case 'P': updatePidParameters(3, message); break;
     case 'S': storeAllPidParameters(); break;
     case 'L': loadAllPidParameters(); break;
+    case 'H': showPidValues(); break;
     case 'Z': zeroAllParameters(); break;
   }
 }

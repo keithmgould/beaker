@@ -11,6 +11,16 @@ class Arduino:
   def writeMessage(self, message):
     self.__writeMessage(message)
 
+  # xPos, xVel, Theta, ThetaDot
+  def getPidValues(self):
+    self.__writeMessage("H")
+    message = self.__waitForArduinoMessage("H")
+    if message == False:
+      print("errored on getPidValues.")
+      return False
+    print(message)
+
+
   def __waitForArduinoMessage(self, expected):
     waiting = True
     message = ""

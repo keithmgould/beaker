@@ -113,6 +113,14 @@ class PiTalk {
     }
   }
 
+  void sendToPi(char code, String message){
+    String final;
+    final = String(code) + message + "!";
+    Serial.print("sending to Pi: ");
+    Serial.println(final.c_str());
+    Serial2.write(final.c_str());
+  }
+
   // copy(is, eos, floats) was crashing. not sure why...
   // it was only crashing once I used this method via callback.
   // when I used it in main, 'copy' worked fine.  ¯\_(ツ)_/¯
