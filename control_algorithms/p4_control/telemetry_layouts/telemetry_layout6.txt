@@ -3,7 +3,7 @@ Telemetry Viewer File Format v0.4
 Grid Settings:
 
 	column count = 9
-	row count = 9
+	row count = 10
 
 Serial Port Settings:
 
@@ -80,7 +80,7 @@ Serial Port Settings:
 
 	location = 8
 	processor index = -1
-	name = p4 phi
+	name = p4 xPos
 	color = 0x66FFCC
 	unit = rads
 	conversion factor a = 1.0
@@ -112,7 +112,7 @@ Serial Port Settings:
 
 	location = 12
 	processor index = -1
-	name = p4 phi term
+	name = p4 xPos term
 	color = 0xFFFF00
 	unit = rads
 	conversion factor a = 1.0
@@ -134,58 +134,7 @@ Serial Port Settings:
 	conversion factor a = 1.0
 	conversion factor b = 1.0
 
-10 Charts:
-
-	chart type = Time Domain Chart
-	top left x = 0
-	top left y = 0
-	bottom right x = 4
-	bottom right y = 2
-	datasets = 1,2
-	sample count = 500
-	autoscale y-axis minimum = true
-	manual y-axis minimum = -1.0
-	autoscale y-axis maximum = true
-	manual y-axis maximum = 1.0
-	show x-axis title = true
-	show x-axis scale = true
-	show y-axis title = true
-	show y-axis scale = true
-	show legend = true
-
-	chart type = Time Domain Chart
-	top left x = 0
-	top left y = 3
-	bottom right x = 4
-	bottom right y = 5
-	datasets = 3,4
-	sample count = 500
-	autoscale y-axis minimum = true
-	manual y-axis minimum = -1.0
-	autoscale y-axis maximum = true
-	manual y-axis maximum = 1.0
-	show x-axis title = true
-	show x-axis scale = true
-	show y-axis title = true
-	show y-axis scale = true
-	show legend = true
-
-	chart type = Time Domain Chart
-	top left x = 0
-	top left y = 6
-	bottom right x = 4
-	bottom right y = 8
-	datasets = 10,11,12,13
-	sample count = 500
-	autoscale y-axis minimum = true
-	manual y-axis minimum = -1.0
-	autoscale y-axis maximum = true
-	manual y-axis maximum = 1.0
-	show x-axis title = true
-	show x-axis scale = true
-	show y-axis title = true
-	show y-axis scale = true
-	show legend = true
+11 Charts:
 
 	chart type = Dial Chart
 	top left x = 7
@@ -301,6 +250,74 @@ Serial Port Settings:
 	bottom right y = 8
 	datasets = 14
 	sample count = 500
+	autoscale y-axis minimum = true
+	manual y-axis minimum = -1.0
+	autoscale y-axis maximum = true
+	manual y-axis maximum = 1.0
+	show x-axis title = true
+	show x-axis scale = true
+	show y-axis title = true
+	show y-axis scale = true
+	show legend = true
+
+	chart type = Time Domain Chart
+	top left x = 0
+	top left y = 0
+	bottom right x = 4
+	bottom right y = 1
+	datasets = 1
+	sample count = 1000
+	autoscale y-axis minimum = true
+	manual y-axis minimum = -1.0
+	autoscale y-axis maximum = true
+	manual y-axis maximum = 1.0
+	show x-axis title = true
+	show x-axis scale = true
+	show y-axis title = true
+	show y-axis scale = true
+	show legend = true
+
+	chart type = Time Domain Chart
+	top left x = 0
+	top left y = 2
+	bottom right x = 4
+	bottom right y = 3
+	datasets = 2
+	sample count = 1000
+	autoscale y-axis minimum = true
+	manual y-axis minimum = -1.0
+	autoscale y-axis maximum = true
+	manual y-axis maximum = 1.0
+	show x-axis title = true
+	show x-axis scale = true
+	show y-axis title = true
+	show y-axis scale = true
+	show legend = true
+
+	chart type = Time Domain Chart
+	top left x = 0
+	top left y = 4
+	bottom right x = 4
+	bottom right y = 5
+	datasets = 3
+	sample count = 1000
+	autoscale y-axis minimum = true
+	manual y-axis minimum = -1.0
+	autoscale y-axis maximum = true
+	manual y-axis maximum = 1.0
+	show x-axis title = true
+	show x-axis scale = true
+	show y-axis title = true
+	show y-axis scale = true
+	show legend = true
+
+	chart type = Time Domain Chart
+	top left x = 0
+	top left y = 6
+	bottom right x = 4
+	bottom right y = 7
+	datasets = 4
+	sample count = 1000
 	autoscale y-axis minimum = true
 	manual y-axis minimum = -1.0
 	autoscale y-axis maximum = true
