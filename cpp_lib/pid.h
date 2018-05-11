@@ -128,6 +128,39 @@ class Pid {
     updateErrors(currentState, newDt);
     return pTerm() + iTerm() + dTerm();
   }
+
+  // stores parameters at given startingAddress, 
+  // and returns the next available address space
+  unsigned int storeParameters(unsigned int startingAddress){
+    int addr = startingAddress;
+
+    EEPROM.put(addr, kP);
+    addr += sizeof(float);
+    EEPROM.put(addr, kI);
+    addr += sizeof(float);
+    EEPROM.put(addr, kD);
+    addr += sizeof(float);
+
+    return addr;
+  }
+
+  // loads parameters from EEPROM at given startingAddress,
+  // and returns the next address space
+  unsigned int loadParameters(unsigned int startingAddress){
+    float kp, ki, kd;
+    unsigned int addr = startingAddress;
+    EEPROM.get(addr, kp);
+    addr += sizeof(float);
+    EEPROM.get(addr, ki);
+    addr += sizeof(float);
+    EEPROM.get(addr, kd);
+    addr += sizeof(float);
+
+    updateParameters(kp, ki, kd);
+
+    return addr;
+  }
+
 };
 
 #endif
