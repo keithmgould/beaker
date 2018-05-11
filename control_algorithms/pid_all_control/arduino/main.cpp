@@ -6,9 +6,13 @@
 #include <string>
 #include <sstream>                      // stringstream
 #include "../../../cpp_lib/includes.h"     // common Beaker functionality
-#include "../../../cpp_lib/p4.h"
+#include <EEPROM.h>
 
-P4 p4;
+Pid thetaPid(POSITION_CONTROL_TIMESTEP);
+Pid thetaDotPid(POSITION_CONTROL_TIMESTEP);
+Pid xPosPid(POSITION_CONTROL_TIMESTEP);
+Pid phiDotPid(POSITION_CONTROL_TIMESTEP);
+
 Imu my_imu;
 Wheels wheels;
 PiTalk piTalk;
@@ -18,35 +22,119 @@ Waiter innerWaiter(MOTOR_CONTROL_TIMESTEP);
 void leftEncoderEvent(){ wheels.leftEncoderEvent(); }
 void rightEncoderEvent(){ wheels.rightEncoderEvent(); }
 
-void printStuff(float dt, float newRadPerSec, float phiDotAvg){
+void printStuff(float dt, float newRadPerSec, float phiDotAvg, float thetaTerm, float thetaDotTerm, float xPosTerm, float phiDotTerm){
   String log = String(dt);
+
+  // raw states
   log += "," + String(my_imu.getTheta(),4) + "," + String(my_imu.getThetaDot(),4);
   log += "," + String(wheels.getX(),4) + "," + String(phiDotAvg,4);
+
+  // calibrations
   log += "," + String(my_imu.getThetaOffset());
-  log += "," + p4.getParamString();
-  log += "," + p4.getTermString();
+
+  // final result
   log += "," + String(newRadPerSec);
+  
+  // PID term components
+  log += "," + String(thetaPid.getTermString());
+  log += "," + String(thetaDotPid.getTermString());
+  log += "," + String(xPosPid.getTermString());
+  log += "," + String(phiDotPid.getTermString());
+
+  // PID final term  
+  log += "," + String(thetaTerm);
+  log += "," + String(thetaDotTerm);
+  log += "," + String(xPosTerm);
+  log += "," + String(phiDotTerm);
+
   Serial3.println(log);
 }
 
-void updateP4Parameters(std::string message){
-  float paramVals[4] = {}; // all zeros
-  piTalk.stringToFloats(message, paramVals);
-  p4.updateParameters(paramVals[0], paramVals[1], paramVals[2], paramVals[3]);
+void zeroAllParameters(){
+ thetaPid.updateParameters(0,0,0);
+ thetaDotPid.updateParameters(0,0,0);
+ xPosPid.updateParameters(0,0,0);
+ phiDotPid.updateParameters(0,0,0);
 }
 
-void zeroP4Parameters(std::string message){
- p4.updateParameters(0,0,0,0); 
+unsigned int storePidParameters(unsigned int startingAddress, Pid &pid){
+  int addr = startingAddress;
+
+  EEPROM.put(addr, pid.getkp());
+  addr += sizeof(float);
+  EEPROM.put(addr, pid.getki());
+  addr += sizeof(float);
+  EEPROM.put(addr, pid.getkd());
+  addr += sizeof(float);
+
+  return addr;
+}
+
+void storeAllPidParameters(){
+    int addr = 0;
+    addr = storePidParameters(addr, thetaPid);
+    addr = storePidParameters(addr, thetaDotPid);
+    addr = storePidParameters(addr, xPosPid);
+    addr = storePidParameters(addr, phiDotPid);
+}
+
+unsigned int loadPidParameters(unsigned int startingAddress, Pid &pid){
+  float kp, ki, kd;
+  unsigned int addr = startingAddress;
+  EEPROM.get(addr, kp);
+  addr += sizeof(float);
+  EEPROM.get(addr, ki);
+  addr += sizeof(float);
+  EEPROM.get(addr, kd);
+  addr += sizeof(float);
+
+  pid.updateParameters(kp, ki, kd);
+
+  return addr;
+}
+
+void loadAllPidParameters(){
+  unsigned int addr;
+  addr = loadPidParameters(0, thetaPid);
+  addr = loadPidParameters(addr, thetaDotPid);
+  addr = loadPidParameters(addr, xPosPid);
+  loadPidParameters(addr, phiDotPid);
+}
+
+void updatePidParameters(int component, std::string message){
+  float paramVals[3] = {}; // all zeros
+  piTalk.stringToFloats(message, paramVals);
+  switch(component){
+    case 0:
+      thetaPid.updateParameters(paramVals[0], paramVals[1], paramVals[2]);
+      break;
+    case 1:
+      thetaDotPid.updateParameters(paramVals[0], paramVals[1], paramVals[2]);
+      break;
+    case 2:
+      xPosPid.updateParameters(paramVals[0], paramVals[1], paramVals[2]);
+      break;
+    case 3:
+      phiDotPid.updateParameters(paramVals[0], paramVals[1], paramVals[2]);
+      break;
+  }
 }
 
 void handlePiTalk(char command, std::string message){
   switch(command){
-    case 'K': updateP4Parameters(message); break;
-    case 'Z': zeroP4Parameters(message); break;
+    case 'T': updatePidParameters(0, message); break;
+    case 'D': updatePidParameters(1, message); break;
+    case 'X': updatePidParameters(2, message); break;
+    case 'P': updatePidParameters(3, message); break;
+    case 'S': storeAllPidParameters(); break;
+    case 'L': loadAllPidParameters(); break;
+    case 'Z': zeroAllParameters(); break;
   }
 }
 
 void setup() {
+  // thetaPid.setClearAccumulatorWhenCrossingZero(true);
+
   piTalk.setup(&wheels, &my_imu, &handlePiTalk);
   Serial.begin(115200); while (!Serial) {;}
   Serial3.begin(115200); while (!Serial3) {;} // bluetooth
@@ -72,9 +160,19 @@ void loop(){
     float outerDt = outerWaiter.starting();
     my_imu.update();
     float phiDotAvg = wheels.getPhiDotAvg();
-    float newRadPerSec = p4.computeNewRadsPerSec(my_imu.getTheta(), my_imu.getThetaDot(), wheels.getX(), phiDotAvg);
+
+    float thetaTerm = thetaPid.generateCommand(my_imu.getTheta(), outerDt);
+    float thetaDotTerm = thetaDotPid.generateCommand(my_imu.getThetaDot(), outerDt);
+    float xPosTerm = xPosPid.generateCommand(wheels.getX(), outerDt);
+    float phiDotTerm = phiDotPid.generateCommand(phiDotAvg, outerDt);
+
+    float newRadPerSec = thetaTerm + thetaDotTerm + xPosTerm + phiDotTerm;
+    
+    // discuss
+    newRadPerSec = -newRadPerSec;
+
     wheels.updateRadsPerSec(newRadPerSec);
-    printStuff(outerDt, newRadPerSec, phiDotAvg);
+    printStuff(outerDt, newRadPerSec, phiDotAvg, thetaTerm, thetaDotTerm, xPosTerm, phiDotTerm);
     piTalk.checkForPiCommand();
   }
 }
