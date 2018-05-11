@@ -51,18 +51,18 @@ void printStuff(float dt, float newRadPerSec, float phiDotAvg, float thetaTerm, 
 }
 
 void zeroAllParameters(){
- thetaPid.updateParameters(0,0,0);
- thetaDotPid.updateParameters(0,0,0);
- xPosPid.updateParameters(0,0,0);
- phiDotPid.updateParameters(0,0,0);
+  thetaPid.updateParameters(0,0,0);
+  thetaDotPid.updateParameters(0,0,0);
+  xPosPid.updateParameters(0,0,0);
+  phiDotPid.updateParameters(0,0,0);
 }
 
 void storeAllPidParameters(){
-    unsigned int addr = 0;
-    addr = thetaPid.storeParameters(addr);
-    addr = thetaDotPid.storeParameters(addr);
-    addr = xPosPid.storeParameters(addr);
-    phiDotPid.storeParameters(addr);
+  unsigned int addr = 0;
+  addr = thetaPid.storeParameters(addr);
+  addr = thetaDotPid.storeParameters(addr);
+  addr = xPosPid.storeParameters(addr);
+  phiDotPid.storeParameters(addr);
 }
 
 void loadAllPidParameters(){
