@@ -20,38 +20,65 @@
 class P4 {
   private:
 
+  float maxRadPerSec = 15;
+
   // P4 control values
-  int kTheta, kThetaDot, kXPos, kPhiDot;
+  float kTheta, kThetaDot, kXPos, kPhiDot;
 
   // presentation strings
   String paramString, termString;
 
+  float thetaDotAccumulator;
+
   bool sameSign(float theta, float thetaDot){
-    return (theta >= 0 && thetaDot >= 0) || (theta <= 0 && thetaDot <= 0);
+    return (theta >= 0 && thetaDot >= 0) || (theta < 0 && thetaDot < 0);
   }
 
   float kThetaTerm(float theta){
-    float results = theta * kTheta;
-    termString = String(results, 4);
+    float results;
+    float fabsTheta = fabs(theta);
 
+    if(fabsTheta > 0.025){
+      results = theta * kTheta * 4;
+    }else if(fabsTheta > 0.02){
+      results = theta * kTheta * 3;
+    }else if(fabsTheta > 0.01){
+      results = theta * kTheta * 2;
+    }else if(fabsTheta > 0.005){
+      results = theta * kTheta * 1;
+    }else{
+      results = 0;
+    }
+
+    termString = String(results, 4);
     return results;
   }
 
-  float kThetaDotTerm(float theta, float thetaDot) {
-    float results;
+  float kThetaDotTerm(float thetaDot, float theta) {
+    // float results;
+    // float fabsThetaDot = fabs(thetaDot);
 
-    // if(sameSign(theta, thetaDot)){
-    //   results = thetaDot * kThetaDot;
-    // }else{
-    //   results = 0;
-    // }
-    
-    results = thetaDot * kThetaDot;
+    if(sameSign(theta, thetaDot)){
+      // results = thetaDot * kThetaDot;
+      thetaDotAccumulator += thetaDot;
+    }else{
+      // results = 0;
+    }
+
+
+    thetaDotAccumulator = constrain(thetaDotAccumulator, -1, 1);
+    float results = thetaDotAccumulator * kThetaDot;
+
+
 
     termString += "," + String(results, 4);
 
     return results;
   }
+
+
+
+
   float kXPosTerm(float xPos) {
     float results = xPos * kXPos;
     termString += "," + String(results, 4);
@@ -60,7 +87,13 @@ class P4 {
   }
 
   float kPhiDotTerm(float phiDot) {
-    float results = phiDot * kPhiDot;
+    float results;
+    if(fabs(phiDot) > 1){
+      results = phiDot * kPhiDot;
+    } else{
+      results = 0;
+    }
+
     termString += "," + String(results, 4);
 
     return results;
@@ -76,7 +109,7 @@ class P4 {
   public:
 
   P4(){
-    kTheta = kThetaDot = kXPos = kPhiDot = 0;
+    kTheta = kThetaDot = kXPos = kPhiDot = thetaDotAccumulator = 0;
     buildParamString();
   }
 
@@ -87,7 +120,7 @@ class P4 {
   String getParamString() { return paramString; }
   String getTermString() { return termString; }
 
-  void updateParameters(int newKTheta, int newKThetaDot, int newKXPos, int newKPhiDot){
+  void updateParameters(float newKTheta, float newKThetaDot, float newKXPos, float newKPhiDot){
     kTheta = newKTheta;
     kThetaDot = newKThetaDot;
     kXPos = newKXPos;
@@ -97,9 +130,11 @@ class P4 {
 
   float computeNewRadsPerSec(float theta, float thetaDot, float xPos, float phiDot){
     float newRadPerSec = kThetaTerm(theta);
-    newRadPerSec += kThetaDotTerm(theta, thetaDot);
+    newRadPerSec += kThetaDotTerm(thetaDot, theta);
     newRadPerSec += kXPosTerm(xPos);
     newRadPerSec += kPhiDotTerm(phiDot);
+
+    newRadPerSec = constrain(newRadPerSec, -maxRadPerSec, maxRadPerSec);
 
     return newRadPerSec;
   }

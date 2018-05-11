@@ -24,6 +24,7 @@ class Wheels {
   Waiter waiter = Waiter(MOTOR_CONTROL_TIMESTEP);
   Pid leftMotorPid = Pid(MOTOR_CONTROL_TIMESTEP);
   Pid rightMotorPid = Pid(MOTOR_CONTROL_TIMESTEP);
+  Averager phiDotAverager = Averager(10);
 
   // phi is wheel position. In rads.
   float leftPhi, leftLastPhi, rightPhi, rightLastPhi;
@@ -122,6 +123,7 @@ class Wheels {
 
   float getPhi(){ return (leftPhi + rightPhi) / 2.0; }                  // rads. avg of 2 whls
   float getPhiDot(){ return (leftPhiDot + rightPhiDot) / 2.0; }         // rads/sec. avg of 2 whls
+  float getPhiDotAvg(){ return phiDotAverager.computeAverage(); }       // rads. avg of 2 whls
   float getLeftPhi(){ return leftPhi; }                                 // rads
   float getLeftLastPhi(){ return leftLastPhi; }                         // rads
   float getLeftCommand(){ return leftCommand; }                         // power. ranges from -1 to 1
@@ -145,6 +147,7 @@ class Wheels {
   // to calculate a new command. Finally it issues that command.
   void spin(long dt) {
     updateWheelStates(dt);
+    phiDotAverager.push(getPhiDot());
     leftCommandDelta = leftMotorPid.generateCommand(leftPhiDot, dt);
     rightCommandDelta = rightMotorPid.generateCommand(rightPhiDot, dt);
     leftCommand += leftCommandDelta;

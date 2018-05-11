@@ -4,7 +4,6 @@
 #include <Adafruit_Sensor.h>            // IMU
 #include <Adafruit_BNO055.h>            // IMU
 #include <Wire.h>                       // I2C for IMU
-#include <vector>
 
 /*
     The Inertial Measurement Unit (IMU) reads from (currently) the BNO055.
@@ -22,7 +21,7 @@ class Imu{
 
   Adafruit_BNO055 bno = Adafruit_BNO055(55, 40);
   float thetaOffset, theta, thetaDot;
-  std::vector<float> thetaDotData;
+  Averager thetaDotData = Averager(5);
 
   // in radians
   float rawTheta() {
@@ -34,20 +33,6 @@ class Imu{
   float rawThetaDot() {
     imu::Vector<3> gyr = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
     return -gyr.x();
-  }
-
-  float computeThetaDotAvg(){
-    float avg = 0;
-    
-    std::for_each(thetaDotData.begin(), thetaDotData.end(), [&] (float n) {
-      avg += n;
-    });
-
-    avg = avg / (float) thetaDotData.size();
-
-    thetaDotData.clear();
-
-    return avg;
   }
 
   public:
@@ -69,7 +54,7 @@ class Imu{
   }
 
   void pushThetaDotData(){
-    thetaDotData.push_back(rawThetaDot());
+    thetaDotData.push(rawThetaDot());
   }
 
   float getTheta(){ return theta; }
@@ -84,7 +69,7 @@ class Imu{
   // calculates and stores theta and thetaDot.
   void update(){
     theta = rawTheta() + thetaOffset;
-    thetaDot = computeThetaDotAvg();
+    thetaDot = thetaDotData.computeAverage();
    }
 };
 

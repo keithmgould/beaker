@@ -3,9 +3,10 @@
 
 #include "./constants.h"    // yeah. Constants.
 #include "./outputs.h"      // bells and whistles (leds, buzzer)
-#include "./imu.h"			// wraps the Bno055 IMU (accelerometer, gyrometer, etc..)
+#include "./averager.h"			// averger helper class
+#include "./imu.h"					// wraps the Bno055 IMU (accelerometer, gyrometer, etc..)
 #include "./waiter.h"       // waiter helper to help with...waiting
-#include "./pitalk.h"		// communication with the Raspberry Pi
+#include "./pitalk.h"				// communication with the Raspberry Pi
 #include "./pid.h"        	// PID library
 #include "./wheels.h"       // control get raw encoder state
 
