@@ -24,6 +24,9 @@ class Pid {
   float deltaError = 0;
   float setpoint = 0;
 
+  // I like self explanatory variable names :)
+  bool isClearAccumulatorWhenCrossingZero = false;
+
   // presentation strings
   String paramString, termString;
 
@@ -33,17 +36,19 @@ class Pid {
     currentError = newError;
   }
 
-  // // accumulatedError used for P component
-  void calculateAccumulatedError(){
-    // once we cross the 0 error mark,
-    // the past accumulated error
-    // is no longer helping us. Reset to 0.
-    // if(currentError == 0){
-    //   accumulatedError = 0;
-    //   return;
-    // }
+  bool iscrossedZero(){
+    return (previousError >= 0 && currentError <= 0) || (previousError < 0 && currentError > 0);
+  }
 
+  // // accumulatedError used for I component
+  void calculateAccumulatedError(){
     accumulatedError += currentError;
+
+    if(isClearAccumulatorWhenCrossingZero){
+      if(iscrossedZero()){
+        accumulatedError = 0;
+      }
+    }
 
     // helps with windup (overaccumulating the error)
     accumulatedError = constrain(accumulatedError, -1, 1);
@@ -68,6 +73,10 @@ class Pid {
   Pid(long ts){
     timestep = ts;
     buildParamString();
+  }
+
+  void setClearAccumulatorWhenCrossingZero(bool x){
+    isClearAccumulatorWhenCrossingZero = x;
   }
 
   float getkp(){ return kP; }
