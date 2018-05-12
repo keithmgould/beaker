@@ -11,17 +11,16 @@ class Arduino:
   def writeMessage(self, message):
     self.__writeMessage(message)
 
-  # xPos, xVel, Theta, ThetaDot
-  def getPidValues(self):
-    self.__writeMessage("H")
-    message = self.__waitForArduinoMessage("H")
-    if message == False:
-      print("errored on getPidValues.")
+  def writeMessageAndWait(self, message):
+    self.__writeMessage(message)
+
+    response = self.__waitForArduinoMessage()
+    if response == False:
+      print("errored on message receive.")
       return False
-    print(message)
+    print(response)
 
-
-  def __waitForArduinoMessage(self, expected):
+  def __waitForArduinoMessage(self):
     waiting = True
     message = ""
     while waiting or char != '!':
@@ -32,11 +31,7 @@ class Arduino:
       except:
         return False # we got someting undecodable from Arduino
       message += char
-    if message[0] == expected:
-      return message[1:-1] # removes expected and !
-    else:
-      print("Expected message type {}. Found: {}".format(expected, message))
-      return False
+    return message[1:-1] # removes expected and !
 
   def __writeMessage(self, message):
     message = message + "!"

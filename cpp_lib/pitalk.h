@@ -121,6 +121,10 @@ class PiTalk {
     Serial2.write(final.c_str());
   }
 
+  void sendToPi(String message){
+    sendToPi('A', message);
+  }
+
   // copy(is, eos, floats) was crashing. not sure why...
   // it was only crashing once I used this method via callback.
   // when I used it in main, 'copy' worked fine.  ¯\_(ツ)_/¯

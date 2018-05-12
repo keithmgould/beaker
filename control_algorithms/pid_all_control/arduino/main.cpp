@@ -55,6 +55,8 @@ void zeroAllParameters(){
   thetaDotPid.updateParameters(0,0,0);
   xPosPid.updateParameters(0,0,0);
   phiDotPid.updateParameters(0,0,0);
+
+  piTalk.sendToPi("Values Zeroed!");
 }
 
 void storeAllPidParameters(){
@@ -63,6 +65,8 @@ void storeAllPidParameters(){
   addr = thetaDotPid.storeParameters(addr);
   addr = xPosPid.storeParameters(addr);
   phiDotPid.storeParameters(addr);
+
+  piTalk.sendToPi("Values Saved to EEPROM!");
 }
 
 void loadAllPidParameters(){
@@ -71,15 +75,17 @@ void loadAllPidParameters(){
   addr = thetaDotPid.loadParameters(addr);
   addr = xPosPid.loadParameters(addr);
   phiDotPid.loadParameters(addr);
+
+  piTalk.sendToPi("Values Loaded from EEPROM!");
 }
 
 void showPidValues(){
-  String response = "theta: " + thetaPid.getParamString() + ",";
-  response += "thetaDot: " + thetaDotPid.getParamString() + ",";
-  response += "xPost: " + xPosPid.getParamString() + ",";
-  response += "phiDot: " + phiDotPid.getParamString();
-  
-  piTalk.sendToPi('H', response);
+  String response = "(T)heta: " + thetaPid.getParamString() + ",";
+  response += "theta(D)ot: " + thetaDotPid.getParamString() + ",";
+  response += "(X)Pos: " + xPosPid.getParamString() + ",";
+  response += "(P)hiDot: " + phiDotPid.getParamString();
+
+  piTalk.sendToPi(response);
 }
 
 void updatePidParameters(int component, std::string message){
@@ -99,6 +105,13 @@ void updatePidParameters(int component, std::string message){
       phiDotPid.updateParameters(paramVals[0], paramVals[1], paramVals[2]);
       break;
   }
+
+  piTalk.sendToPi("Updated PID Parameters!");
+}
+
+void showHelp(){
+  String response = "T: theta\nD: thetaDot\nX: xPos\nP: phiDot\nL: load from EEPROM\nS: save to EEPROM\nV: show PID Values\nZ: zero out all PID Values\nH: this help\n";
+  piTalk.sendToPi(response);
 }
 
 void handlePiTalk(char command, std::string message){
@@ -109,8 +122,9 @@ void handlePiTalk(char command, std::string message){
     case 'P': updatePidParameters(3, message); break;
     case 'S': storeAllPidParameters(); break;
     case 'L': loadAllPidParameters(); break;
-    case 'H': showPidValues(); break;
+    case 'V': showPidValues(); break;
     case 'Z': zeroAllParameters(); break;
+    case 'H': showHelp(); break;
   }
 }
 
