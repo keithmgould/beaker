@@ -56,7 +56,7 @@ void zeroAllParameters(){
   xPosPid.updateParameters(0,0,0);
   phiDotPid.updateParameters(0,0,0);
 
-  piTalk.sendToPi("Values Zeroed!");
+  piTalk.sendToPi("Values Zeroed.");
 }
 
 void storeAllPidParameters(){
@@ -66,7 +66,7 @@ void storeAllPidParameters(){
   addr = xPosPid.storeParameters(addr);
   phiDotPid.storeParameters(addr);
 
-  piTalk.sendToPi("Values Saved to EEPROM!");
+  piTalk.sendToPi("Values Saved to EEPROM.");
 }
 
 void loadAllPidParameters(){
@@ -76,14 +76,14 @@ void loadAllPidParameters(){
   addr = xPosPid.loadParameters(addr);
   phiDotPid.loadParameters(addr);
 
-  piTalk.sendToPi("Values Loaded from EEPROM!");
+  piTalk.sendToPi("Values Loaded from EEPROM.");
 }
 
 void showPidValues(){
-  String response = "(T)heta: " + thetaPid.getParamString() + ",";
-  response += "theta(D)ot: " + thetaDotPid.getParamString() + ",";
-  response += "(X)Pos: " + xPosPid.getParamString() + ",";
-  response += "(P)hiDot: " + phiDotPid.getParamString();
+  String response = "(T)heta: " + thetaPid.getParamString() + "\n";
+  response += "theta(D)ot: " + thetaDotPid.getParamString() + "\n";
+  response += "(X)Pos: " + xPosPid.getParamString() + "\n";
+  response += "(P)hiDot: " + phiDotPid.getParamString() + "\n";
 
   piTalk.sendToPi(response);
 }
@@ -106,11 +106,20 @@ void updatePidParameters(int component, std::string message){
       break;
   }
 
-  piTalk.sendToPi("Updated PID Parameters!");
+  piTalk.sendToPi("Updated PID Parameters.");
 }
 
 void showHelp(){
-  String response = "T: theta\nD: thetaDot\nX: xPos\nP: phiDot\nL: load from EEPROM\nS: save to EEPROM\nV: show PID Values\nZ: zero out all PID Values\nH: this help\n";
+  String response = "T: update theta PID terms. Ex: T0.5 -2.4 8.2\n";
+  response += "D: update thetaDot PID terms. Ex: D0.5 -2.4 8.2\n";
+  response += "X: update xPos PID terms. Ex: X0.5 -2.4 8.2\n";
+  response += "P: update phiDo PID terms. Ex: P0.5 -2.4 8.2\n";
+  response += "L: load PID values from EEPROM\n";
+  response += "S: save PID values to EEPROM\n";
+  response += "V: show currently used PID Values\n";
+  response += "Z: zero out all PID Values.\n";
+  response += "H: this help\n";
+
   piTalk.sendToPi(response);
 }
 

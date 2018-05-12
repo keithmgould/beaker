@@ -41,10 +41,15 @@ class PiTalk {
   void updateThetaOffset(std::string message){
     float newOffset = String(message.c_str()).toFloat();
     my_imu->setThetaOffset(newOffset);
+
+    sendToPi("Updated Theta Offset.");
   }
 
   // This is the main method for controlling Beaker, if the algorithm
   // is housed in the Raspberry Pi (such as with Reinforcement Learning)
+  // NOTE: there is no response for this call. It is meant to be used
+  // very frequently (if the RPI holds the main control algorithm) so
+  // speed is important, and we don't want to waste time with a response.
   void updateWheelRadsPerSec(std::string message){
     float newRadsPerSec = String(message.c_str()).toFloat();
     wheels->updateRadsPerSec(newRadsPerSec);
@@ -57,6 +62,8 @@ class PiTalk {
     float newPIDs[3] = {};
     stringToFloats(message, newPIDs);
     wheels->updatePids(newPIDs[0], newPIDs[1], newPIDs[2]);
+
+    sendToPi("Updated Motor PIDs.");
   }
 
   // Try for the universal commands, and if nothing matches,
