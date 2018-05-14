@@ -41,6 +41,9 @@ class Wheels {
   // result of motor PIDs
   float leftCommandDelta, rightCommandDelta;
 
+  // rads/sec
+  float targetRadsPerSec;  
+
   // actual commands sent to motors
   float leftCommand, rightCommand;
 
@@ -80,6 +83,7 @@ class Wheels {
   }
 
   void resetCounts(){
+    targetRadsPerSec = 0;
     leftPhi = leftLastPhi = rightPhi = rightLastPhi = 0;
     leftPhiDelta = rightPhiDelta = 0;
     leftPhiDot = rightPhiDot = 0;
@@ -121,6 +125,7 @@ class Wheels {
     return (motorLeft.getDistance() + motorRight.getDistance()) / 2.0;
   }
 
+  float getTargetRadsPerSec() { return targetRadsPerSec; }              // rads/sec
   float getPhi(){ return (leftPhi + rightPhi) / 2.0; }                  // rads. avg of 2 whls
   float getPhiDot(){ return (leftPhiDot + rightPhiDot) / 2.0; }         // rads/sec. avg of 2 whls
   float getPhiDotAvg(){ return phiDotAverager.computeAverage(); }       // rads. avg of 2 whls
@@ -168,6 +173,7 @@ class Wheels {
   // Send the required rads/sec, and Wheels will make sure
   // that happens via PID
   void updateRadsPerSec(float rps){
+    targetRadsPerSec = rps;
     leftMotorPid.updateSetpoint(rps);
     rightMotorPid.updateSetpoint(rps);
   }

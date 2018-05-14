@@ -22,7 +22,9 @@ Waiter innerWaiter(MOTOR_CONTROL_TIMESTEP);
 void leftEncoderEvent(){ wheels.leftEncoderEvent(); }
 void rightEncoderEvent(){ wheels.rightEncoderEvent(); }
 
-void printStuff(float dt, float newRadPerSec, float phiDotAvg, float thetaTerm, float thetaDotTerm, float xPosTerm, float phiDotTerm){
+float targetAcceleration = 0;
+
+void printStuff(float dt, float targetAcceleration, float phiDotAvg, float thetaTerm, float thetaDotTerm, float xPosTerm, float phiDotTerm){
   String log = String(dt);
 
   // raw states
@@ -33,7 +35,7 @@ void printStuff(float dt, float newRadPerSec, float phiDotAvg, float thetaTerm, 
   log += "," + String(my_imu.getThetaOffset());
 
   // final result
-  log += "," + String(newRadPerSec);
+  log += "," + String(targetAcceleration);
   
   // PID term components
   log += "," + String(thetaPid.getTermString());
@@ -46,6 +48,8 @@ void printStuff(float dt, float newRadPerSec, float phiDotAvg, float thetaTerm, 
   log += "," + String(thetaDotTerm);
   log += "," + String(xPosTerm);
   log += "," + String(phiDotTerm);
+
+  log += "," + String(targetAcceleration);
 
   Serial3.println(log);
 }
@@ -164,6 +168,7 @@ void loop(){
   // inner loop behavior
   if(innerWaiter.isTime()){
     float innerDt = innerWaiter.starting();
+    wheels.updateRadsPerSec(wheels.getTargetRadsPerSec() + targetAcceleration);
     wheels.spin(innerDt);
     my_imu.pushThetaDotData();
   }
@@ -180,25 +185,14 @@ void loop(){
     float thetaDotTerm = thetaDotPid.generateCommand(my_imu.getThetaDot(), outerDt);
     float xPosTerm = xPosPid.generateCommand(wheels.getX(), outerDt);
     float phiDotTerm = phiDotPid.generateCommand(phiDotAvg, outerDt);
-    float newRadPerSec = thetaTerm + thetaDotTerm + xPosTerm + phiDotTerm;
+    float targetAcceleration = thetaTerm + thetaDotTerm + xPosTerm + phiDotTerm;
     
     // discuss
-    newRadPerSec = -newRadPerSec;
+    targetAcceleration = -targetAcceleration;
 
-    newRadPerSec = constrain(newRadPerSec, -10,10);
+    targetAcceleration = constrain(targetAcceleration, -1,1);
 
-    wheels.updateRadsPerSec(newRadPerSec);
-
-    // experimenting with slightly adjusting theta
-    float xPos = wheels.getX();
-
-    // if(xPos > 0.05){
-    //   my_imu.setThetaOffset(THETA_OFFSET + 0.01); // increasing offset makes you lean backward
-    // }else if(xPos < -0.05){
-    //   my_imu.setThetaOffset(THETA_OFFSET - 0.01); // decreasing offset makes you lean forward
-    // }
-
-    printStuff(outerDt, newRadPerSec, phiDotAvg, thetaTerm, thetaDotTerm, xPosTerm, phiDotTerm);
+    printStuff(outerDt, wheels.getTargetRadsPerSec(), phiDotAvg, thetaTerm, thetaDotTerm, xPosTerm, phiDotTerm);
     piTalk.checkForPiCommand();
   }
 }
