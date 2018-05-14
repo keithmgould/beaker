@@ -28,7 +28,7 @@
 void setup()
 {
 		Serial1.begin(9600); while (!Serial1) { delay(1); }
-		int power = 5;
+		int power = 20;
     byte command = 64 - power;
     Serial1.write(command);
     command = 192 - power;

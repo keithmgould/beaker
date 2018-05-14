@@ -31,7 +31,7 @@ void leftEncoderEvent(){ motorLeft.encoderEvent(); }
 void rightEncoderEvent(){ motorRight.encoderEvent(); }
 
 void setup(){
-	Serial1.begin(9600); while (!Serial) {delay(1);}
+	Serial1.begin(9600); while (!Serial1) {delay(1);}
 	Serial.begin(115200); while (!Serial) {delay(1);}
 	attachInterrupt(digitalPinToInterrupt(LH_ENCODER_A), leftEncoderEvent, CHANGE);
   attachInterrupt(digitalPinToInterrupt(RH_ENCODER_A), rightEncoderEvent, CHANGE);

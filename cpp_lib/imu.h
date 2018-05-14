@@ -23,9 +23,11 @@ class Imu{
   float thetaOffset, theta, thetaDot;
   Averager thetaDotData = Averager(5);
 
+  imu::Vector<3> eulerDegrees;
+
   // in radians
   float rawTheta() {
-    imu::Vector<3> eulerDegrees = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+    eulerDegrees = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
     return 0.0174533 * eulerDegrees.z();
   }
 
@@ -61,6 +63,10 @@ class Imu{
   float getThetaDot(){ return thetaDot; }
   float getThetaOffset(){ return thetaOffset; }
 
+  bool isEmergency(){
+    return fabs(eulerDegrees.z()) > 30;
+  }
+
   // Due to micro leveling imperfections, the IMU is not perfectly level when Beaker
   // is balanced. This offset allows software to account for this and update when
   // necessary.
@@ -70,7 +76,7 @@ class Imu{
   void update(){
     theta = rawTheta() + thetaOffset;
     thetaDot = thetaDotData.computeAverage();
-   }
+  }
 };
 
 #endif

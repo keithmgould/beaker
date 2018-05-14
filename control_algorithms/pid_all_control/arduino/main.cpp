@@ -113,7 +113,7 @@ void showHelp(){
   String response = "T: update theta PID terms. Ex: T0.5 -2.4 8.2\n";
   response += "D: update thetaDot PID terms. Ex: D0.5 -2.4 8.2\n";
   response += "X: update xPos PID terms. Ex: X0.5 -2.4 8.2\n";
-  response += "P: update phiDo PID terms. Ex: P0.5 -2.4 8.2\n";
+  response += "P: update phiDot PID terms. Ex: P0.5 -2.4 8.2\n";
   response += "L: load PID values from EEPROM\n";
   response += "S: save PID values to EEPROM\n";
   response += "V: show currently used PID Values\n";
@@ -135,6 +135,14 @@ void handlePiTalk(char command, std::string message){
     case 'Z': zeroAllParameters(); break;
     case 'H': showHelp(); break;
   }
+}
+
+void emergencyStop(){
+  wheels.updateRadsPerSec(0);
+  zeroAllParameters();
+  Outputs::beep(100,100);
+  Outputs::beep(100,100);
+  Outputs::beep(100,100);
 }
 
 void setup() {
@@ -164,17 +172,20 @@ void loop(){
   if(outerWaiter.isTime()){
     float outerDt = outerWaiter.starting();
     my_imu.update();
+    if(my_imu.isEmergency()) { emergencyStop(); }
+
     float phiDotAvg = wheels.getPhiDotAvg();
 
     float thetaTerm = thetaPid.generateCommand(my_imu.getTheta(), outerDt);
     float thetaDotTerm = thetaDotPid.generateCommand(my_imu.getThetaDot(), outerDt);
     float xPosTerm = xPosPid.generateCommand(wheels.getX(), outerDt);
     float phiDotTerm = phiDotPid.generateCommand(phiDotAvg, outerDt);
-
     float newRadPerSec = thetaTerm + thetaDotTerm + xPosTerm + phiDotTerm;
     
     // discuss
     newRadPerSec = -newRadPerSec;
+
+    newRadPerSec = constrain(newRadPerSec, -10,10);
 
     wheels.updateRadsPerSec(newRadPerSec);
     printStuff(outerDt, newRadPerSec, phiDotAvg, thetaTerm, thetaDotTerm, xPosTerm, phiDotTerm);
