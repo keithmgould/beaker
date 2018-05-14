@@ -1,4 +1,5 @@
 #include <Servo.h>
+#include <EEPROM.h>
 #include <Adafruit_Sensor.h>            // IMU
 #include <Adafruit_BNO055.h>            // IMU
 #include <Wire.h>                       // I2C for IMU
@@ -46,8 +47,14 @@ void setup(){
   piTalk.setup(&wheels);
 	attachInterrupt(digitalPinToInterrupt(LH_ENCODER_A), leftEncoderEvent, CHANGE);
   attachInterrupt(digitalPinToInterrupt(RH_ENCODER_A), rightEncoderEvent, CHANGE);
+  Outputs::init();
   wheels.initialize();
-  wheels.updateRadsPerSec(0.0);
+
+  // when Beaker hanging (wheels not on ground) default PID values
+  // cause too much overshoot due to lack of friction/resistance.
+  // Hence update of PIDs
+  wheels.updatePids(MOTOR_P_PARAM_HANGING, MOTOR_I_PARAM_HANGING, MOTOR_D_PARAM_HANGING);
+  wheels.updateRadsPerSec(6.28);
 }
 
 void loop(){
@@ -61,6 +68,6 @@ void loop(){
   if(outerWaiter.isTime()){
     float outerDt = outerWaiter.starting();
     piTalk.checkForPiCommand();
-    // printStuff(outerDt);
+    printStuff(outerDt);
   }
 }

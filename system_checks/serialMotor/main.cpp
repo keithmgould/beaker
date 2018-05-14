@@ -35,8 +35,8 @@ void setup(){
 	Serial.begin(115200); while (!Serial) {delay(1);}
 	attachInterrupt(digitalPinToInterrupt(LH_ENCODER_A), leftEncoderEvent, CHANGE);
   attachInterrupt(digitalPinToInterrupt(RH_ENCODER_A), rightEncoderEvent, CHANGE);
-  motorLeft.updatePower(0.2); 	// power ranges from -1 to 1
-  motorRight.updatePower(0.2);	// power ranges from -1 to 1
+  motorLeft.updatePower(0.15); 	// power ranges from -1 to 1
+  motorRight.updatePower(0.15);	// power ranges from -1 to 1
 }
 
 void loop(){

@@ -22,26 +22,29 @@ class Averager{
     return sum;
 	}
 
-	bool isTimeToClear(){
-		return maxSize > 0 && values.size() >= maxSize;
-	}
-
 	public:
 
 	Averager(int mSize){
+		// ensure good small size for averager
+		if(mSize <= 0 || mSize > 100) { 
+			Outputs::turnBuzzerOn();
+			while(true){ delay(1); }
+		}
+
 		maxSize  = mSize;
 	}
 
-
 	float computeAverage(){
-		float sum = sumValues();
-    float avg = sum / (float) values.size();
-    if(isTimeToClear()) { values.clear(); }
-    return avg;
+		float size = values.size();
+		if(size == 0) { return 0;}
+    return sumValues() / size;
   }
 
 	void push(float newVal){
 		values.push_front(newVal);
+		if(values.size() > maxSize){
+			values.pop_back();
+		}
 	}
 };
 

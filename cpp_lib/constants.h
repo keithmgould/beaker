@@ -48,6 +48,13 @@ constexpr float MOTOR_P_PARAM = 0.025;
 constexpr float MOTOR_I_PARAM = 0;
 constexpr float MOTOR_D_PARAM = 0.05;
 
+// When Beaker is Hanging, use these PID values to 
+// prevent overshoot. (Above assumes much more friction/resistance)
+constexpr float MOTOR_P_PARAM_HANGING = 0.001;
+constexpr float MOTOR_I_PARAM_HANGING = 0.00001;
+constexpr float MOTOR_D_PARAM_HANGING = 0.01;
+
+
 // Used by motors for direction of rotation
 constexpr int FORWARD = 1;
 constexpr int BACKWARD = -1;
