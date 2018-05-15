@@ -128,7 +128,7 @@ class Wheels {
   float getTargetRadsPerSec() { return targetRadsPerSec; }              // rads/sec
   float getPhi(){ return (leftPhi + rightPhi) / 2.0; }                  // rads. avg of 2 whls
   float getPhiDot(){ return (leftPhiDot + rightPhiDot) / 2.0; }         // rads/sec. avg of 2 whls
-  float getPhiDotAvg(){ return phiDotAverager.computeAverage(); }       // rads. avg of 2 whls
+  float getPhiDotAvg(){ return phiDotAverager.computeAverage(); }       // rads/sec. avg of 2 whls
   float getLeftPhi(){ return leftPhi; }                                 // rads
   float getLeftLastPhi(){ return leftLastPhi; }                         // rads
   float getLeftCommand(){ return leftCommand; }                         // power. ranges from -1 to 1

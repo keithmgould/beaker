@@ -24,6 +24,7 @@ class Imu{
   Averager thetaDotData = Averager(5);
 
   imu::Vector<3> eulerDegrees;
+  imu::Vector<3> gyr;
 
   // in radians
   float rawTheta() {
@@ -33,7 +34,7 @@ class Imu{
 
   // in radians/sec
   float rawThetaDot() {
-    imu::Vector<3> gyr = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
+    gyr = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
     return -gyr.x();
   }
 
@@ -64,7 +65,7 @@ class Imu{
   float getThetaOffset(){ return thetaOffset; }
 
   bool isEmergency(){
-    return fabs(eulerDegrees.z()) > 30;
+    return fabs(eulerDegrees.z()) > 30 || fabs(eulerDegrees.y()) > 5;
   }
 
   // Due to micro leveling imperfections, the IMU is not perfectly level when Beaker

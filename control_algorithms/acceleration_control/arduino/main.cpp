@@ -1,4 +1,4 @@
-#include <Adafruit_Sensor.h>            // IMU
+  #include <Adafruit_Sensor.h>            // IMU
 #include <Adafruit_BNO055.h>            // IMU
 #include <Wire.h>                       // I2C for IMU
 #include <EEPROM.h>
@@ -22,106 +22,64 @@ Waiter innerWaiter(MOTOR_CONTROL_TIMESTEP);
 void leftEncoderEvent(){ wheels.leftEncoderEvent(); }
 void rightEncoderEvent(){ wheels.rightEncoderEvent(); }
 
+float thetaDotConstant = 0;
+float phiDotConstant = 0;
+float recoveringConstant = 0;
 float targetAcceleration = 0;
 
-void printStuff(float dt, float targetAcceleration, float phiDotAvg, float thetaTerm, float thetaDotTerm, float xPosTerm, float phiDotTerm){
+void printStuff(float dt, float accelerationModifier, float phiDotModifier){
+
+  // loop time
   String log = String(dt);
 
   // raw states
   log += "," + String(my_imu.getTheta(),4) + "," + String(my_imu.getThetaDot(),4);
-  log += "," + String(wheels.getX(),4) + "," + String(phiDotAvg,4);
+  log += "," + String(wheels.getX(),4) + "," + String(wheels.getPhiDotAvg(),4);
+
+  // control states
+  log += "," + String(targetAcceleration,4);
+  log += "," + String(wheels.getTargetRadsPerSec(),4);
 
   // calibrations
-  log += "," + String(my_imu.getThetaOffset());
-
-  // final result
-  log += "," + String(targetAcceleration);
-  
-  // PID term components
-  log += "," + String(thetaPid.getTermString());
-  log += "," + String(thetaDotPid.getTermString());
-  log += "," + String(xPosPid.getTermString());
-  log += "," + String(phiDotPid.getTermString());
-
-  // PID final term  
-  log += "," + String(thetaTerm);
-  log += "," + String(thetaDotTerm);
-  log += "," + String(xPosTerm);
-  log += "," + String(phiDotTerm);
-
-  log += "," + String(targetAcceleration);
+  log += "," + String(my_imu.getThetaOffset(),4);
+  log += "," + String(thetaDotConstant,4);
+  log += "," + String(recoveringConstant,4);
+  log += "," + String(phiDotConstant,4);
+  log += "," + String(accelerationModifier,4);
+  log += "," + String(phiDotModifier,4);
 
   Serial3.println(log);
 }
 
-void zeroAllParameters(){
-  thetaPid.updateParameters(0,0,0);
-  thetaDotPid.updateParameters(0,0,0);
-  xPosPid.updateParameters(0,0,0);
-  phiDotPid.updateParameters(0,0,0);
-
-  piTalk.sendToPi("Values Zeroed.");
+void zeroAllParameters(bool piTalkResponse = true){
+  thetaDotConstant = phiDotConstant = targetAcceleration = 0;
+  wheels.updateRadsPerSec(0);
+  if(piTalkResponse) { piTalk.sendToPi("Zeroed Out"); }
 }
 
-void storeAllPidParameters(){
-  unsigned int addr = 0;
-  addr = thetaPid.storeParameters(addr);
-  addr = thetaDotPid.storeParameters(addr);
-  addr = xPosPid.storeParameters(addr);
-  phiDotPid.storeParameters(addr);
+void updateRecoveringConstant(std::string message){
+  recoveringConstant = String(message.c_str()).toFloat();
 
-  piTalk.sendToPi("Values Saved to EEPROM.");
+  piTalk.sendToPi("Updated Recovering Constant.");
 }
 
-void loadAllPidParameters(){
-  unsigned int addr = 0;
-  addr = thetaPid.loadParameters(addr);
-  addr = thetaDotPid.loadParameters(addr);
-  addr = xPosPid.loadParameters(addr);
-  phiDotPid.loadParameters(addr);
+void updateThetaDotConstant(std::string message){
+  thetaDotConstant = String(message.c_str()).toFloat();
 
-  piTalk.sendToPi("Values Loaded from EEPROM.");
+  piTalk.sendToPi("Updated thetaDot Constant.");
 }
 
-void showPidValues(){
-  String response = "(T)heta: " + thetaPid.getParamString() + "\n";
-  response += "theta(D)ot: " + thetaDotPid.getParamString() + "\n";
-  response += "(X)Pos: " + xPosPid.getParamString() + "\n";
-  response += "(P)hiDot: " + phiDotPid.getParamString() + "\n";
+void updatePhiDotConstant(std::string message){
+  phiDotConstant = String(message.c_str()).toFloat();
 
-  piTalk.sendToPi(response);
-}
-
-void updatePidParameters(int component, std::string message){
-  float paramVals[3] = {}; // all zeros
-  piTalk.stringToFloats(message, paramVals);
-  switch(component){
-    case 0:
-      thetaPid.updateParameters(paramVals[0], paramVals[1], paramVals[2]);
-      break;
-    case 1:
-      thetaDotPid.updateParameters(paramVals[0], paramVals[1], paramVals[2]);
-      break;
-    case 2:
-      xPosPid.updateParameters(paramVals[0], paramVals[1], paramVals[2]);
-      break;
-    case 3:
-      phiDotPid.updateParameters(paramVals[0], paramVals[1], paramVals[2]);
-      break;
-  }
-
-  piTalk.sendToPi("Updated PID Parameters.");
+  piTalk.sendToPi("Updated phiDot Constant.");
 }
 
 void showHelp(){
-  String response = "T: update theta PID terms. Ex: T0.5 -2.4 8.2\n";
-  response += "D: update thetaDot PID terms. Ex: D0.5 -2.4 8.2\n";
-  response += "X: update xPos PID terms. Ex: X0.5 -2.4 8.2\n";
-  response += "P: update phiDot PID terms. Ex: P0.5 -2.4 8.2\n";
-  response += "L: load PID values from EEPROM\n";
-  response += "S: save PID values to EEPROM\n";
-  response += "V: show currently used PID Values\n";
-  response += "Z: zero out all PID Values.\n";
+  String response = "T: update thetaDot constant.\n";
+  response += "P: update phiDot constant.\n";
+  response += "R: update recovering constant.\n";
+  response += "Z: zero all parameters.\n";
   response += "H: this help\n";
 
   piTalk.sendToPi(response);
@@ -129,13 +87,9 @@ void showHelp(){
 
 void handlePiTalk(char command, std::string message){
   switch(command){
-    case 'T': updatePidParameters(0, message); break;
-    case 'D': updatePidParameters(1, message); break;
-    case 'X': updatePidParameters(2, message); break;
-    case 'P': updatePidParameters(3, message); break;
-    case 'S': storeAllPidParameters(); break;
-    case 'L': loadAllPidParameters(); break;
-    case 'V': showPidValues(); break;
+    case 'T': updateThetaDotConstant(message); break;
+    case 'P': updatePhiDotConstant(message); break;
+    case 'R': updateRecoveringConstant(message); break;
     case 'Z': zeroAllParameters(); break;
     case 'H': showHelp(); break;
   }
@@ -143,7 +97,7 @@ void handlePiTalk(char command, std::string message){
 
 void emergencyStop(){
   wheels.updateRadsPerSec(0);
-  zeroAllParameters();
+  zeroAllParameters(false);
   Outputs::beep(100,100);
   Outputs::beep(100,100);
   Outputs::beep(100,100);
@@ -168,7 +122,6 @@ void loop(){
   // inner loop behavior
   if(innerWaiter.isTime()){
     float innerDt = innerWaiter.starting();
-    wheels.updateRadsPerSec(wheels.getTargetRadsPerSec() + targetAcceleration);
     wheels.spin(innerDt);
     my_imu.pushThetaDotData();
   }
@@ -179,20 +132,45 @@ void loop(){
     my_imu.update();
     if(my_imu.isEmergency()) { emergencyStop(); }
 
-    float phiDotAvg = wheels.getPhiDotAvg();
+    float theta = my_imu.getTheta();
+    float thetaDot = my_imu.getThetaDot();
 
-    float thetaTerm = thetaPid.generateCommand(my_imu.getTheta(), outerDt);
-    float thetaDotTerm = thetaDotPid.generateCommand(my_imu.getThetaDot(), outerDt);
-    float xPosTerm = xPosPid.generateCommand(wheels.getX(), outerDt);
-    float phiDotTerm = phiDotPid.generateCommand(phiDotAvg, outerDt);
-    float targetAcceleration = thetaTerm + thetaDotTerm + xPosTerm + phiDotTerm;
+    float accelerationModifier = fabs(theta * thetaDot * thetaDotConstant);
+
+    if(theta > 0 && thetaDot > 0){ // if leaning forward and accelerating forward (BAD)
+      targetAcceleration += accelerationModifier; // accelerate forward
+    } else if(theta < 0 && thetaDot < 0){ // if leaning backward and accelerating backward (BAD)
+      targetAcceleration -= accelerationModifier;  // accelerate backward
+    } else if(theta > 0 && thetaDot < 0 ) {  // if leaning forward and accelerating backward (GOOD)
+      if(fabs(thetaDot) > recoveringConstant * theta){
+        targetAcceleration = 0;
+      }else{
+        targetAcceleration += accelerationModifier;
+      }
+    } else if(theta < 0 && thetaDot > 0) {  // if leaning backward and accelerating forward (GOOD)
+      if(thetaDot > recoveringConstant * fabs(theta)){
+        targetAcceleration = 0;
+      }else{
+        targetAcceleration -= accelerationModifier;
+      }
+    }
+
+    float phiDot = wheels.getPhiDotAvg();
+    float phiDotModifier;
+    if (fabs(theta) < 0.05){
+      phiDotModifier = phiDot * phiDotConstant;
+    }else{
+      phiDotModifier = 0;
+    }
+
+    targetAcceleration += phiDotModifier;
+
+    float newRadsPerSec = wheels.getTargetRadsPerSec() + targetAcceleration;
+    newRadsPerSec = constrain(newRadsPerSec,-15,15);
+    wheels.updateRadsPerSec(newRadsPerSec);
     
-    // discuss
-    targetAcceleration = -targetAcceleration;
 
-    targetAcceleration = constrain(targetAcceleration, -1,1);
-
-    printStuff(outerDt, wheels.getTargetRadsPerSec(), phiDotAvg, thetaTerm, thetaDotTerm, xPosTerm, phiDotTerm);
+    printStuff(outerDt, accelerationModifier, phiDotModifier);
     piTalk.checkForPiCommand();
   }
 }

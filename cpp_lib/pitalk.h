@@ -89,6 +89,11 @@ class PiTalk {
     str = "";
   }
 
+  void setup(Imu *i, void (*callbk) (char, std::string)){
+    my_imu = i;                 // regardless of algorithm, IMU is needed
+    callbackFunction = callbk;  // algorithm specific continuation of switch statement
+  }
+
   void setup(Wheels *w){
     wheels = w;
   }

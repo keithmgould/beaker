@@ -31,6 +31,10 @@ void setup(){
 
 void loop(){
 	eulerDegrees = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+  Serial.print(eulerDegrees.x());
+  Serial.print(",");
+  Serial.print(eulerDegrees.y());
+  Serial.print(",");
   Serial.println(eulerDegrees.z());
 	delay(500);
 }
