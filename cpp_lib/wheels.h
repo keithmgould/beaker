@@ -24,7 +24,7 @@ class Wheels {
   Waiter waiter = Waiter(MOTOR_CONTROL_TIMESTEP);
   Pid leftMotorPid = Pid(MOTOR_CONTROL_TIMESTEP);
   Pid rightMotorPid = Pid(MOTOR_CONTROL_TIMESTEP);
-  Averager phiDotAverager = Averager(10);
+  Averager phiDotAverager = Averager(5);
 
   // phi is wheel position. In rads.
   float leftPhi, leftLastPhi, rightPhi, rightLastPhi;

@@ -22,7 +22,7 @@ Waiter innerWaiter(MOTOR_CONTROL_TIMESTEP);
 void leftEncoderEvent(){ wheels.leftEncoderEvent(); }
 void rightEncoderEvent(){ wheels.rightEncoderEvent(); }
 
-void printStuff(float dt, float newRadPerSec, float phiDotAvg, float thetaTerm, float thetaDotTerm, float xPosTerm, float phiDotTerm){
+void printStuff(float dt, float newRadPerSec, float radPerSecDelta, float phiDotAvg, float thetaTerm, float thetaDotTerm, float xPosTerm, float phiDotTerm){
   String log = String(dt);
 
   // raw states
@@ -42,10 +42,14 @@ void printStuff(float dt, float newRadPerSec, float phiDotAvg, float thetaTerm, 
   log += "," + String(phiDotPid.getTermString());
 
   // PID final term  
-  log += "," + String(thetaTerm);
-  log += "," + String(thetaDotTerm);
-  log += "," + String(xPosTerm);
-  log += "," + String(phiDotTerm);
+  log += "," + String(thetaTerm,4);
+  log += "," + String(thetaDotTerm,4);
+  log += "," + String(xPosTerm,4);
+  log += "," + String(phiDotTerm,4);
+
+  // Extra
+  log += "," + String(wheels.getPhiDot(),4);
+  log += "," + String(radPerSecDelta,4);
 
   Serial3.println(log);
 }
@@ -180,25 +184,19 @@ void loop(){
     float thetaDotTerm = thetaDotPid.generateCommand(my_imu.getThetaDot(), outerDt);
     float xPosTerm = xPosPid.generateCommand(wheels.getX(), outerDt);
     float phiDotTerm = phiDotPid.generateCommand(phiDotAvg, outerDt);
-    float newRadPerSec = thetaTerm + thetaDotTerm + xPosTerm + phiDotTerm;
+    float radPerSecDelta = thetaTerm + thetaDotTerm + xPosTerm + phiDotTerm;
     
     // discuss
-    newRadPerSec = -newRadPerSec;
+    // newRadPerSec = -newRadPerSec;
+    float newRadPerSec = wheels.getTargetRadsPerSec();
+
+    newRadPerSec += radPerSecDelta;
 
     newRadPerSec = constrain(newRadPerSec, -10,10);
 
     wheels.updateRadsPerSec(newRadPerSec);
 
-    // experimenting with slightly adjusting theta
-    float xPos = wheels.getX();
-
-    // if(xPos > 0.05){
-    //   my_imu.setThetaOffset(THETA_OFFSET + 0.01); // increasing offset makes you lean backward
-    // }else if(xPos < -0.05){
-    //   my_imu.setThetaOffset(THETA_OFFSET - 0.01); // decreasing offset makes you lean forward
-    // }
-
-    printStuff(outerDt, newRadPerSec, phiDotAvg, thetaTerm, thetaDotTerm, xPosTerm, phiDotTerm);
+    printStuff(outerDt, newRadPerSec, radPerSecDelta, phiDotAvg, thetaTerm, thetaDotTerm, xPosTerm, phiDotTerm);
     piTalk.checkForPiCommand();
   }
 }

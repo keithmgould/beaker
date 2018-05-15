@@ -24,10 +24,10 @@ void rightEncoderEvent(){ wheels.rightEncoderEvent(); }
 
 float thetaDotConstant = 0;
 float phiDotConstant = 0;
-float recoveringConstant = 0;
-float targetAcceleration = 0;
+float angleRateRatioConstant = 0;
+float angleResponseConstant = 0;
 
-void printStuff(float dt, float accelerationModifier, float phiDotModifier){
+void printStuff(float dt, float risingAngleOffset){
 
   // loop time
   String log = String(dt);
@@ -37,48 +37,39 @@ void printStuff(float dt, float accelerationModifier, float phiDotModifier){
   log += "," + String(wheels.getX(),4) + "," + String(wheels.getPhiDotAvg(),4);
 
   // control states
-  log += "," + String(targetAcceleration,4);
+  log += "," + String(risingAngleOffset,4);
   log += "," + String(wheels.getTargetRadsPerSec(),4);
 
   // calibrations
   log += "," + String(my_imu.getThetaOffset(),4);
-  log += "," + String(thetaDotConstant,4);
-  log += "," + String(recoveringConstant,4);
-  log += "," + String(phiDotConstant,4);
-  log += "," + String(accelerationModifier,4);
-  log += "," + String(phiDotModifier,4);
+  log += "," + String(angleRateRatioConstant,4);
+  log += "," + String(angleResponseConstant,4);
+
 
   Serial3.println(log);
 }
 
 void zeroAllParameters(bool piTalkResponse = true){
-  thetaDotConstant = phiDotConstant = targetAcceleration = 0;
+  angleRateRatioConstant = angleResponseConstant = 0;
   wheels.updateRadsPerSec(0);
   if(piTalkResponse) { piTalk.sendToPi("Zeroed Out"); }
 }
 
-void updateRecoveringConstant(std::string message){
-  recoveringConstant = String(message.c_str()).toFloat();
+void updateAngleRateRatioConstant(std::string message){
+  angleRateRatioConstant = String(message.c_str()).toFloat();
 
-  piTalk.sendToPi("Updated Recovering Constant.");
+  piTalk.sendToPi("Updated angleRateRatioConstant.");
 }
 
-void updateThetaDotConstant(std::string message){
-  thetaDotConstant = String(message.c_str()).toFloat();
+void updateAngleResponseConstant(std::string message){
+  angleResponseConstant = String(message.c_str()).toFloat();
 
-  piTalk.sendToPi("Updated thetaDot Constant.");
-}
-
-void updatePhiDotConstant(std::string message){
-  phiDotConstant = String(message.c_str()).toFloat();
-
-  piTalk.sendToPi("Updated phiDot Constant.");
+  piTalk.sendToPi("Updated angleResponseConstant Constant.");
 }
 
 void showHelp(){
-  String response = "T: update thetaDot constant.\n";
-  response += "P: update phiDot constant.\n";
-  response += "R: update recovering constant.\n";
+  String response = "A: update angleRateRatioConstant.\n";
+  response += "R: update angleResponseConstant.\n";
   response += "Z: zero all parameters.\n";
   response += "H: this help\n";
 
@@ -87,9 +78,8 @@ void showHelp(){
 
 void handlePiTalk(char command, std::string message){
   switch(command){
-    case 'T': updateThetaDotConstant(message); break;
-    case 'P': updatePhiDotConstant(message); break;
-    case 'R': updateRecoveringConstant(message); break;
+    case 'A': updateAngleRateRatioConstant(message); break;
+    case 'R': updateAngleResponseConstant(message); break;
     case 'Z': zeroAllParameters(); break;
     case 'H': showHelp(); break;
   }
@@ -104,11 +94,9 @@ void emergencyStop(){
 }
 
 void setup() {
-  // thetaPid.setClearAccumulatorWhenCrossingZero(true);
-
   piTalk.setup(&wheels, &my_imu, &handlePiTalk);
-  Serial.begin(115200); while (!Serial) {;}
-  Serial3.begin(115200); while (!Serial3) {;} // bluetooth
+  Serial.begin(115200); while (!Serial) {;}  // primary serial
+  Serial3.begin(115200); while (!Serial3) {;} // bluetooth serial
   Serial.println("\n\nBeginning initializations...");
   my_imu.setup();
   attachInterrupt(digitalPinToInterrupt(LH_ENCODER_A), leftEncoderEvent, CHANGE);
@@ -131,46 +119,16 @@ void loop(){
     float outerDt = outerWaiter.starting();
     my_imu.update();
     if(my_imu.isEmergency()) { emergencyStop(); }
-
     float theta = my_imu.getTheta();
     float thetaDot = my_imu.getThetaDot();
-
-    float accelerationModifier = fabs(theta * thetaDot * thetaDotConstant);
-
-    if(theta > 0 && thetaDot > 0){ // if leaning forward and accelerating forward (BAD)
-      targetAcceleration += accelerationModifier; // accelerate forward
-    } else if(theta < 0 && thetaDot < 0){ // if leaning backward and accelerating backward (BAD)
-      targetAcceleration -= accelerationModifier;  // accelerate backward
-    } else if(theta > 0 && thetaDot < 0 ) {  // if leaning forward and accelerating backward (GOOD)
-      if(fabs(thetaDot) > recoveringConstant * theta){
-        targetAcceleration = 0;
-      }else{
-        targetAcceleration += accelerationModifier;
-      }
-    } else if(theta < 0 && thetaDot > 0) {  // if leaning backward and accelerating forward (GOOD)
-      if(thetaDot > recoveringConstant * fabs(theta)){
-        targetAcceleration = 0;
-      }else{
-        targetAcceleration -= accelerationModifier;
-      }
-    }
-
-    float phiDot = wheels.getPhiDotAvg();
-    float phiDotModifier;
-    if (fabs(theta) < 0.05){
-      phiDotModifier = phiDot * phiDotConstant;
-    }else{
-      phiDotModifier = 0;
-    }
-
-    targetAcceleration += phiDotModifier;
-
-    float newRadsPerSec = wheels.getTargetRadsPerSec() + targetAcceleration;
-    newRadsPerSec = constrain(newRadsPerSec,-15,15);
-    wheels.updateRadsPerSec(newRadsPerSec);
     
+    float risingAngleOffset = thetaDot * angleRateRatioConstant + theta;
 
-    printStuff(outerDt, accelerationModifier, phiDotModifier);
+    float newRadsPerSec = wheels.getTargetRadsPerSec() + angleResponseConstant * risingAngleOffset;
+
+    newRadsPerSec = constrain(newRadsPerSec, -10,10);
+    wheels.updateRadsPerSec(newRadsPerSec);
+    printStuff(outerDt, risingAngleOffset);
     piTalk.checkForPiCommand();
   }
 }
