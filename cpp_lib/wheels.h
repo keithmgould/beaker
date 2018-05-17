@@ -101,7 +101,6 @@ class Wheels {
   }
 
   void initialize(){
-    Serial1.begin(9600); while (!Serial1) {delay(1);}
     motorLeft.updatePower(0);
     motorRight.updatePower(0);
     delay(500);
