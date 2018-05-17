@@ -5,7 +5,7 @@
 // physical characteristics, or related computations
 constexpr float WHEEL_RADIUS = .042; // in meters
 constexpr int FULL_ROTATION_EDGE_EVENTS = 600; // 18.75 * 32
-constexpr float THETA_OFFSET = 0.01; // due to minorly non-level IMU
+constexpr float THETA_OFFSET = 0.0; // due to minorly non-level IMU
 
 constexpr float PI_OVER_ONE_EIGHTY = (PI / 180.0); // for degrees to radians
 constexpr float WHEEL_CIRCUMFERECE = (TWO_PI * WHEEL_RADIUS);
