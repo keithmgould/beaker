@@ -27,11 +27,14 @@ class Averager{
 	Averager(int mSize){
 		// ensure good small size for averager
 		if(mSize <= 0 || mSize > 100) { 
-			Outputs::turnBuzzerOn();
-			while(true){ delay(1); }
+			while(true){ ; }
 		}
 
 		maxSize  = mSize;
+	}
+
+	unsigned int size(){
+		return values.size();
 	}
 
 	float computeAverage(){
