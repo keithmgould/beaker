@@ -79,9 +79,9 @@ class Pid {
     isClearAccumulatorWhenCrossingZero = x;
   }
 
-  float getkp(){ return kP; }
-  float getki(){ return kI; }
-  float getkd(){ return kD; }
+  float getKp(){ return kP; }
+  float getKi(){ return kI; }
+  float getKd(){ return kD; }
   float getSetpoint(){ return setpoint; }
   float getCurrentError(){ return currentError; }
   String getParamString() { return paramString; }

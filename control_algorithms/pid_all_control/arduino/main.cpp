@@ -18,6 +18,8 @@ Wheels wheels;
 PiTalk piTalk;
 Waiter outerWaiter(POSITION_CONTROL_TIMESTEP);
 Waiter innerWaiter(MOTOR_CONTROL_TIMESTEP);
+bool motorsOn = true;
+float momentumConstant = 0;
 
 void leftEncoderEvent(){ wheels.leftEncoderEvent(); }
 void rightEncoderEvent(){ wheels.rightEncoderEvent(); }
@@ -30,10 +32,10 @@ void printStuff(float dt, float newRadPerSec, float radPerSecDelta, float phiDot
   log += "," + String(wheels.getX(),4) + "," + String(phiDotAvg,4);
 
   // calibrations
-  log += "," + String(my_imu.getThetaOffset());
+  log += "," + String(my_imu.getThetaOffset(),4);
 
   // final result
-  log += "," + String(newRadPerSec);
+  log += "," + String(newRadPerSec,4);
   
   // PID term components
   log += "," + String(thetaPid.getTermString());
@@ -50,35 +52,43 @@ void printStuff(float dt, float newRadPerSec, float radPerSecDelta, float phiDot
   // Extra
   log += "," + String(wheels.getPhiDot(),4);
   log += "," + String(radPerSecDelta,4);
+  log += "," + String(momentumConstant,4);
 
   Serial3.println(log);
 }
 
-void zeroAllParameters(){
+// Local memory only. Not EEPROM
+void zeroAllParameters(bool tellPi){
   thetaPid.updateParameters(0,0,0);
   thetaDotPid.updateParameters(0,0,0);
   xPosPid.updateParameters(0,0,0);
   phiDotPid.updateParameters(0,0,0);
+  wheels.updateRadsPerSec(0);
+  momentumConstant = 0;
 
-  piTalk.sendToPi("Values Zeroed.");
+  if(tellPi){ piTalk.sendToPi("Values Zeroed."); }
 }
 
-void storeAllPidParameters(){
+// in EEPROM
+void storeAllParameters(){
   unsigned int addr = 0;
   addr = thetaPid.storeParameters(addr);
   addr = thetaDotPid.storeParameters(addr);
   addr = xPosPid.storeParameters(addr);
-  phiDotPid.storeParameters(addr);
+  addr = phiDotPid.storeParameters(addr);
+  addr = EepromHelper::storeFloat(momentumConstant, addr);
 
   piTalk.sendToPi("Values Saved to EEPROM.");
 }
 
-void loadAllPidParameters(){
+// from EEPROM
+void loadAllParameters(){
   unsigned int addr = 0;
   addr = thetaPid.loadParameters(addr);
   addr = thetaDotPid.loadParameters(addr);
   addr = xPosPid.loadParameters(addr);
-  phiDotPid.loadParameters(addr);
+  addr = phiDotPid.loadParameters(addr);
+  EepromHelper::loadFloat(momentumConstant, addr);
 
   piTalk.sendToPi("Values Loaded from EEPROM.");
 }
@@ -88,6 +98,7 @@ void showPidValues(){
   response += "theta(D)ot: " + thetaDotPid.getParamString() + "\n";
   response += "(X)Pos: " + xPosPid.getParamString() + "\n";
   response += "(P)hiDot: " + phiDotPid.getParamString() + "\n";
+  response += "MotorsOn: " + String(motorsOn) + "\n";
 
   piTalk.sendToPi(response);
 }
@@ -113,15 +124,27 @@ void updatePidParameters(int component, std::string message){
   piTalk.sendToPi("Updated PID Parameters.");
 }
 
+void turnMotorsOn(){ motorsOn = true; piTalk.sendToPi("Motors Turned ON."); }
+void turnMotorsOff(){ motorsOn = false; piTalk.sendToPi("Motors Turned OFF."); }
+
+void updateMomentumConstant(std::string message){
+  float newMC = String(message.c_str()).toFloat();
+  momentumConstant = newMC;
+  piTalk.sendToPi("Updated Momentum Constant.");
+}
+
 void showHelp(){
   String response = "T: update theta PID terms. Ex: T0.5 -2.4 8.2\n";
   response += "D: update thetaDot PID terms. Ex: D0.5 -2.4 8.2\n";
   response += "X: update xPos PID terms. Ex: X0.5 -2.4 8.2\n";
   response += "P: update phiDot PID terms. Ex: P0.5 -2.4 8.2\n";
+  response += "A: update momentumConstant. Ex: A0.5\n";
   response += "L: load PID values from EEPROM\n";
   response += "S: save PID values to EEPROM\n";
   response += "V: show currently used PID Values\n";
   response += "Z: zero out all PID Values.\n";
+  response += "J: turn motors on.\n";
+  response += "K: turn motors off.\n";
   response += "H: this help\n";
 
   piTalk.sendToPi(response);
@@ -133,17 +156,20 @@ void handlePiTalk(char command, std::string message){
     case 'D': updatePidParameters(1, message); break;
     case 'X': updatePidParameters(2, message); break;
     case 'P': updatePidParameters(3, message); break;
-    case 'S': storeAllPidParameters(); break;
-    case 'L': loadAllPidParameters(); break;
+    case 'A': updateMomentumConstant(message); break;
+    case 'S': storeAllParameters(); break;
+    case 'L': loadAllParameters(); break;
     case 'V': showPidValues(); break;
-    case 'Z': zeroAllParameters(); break;
+    case 'Z': zeroAllParameters(true); break;
+    case 'J': turnMotorsOn(); break;
+    case 'K': turnMotorsOff(); break;
     case 'H': showHelp(); break;
   }
 }
 
 void emergencyStop(){
   wheels.updateRadsPerSec(0);
-  zeroAllParameters();
+  zeroAllParameters(false);
   Outputs::beep(100,100);
   Outputs::beep(100,100);
   Outputs::beep(100,100);
@@ -179,22 +205,49 @@ void loop(){
     if(my_imu.isEmergency()) { emergencyStop(); }
 
     float phiDotAvg = wheels.getPhiDotAvg();
+    float xPos = wheels.getX();
+    float theta = my_imu.getTheta();
 
-    float thetaTerm = thetaPid.generateCommand(my_imu.getTheta(), outerDt);
+    float thetaTerm = thetaPid.generateCommand(theta, outerDt);
     float thetaDotTerm = thetaDotPid.generateCommand(my_imu.getThetaDot(), outerDt);
     float xPosTerm = xPosPid.generateCommand(wheels.getX(), outerDt);
     float phiDotTerm = phiDotPid.generateCommand(phiDotAvg, outerDt);
+
+    // If the xPosTerm did its job and got us leaning back towards X=0, 
+    // then stop trying to accelerate away from X=0.
+    float momentum = momentumConstant * fabs(phiDotAvg);
+
+    if(xPos > 0 && theta < -momentum){ xPosTerm = 0; }
+    if(xPos < 0 && theta > momentum){ xPosTerm = 0; }
+
     float radPerSecDelta = thetaTerm + thetaDotTerm + xPosTerm + phiDotTerm;
-    
-    // discuss
-    // newRadPerSec = -newRadPerSec;
+  
+    radPerSecDelta = -radPerSecDelta;
+
     float newRadPerSec = wheels.getTargetRadsPerSec();
 
     newRadPerSec += radPerSecDelta;
 
     newRadPerSec = constrain(newRadPerSec, -10,10);
 
-    wheels.updateRadsPerSec(newRadPerSec);
+    // Using theta to drive xPos to 0:   
+    // if(xPos > 0.25){
+    //   my_imu.setThetaOffset(0.01);
+    // }else if(xPos < -0.25){
+    //   my_imu.setThetaOffset(-0.01);
+    // }else if(xPos > 0.1){
+    //   my_imu.setThetaOffset(0.005);
+    // }else if(xPos < -0.1){
+    //   my_imu.setThetaOffset(-0.005); 
+    // }else{
+    //   my_imu.setThetaOffset(0);
+    // }
+
+    if(motorsOn){
+      wheels.updateRadsPerSec(newRadPerSec);  
+    }else{
+      wheels.updateRadsPerSec(0);
+    }
 
     printStuff(outerDt, newRadPerSec, radPerSecDelta, phiDotAvg, thetaTerm, thetaDotTerm, xPosTerm, phiDotTerm);
     piTalk.checkForPiCommand();

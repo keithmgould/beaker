@@ -1,6 +1,6 @@
-#include <limits.h>
 #include "../averager.h"
 #include "gtest/gtest.h"
+
 namespace {
 
 	TEST(AveragerTest, EmptyAverager) {

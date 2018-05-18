@@ -1,6 +1,8 @@
 #ifndef __BEAKER_OUTPUTS__
 #define __BEAKER_OUTPUTS__
 
+#include "Arduino.h"
+
 /*
     This is a class that encapsulates Beaker's outputs, such as LEDs and Buzzers.
     Later it might include an OLED if that helps with errors, state, etc...
