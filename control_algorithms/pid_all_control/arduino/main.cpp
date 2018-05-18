@@ -93,12 +93,13 @@ void loadAllParameters(){
   piTalk.sendToPi("Values Loaded from EEPROM.");
 }
 
-void showPidValues(){
+void showParamValues(){
   String response = "(T)heta: " + thetaPid.getParamString() + "\n";
   response += "theta(D)ot: " + thetaDotPid.getParamString() + "\n";
   response += "(X)Pos: " + xPosPid.getParamString() + "\n";
   response += "(P)hiDot: " + phiDotPid.getParamString() + "\n";
   response += "MotorsOn: " + String(motorsOn) + "\n";
+  response += "MomentumConstant: " + String(momentumConstant) + "\n";
 
   piTalk.sendToPi(response);
 }
@@ -141,7 +142,7 @@ void showHelp(){
   response += "A: update momentumConstant. Ex: A0.5\n";
   response += "L: load PID values from EEPROM\n";
   response += "S: save PID values to EEPROM\n";
-  response += "V: show currently used PID Values\n";
+  response += "V: show currently used Param Values\n";
   response += "Z: zero out all PID Values.\n";
   response += "J: turn motors on.\n";
   response += "K: turn motors off.\n";
@@ -159,7 +160,7 @@ void handlePiTalk(char command, std::string message){
     case 'A': updateMomentumConstant(message); break;
     case 'S': storeAllParameters(); break;
     case 'L': loadAllParameters(); break;
-    case 'V': showPidValues(); break;
+    case 'V': showParamValues(); break;
     case 'Z': zeroAllParameters(true); break;
     case 'J': turnMotorsOn(); break;
     case 'K': turnMotorsOff(); break;
@@ -229,19 +230,6 @@ void loop(){
     newRadPerSec += radPerSecDelta;
 
     newRadPerSec = constrain(newRadPerSec, -10,10);
-
-    // Using theta to drive xPos to 0:   
-    // if(xPos > 0.25){
-    //   my_imu.setThetaOffset(0.01);
-    // }else if(xPos < -0.25){
-    //   my_imu.setThetaOffset(-0.01);
-    // }else if(xPos > 0.1){
-    //   my_imu.setThetaOffset(0.005);
-    // }else if(xPos < -0.1){
-    //   my_imu.setThetaOffset(-0.005); 
-    // }else{
-    //   my_imu.setThetaOffset(0);
-    // }
 
     if(motorsOn){
       wheels.updateRadsPerSec(newRadPerSec);  
