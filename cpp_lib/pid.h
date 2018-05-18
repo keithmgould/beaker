@@ -134,12 +134,9 @@ class Pid {
   unsigned int storeParameters(unsigned int startingAddress){
     int addr = startingAddress;
 
-    EEPROM.put(addr, kP);
-    addr += sizeof(float);
-    EEPROM.put(addr, kI);
-    addr += sizeof(float);
-    EEPROM.put(addr, kD);
-    addr += sizeof(float);
+    addr = EepromHelper::storeFloat(kP, addr);
+    addr = EepromHelper::storeFloat(kI, addr);
+    addr = EepromHelper::storeFloat(kD, addr);
 
     return addr;
   }
@@ -147,15 +144,12 @@ class Pid {
   // loads parameters from EEPROM at given startingAddress,
   // and returns the next address space
   unsigned int loadParameters(unsigned int startingAddress){
-    float kp, ki, kd;
     unsigned int addr = startingAddress;
-    EEPROM.get(addr, kp);
-    addr += sizeof(float);
-    EEPROM.get(addr, ki);
-    addr += sizeof(float);
-    EEPROM.get(addr, kd);
-    addr += sizeof(float);
+    float kp, ki, kd;
 
+    addr = EepromHelper::loadFloat(kp, addr);
+    addr = EepromHelper::loadFloat(ki, addr);
+    addr = EepromHelper::loadFloat(kd, addr);
     updateParameters(kp, ki, kd);
 
     return addr;
