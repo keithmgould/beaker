@@ -9,7 +9,7 @@ class Arduino:
                   bytesize=serial.EIGHTBITS, timeout=1)
 
   def updateMotorPower(self, newPower):
-    self.__writeMessage("M" + str(newPower))
+    self.__writeMessage("W" + str(newPower))
 
   def stopMotors(self):
     self.updateMotorPower(0)
