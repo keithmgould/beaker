@@ -13,11 +13,17 @@ Wheels wheels;
 PiTalk piTalk;
 Waiter outerWaiter(POSITION_CONTROL_TIMESTEP);
 Waiter innerWaiter(MOTOR_CONTROL_TIMESTEP);
+String state;
 
 void leftEncoderEvent(){ wheels.leftEncoderEvent(); }
 void rightEncoderEvent(){ wheels.rightEncoderEvent(); }
 
-void printStuff(float dt, float newRadPerSec){
+void buildState(){
+  state = String(my_imu.getTheta(),4) + "," + String(my_imu.getThetaDot(),4);
+  state += "," + String(wheels.getX(),4) + "," + String(wheels.getPhiDotAvg(),4);  
+}
+
+void sendTelemetry(float dt, float newRadPerSec){
   String log = String(dt);
 
   // raw states
@@ -33,6 +39,17 @@ void printStuff(float dt, float newRadPerSec){
   Serial3.println(log);
 }
 
+void sendState(){
+  buildState();
+  piTalk.sendToPi(state);
+}
+
+void handlePiTalk(char command, std::string message){
+  switch(command){
+    case 'S': sendState(); break;
+  }
+}
+
 void emergencyStop(){
   wheels.updateRadsPerSec(0);
   Outputs::beep(100,100);
@@ -41,7 +58,7 @@ void emergencyStop(){
 }
 
 void setup() {
-  piTalk.setup(&wheels, &my_imu);
+  piTalk.setup(&wheels, &my_imu, &handlePiTalk);
   Serial.begin(115200); while (!Serial) {;}
   Serial3.begin(115200); while (!Serial3) {;} // bluetooth
   Serial.println("\n\nBeginning initializations...");
@@ -67,7 +84,6 @@ void loop(){
     my_imu.update();
     if(my_imu.isEmergency()) { emergencyStop(); }
 
-    printStuff(outerDt);
     piTalk.checkForPiCommand();
   }
 }
