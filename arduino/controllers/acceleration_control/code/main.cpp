@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string>
 #include <sstream>                      // stringstream
-#include "../../../cpp_lib/includes.h"     // common Beaker functionality
+#include "../../../lib/includes.h"     // common Beaker functionality
 
 Pid thetaPid(POSITION_CONTROL_TIMESTEP);
 Pid thetaDotPid(POSITION_CONTROL_TIMESTEP);
