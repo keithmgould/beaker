@@ -37,11 +37,8 @@ constexpr int RIGHT_MOTOR_DRIVER = 11;
 constexpr int MOTOR_CONTROL_TIMESTEP = 5;
 constexpr int POSITION_CONTROL_TIMESTEP = 20;
 
-// Minimum/Maximum values to send to motor drivers
-// Should ALWAYS be between -1 and 1.
-// To constexprrain to 50% power use -.5 and .5
-constexpr int MINIMUM_GAIN = -1;
-constexpr int MAXIMUM_GAIN = 1;
+// know your limits
+constexpr float MAX_RADS_PER_SEC = 10;
 
 // default Motor PID values
 constexpr float MOTOR_P_PARAM = 0.025;

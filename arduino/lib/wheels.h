@@ -174,6 +174,7 @@ class Wheels {
   // Send the required rads/sec, and Wheels will make sure
   // that happens via PID
   void updateRadsPerSec(float rps){
+    rps = constrain(rps, -MAX_RADS_PER_SEC, MAX_RADS_PER_SEC);
     targetRadsPerSec = rps;
     leftMotorPid.updateSetpoint(rps);
     rightMotorPid.updateSetpoint(rps);
