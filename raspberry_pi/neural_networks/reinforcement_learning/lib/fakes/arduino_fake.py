@@ -10,5 +10,5 @@ class Arduino:
   def getPhiData(self):
     return random.random(), random.random()
 
-  def resetPhi(self):
+  def resetRobot(self):
     return True

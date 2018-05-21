@@ -24,7 +24,7 @@ class SomeSpace():
 class World(BaseWorld):
   MAX_EPISODE_DURATION = 10 # seconds
   MAX_ANGLE = 0.25 # in radians. ~> 14.3 degrees
-  MAX_DISTANCE = 6 # in radians. ~> wheel radius = 0.042 meters. ~> max dist ~> 10 inches
+  MAX_DISTANCE = 1 # in meters.
 
   def __init__(self):
     self.state = State()
@@ -32,7 +32,7 @@ class World(BaseWorld):
     self.observation_space = SomeSpace(4)
     self.action_space = SomeSpace(1, 1.0, -1.0)
     self.episodeStartTime = datetime.datetime.now()
-    self.arduino.resetPhi()
+    self.arduino.resetRobot()
 
     # Pin Setup:
     self.buttonPin = 4
@@ -56,7 +56,7 @@ class World(BaseWorld):
   def reset(self):
     print("initiating reset...")
     self.arduino.stopMotors()
-    self.arduino.resetPhi() # reset xPos to 0
+    self.arduino.resetRobot() # primarily setting xPos = 0
     print('\a')
     print("waiting on reset button...")
     while 1:

@@ -80,7 +80,7 @@ void loop(){
 
   // outer loop behavior
   if(outerWaiter.isTime()){
-    float outerDt = outerWaiter.starting();
+    outerWaiter.starting();
     my_imu.update();
     if(my_imu.isEmergency()) { emergencyStop(); }
 

@@ -82,17 +82,6 @@ class Wheels {
     updateLeftWheelState(dt);
   }
 
-  void resetCounts(){
-    targetRadsPerSec = 0;
-    leftPhi = leftLastPhi = rightPhi = rightLastPhi = 0;
-    leftPhiDelta = rightPhiDelta = 0;
-    leftPhiDot = rightPhiDot = 0;
-    leftCommandDelta = rightCommandDelta = 0;
-    leftTotalEdgeCount = leftLastTotalEdgeCount = rightTotalEdgeCount = rightLastTotalEdgeCount = 0;
-    motorLeft.resetCount();
-    motorRight.resetCount();
-  }
-
   public:
 
   Wheels(){
@@ -117,6 +106,19 @@ class Wheels {
   // called by interrupt callback  
   void leftEncoderEvent(){
     motorLeft.encoderEvent();
+  }
+
+  // this method "trusts" that the robot is not moving when 
+  // this method is called. Otherwise, Bad Things might happen.
+  void resetCounts(){
+    targetRadsPerSec = 0;
+    leftPhi = leftLastPhi = rightPhi = rightLastPhi = 0;
+    leftPhiDelta = rightPhiDelta = 0;
+    leftPhiDot = rightPhiDot = 0;
+    leftCommandDelta = rightCommandDelta = 0;
+    leftTotalEdgeCount = leftLastTotalEdgeCount = rightTotalEdgeCount = rightLastTotalEdgeCount = 0;
+    motorLeft.resetCount();
+    motorRight.resetCount();
   }
 
   // in meters. Average of both wheels

@@ -66,6 +66,14 @@ class PiTalk {
     sendToPi("Updated Motor PIDs.");
   }
 
+  // reset the xPos. Try to make sure the wheels are not 
+  // moving when you do this.
+  void reset(){
+    wheels->resetCounts();
+
+    sendToPi("Reset robot.");
+  }
+
   // Try for the universal commands, and if nothing matches,
   // hit the callback for the algorithm-specific commands
   void handleCommandFromPi(std::string command_plus_message){
@@ -77,6 +85,7 @@ class PiTalk {
       case 'B': updateThetaOffset(message); break;
       case 'M': updateMotorPids(message); break;
       case 'W': updateWheelRadsPerSec(message); break;
+      case 'R': reset(); break;
       default : callbackFunction(command, message); break;
     }
   }

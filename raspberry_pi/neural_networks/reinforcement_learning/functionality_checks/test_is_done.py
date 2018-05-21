@@ -10,5 +10,5 @@ while True:
   if(world.isDone()):
     print("\nDone!\n")
     world.episodeStartTime = datetime.datetime.now()
-    world.arduino.resetPhi()
+    world.arduino.resetRobot()
   time.sleep(0.25)

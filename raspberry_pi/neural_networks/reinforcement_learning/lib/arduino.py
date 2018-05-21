@@ -14,25 +14,18 @@ class Arduino:
   def stopMotors(self):
     self.updateMotorPower(0)
 
-  def resetPhi(self):
+  def resetRobot(self):
     self.__writeMessage("R")
+    message = self.__waitForArduinoMessage("A")
+    if message == False:
+      print("errored on resetRobot.")
+      return False
+    return True
 
-  def reset_robot(self):
-    self.__writeMessage("L")
-    message = self.__waitForArduinoMessage("W")
-    if message == "t":
-      return True
-    else:
-      print("winch problem. Returned: {}".format(message))
-      raise "Problem with winch!"
-
-  def give_robot_slack(self):
-    self.__writeMessage("S")
-
-  # xPos, xVel, Theta, ThetaDot
+  # theta, thetaDot, xPos, phiDot
   def getObservation(self):
-    self.__writeMessage("O")
-    message = self.__waitForArduinoMessage("S")
+    self.__writeMessage("S") # S for "state" on Arduino
+    message = self.__waitForArduinoMessage("A")
     if message == False:
       print("errored on getObservation.")
       return False
