@@ -1,7 +1,7 @@
 #include "Arduino.h"
 #include <Servo.h>
-#include "../../cpp_lib/constants.h"
-#include "../../cpp_lib/servoMotor.h"
+#include "../../lib/constants.h"
+#include "../../lib/servoMotor.h"
 
 /*
 	This tests the most basic Servo PWM functionality.

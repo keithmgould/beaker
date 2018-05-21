@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string>
 #include <sstream>                      // stringstream
-#include "../../cpp_lib/includes.h"     // common Beaker functionality
+#include "../../lib/includes.h"     // common Beaker functionality
 
 /*
     Find out more about the wheels object in the comments of the wheels.h file.

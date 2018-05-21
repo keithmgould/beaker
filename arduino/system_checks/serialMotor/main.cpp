@@ -1,7 +1,7 @@
 #include "Arduino.h"
 #include <Servo.h>
-#include "../../cpp_lib/constants.h"
-#include "../../cpp_lib/serialMotor.h"
+#include "../../lib/constants.h"
+#include "../../lib/serialMotor.h"
 
 /*
 	Stepping up from the rawSerialMotor system check, this script makes use of the
