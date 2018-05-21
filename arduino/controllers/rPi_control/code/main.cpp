@@ -23,7 +23,7 @@ void buildState(){
   state += "," + String(wheels.getX(),4) + "," + String(wheels.getPhiDotAvg(),4);  
 }
 
-void sendTelemetry(float dt, float newRadPerSec){
+void sendTelemetry(float dt){
   String log = String(dt);
 
   // raw states
@@ -34,7 +34,7 @@ void sendTelemetry(float dt, float newRadPerSec){
   log += "," + String(my_imu.getThetaOffset(),4);
 
   // final result
-  log += "," + String(newRadPerSec,4);
+  log += "," + String(wheels.getTargetRadsPerSec(),4);
 
   Serial3.println(log);
 }
@@ -80,10 +80,11 @@ void loop(){
 
   // outer loop behavior
   if(outerWaiter.isTime()){
-    outerWaiter.starting();
+    float outerDt = outerWaiter.starting();
     my_imu.update();
     if(my_imu.isEmergency()) { emergencyStop(); }
 
+    sendTelemetry(outerDt);
     piTalk.checkForPiCommand();
   }
 }
