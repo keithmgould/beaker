@@ -8,14 +8,14 @@ class Arduino:
                   parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,
                   bytesize=serial.EIGHTBITS, timeout=1)
 
-  def constrain(val, min_val, max_val):
+  def constrain(self, val, min_val, max_val):
     return min(max_val, max(min_val, val))
 
   # in Arduino land, we use actual rads/sec for power.
   # so we convert here from +/- 1 to +/- 10
   def updateMotorPower(self, newPower):
     newPower = newPower * 10.0;
-    newPower = this.constrain(newPower, -10, 10);
+    newPower = self.constrain(newPower, -10, 10);
     self.__writeMessage("W" + str(newPower))
 
   def stopMotors(self):
