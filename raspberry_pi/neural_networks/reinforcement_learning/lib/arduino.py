@@ -11,12 +11,14 @@ class Arduino:
   def constrain(self, val, min_val, max_val):
     return min(max_val, max(min_val, val))
 
-  # in Arduino land, we use actual rads/sec for power.
-  # so we convert here from +/- 1 to +/- 10
+  def accelerateMotorPower(self, acc):
+    acc = self.constrain(acc, -0.5, 0.5);
+    self.__writeMessage("A" + str(acc))
+
   def updateMotorPower(self, newPower):
-    # newPower = newPower * 10.0;
-    newPower = self.constrain(newPower, -0.5, 0.5);
-    self.__writeMessage("A" + str(newPower))
+    newPower = newPower * 10.0;
+    newPower = self.constrain(newPower, -10, 10);
+    self.__writeMessage("W" + str(newPower))
 
   def stopMotors(self):
     self.updateMotorPower(0)

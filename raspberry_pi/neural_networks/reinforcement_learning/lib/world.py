@@ -49,7 +49,7 @@ class World(BaseWorld):
 
   # returns observation, reward, done
   def step(self, action):
-    self.updateMotors(action)
+    self.accelerateMotors(action)
     observation = self.getObservation()
     if observation == False:
       return False, False, False
@@ -75,6 +75,9 @@ class World(BaseWorld):
 
   def updateMotors(self, newPower):
     self.arduino.updateMotorPower(newPower)
+
+  def accelerateMotors(self, acc):
+    self.arduino.accelerateMotorPower(acc)
 
   # determines if episode is done
   # conditions:
