@@ -99,7 +99,7 @@ class World(BaseWorld):
       return False
 
   def __isFarAway(self):
-    if(math.fabs(self.observation[0]) > self.MAX_DISTANCE):
+    if(math.fabs(self.observation[2]) > self.MAX_DISTANCE):
       print("!!!!!!!!!!!!!!!isFarAway. Distance: {} > {}".format(self.observation[2], self.MAX_DISTANCE))
       return True
     else:
