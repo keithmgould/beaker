@@ -112,13 +112,13 @@ class Agent:
       last_time = current_milli_time()
       while not done:
         time_delta = current_milli_time() - last_time
-        print("Loop Time: {}".format(time_delta))
+        print("Local Loop Time: {}, Arduino Loop Time: {}".format(time_delta, self.env.outerDt))
         last_time = current_milli_time()
         action = policy.select_action(observation)
         time_delta = current_milli_time() - last_time
         observations.append(observation)
         actions.append(action)
-        print("obsv: {}, action: {}".format(observation, action))
+        print("obsv: {}, action: {}, oldTargetRadPerSec: {}".format(observation, action, self.env.targetRPS))
         observation, reward, done = self.env.step(action)
         if observation == False: # some sort of error communicating w Arduino
             done = False # prob not needed (already false) but just to be safe

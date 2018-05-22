@@ -13,18 +13,23 @@ Wheels wheels;
 PiTalk piTalk;
 Waiter outerWaiter(POSITION_CONTROL_TIMESTEP);
 Waiter innerWaiter(MOTOR_CONTROL_TIMESTEP);
-String state;
+float outerDt = 0; // actual loop time of outer (slower) loop
 
 void leftEncoderEvent(){ wheels.leftEncoderEvent(); }
 void rightEncoderEvent(){ wheels.rightEncoderEvent(); }
 
-void buildState(){
-  state = String(my_imu.getTheta(),4) + "," + String(my_imu.getThetaDot(),4);
-  state += "," + String(wheels.getX(),4) + "," + String(wheels.getPhiDotAvg(),4);  
+// similar to buildTelemetry. Meant to stay small.
+String buildState(){
+  String state = String(my_imu.getTheta(),4) + "," + String(my_imu.getThetaDot(),4);
+  state += "," + String(wheels.getX(),4) + "," + String(wheels.getPhiDotAvg(),4);
+  state += ", " + String(outerDt,2) + "," + String(wheels.getTargetRadsPerSec(),4);
+  return state;
 }
 
-void sendTelemetry(float dt){
-  String log = String(dt);
+// similar to buildState. Able to have more fields.
+String buildTelemetry(){
+  // outer loop time
+  String log = String(outerDt);
 
   // raw states
   log += "," + String(my_imu.getTheta(),4) + "," + String(my_imu.getThetaDot(),4);
@@ -36,11 +41,16 @@ void sendTelemetry(float dt){
   // final result
   log += "," + String(wheels.getTargetRadsPerSec(),4);
 
+  return log;
+}
+
+void sendTelemetry(){
+  String log = buildTelemetry();
   Serial3.println(log);
 }
 
 void sendState(){
-  buildState();
+  String state = buildState();
   piTalk.sendToPi(state);
 }
 
@@ -80,11 +90,11 @@ void loop(){
 
   // outer loop behavior
   if(outerWaiter.isTime()){
-    float outerDt = outerWaiter.starting();
+    outerDt = outerWaiter.starting();
     my_imu.update();
-    if(my_imu.isEmergency()) { emergencyStop(); }
+    // if(my_imu.isEmergency()) { emergencyStop(); }
 
-    sendTelemetry(outerDt);
+    // sendTelemetry();
     piTalk.checkForPiCommand();
   }
 }

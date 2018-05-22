@@ -29,12 +29,12 @@ class Arduino:
       return False
     return True
 
-  # theta, thetaDot, xPos, phiDot
-  def getObservation(self):
+  # theta, thetaDot, xPos, phiDot, outerDt, targerRadPerSec
+  def getState(self):
     self.__writeMessage("S") # S for "state" on Arduino
     message = self.__waitForArduinoMessage("A")
     if message == False:
-      print("errored on getObservation.")
+      print("errored on getState.")
       return False
     lst = message.split(",")
     return [float(i) for i in lst]

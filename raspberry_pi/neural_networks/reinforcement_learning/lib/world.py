@@ -41,7 +41,10 @@ class World(BaseWorld):
 
   # returns four states
   def getObservation(self):
-    self.observation = self.arduino.getObservation()
+    self.state = self.arduino.getState()
+    self.observation = self.state[:4]
+    self.outerDt = self.state[4]
+    self.targetRPS = self.state[5]
     return self.observation
 
   # returns observation, reward, done
@@ -70,10 +73,6 @@ class World(BaseWorld):
     self.episodeStartTime = datetime.datetime.now()
     return self.getObservation()
 
-  def beginEpisode(self):
-    self.episodeStartTime = datetime.datetime.now()
-    # self.arduino.give_robot_slack() NOT NEEDED. USING BUTTON
-
   def updateMotors(self, newPower):
     self.arduino.updateMotorPower(newPower)
 
@@ -93,15 +92,15 @@ class World(BaseWorld):
 
   # Is the robot angle or x position too ugly?
   def __isFallen(self):
-    if(math.fabs(self.observation[2]) > self.MAX_ANGLE):
-      print("!!!!!!!!!!!!!!!isFallen. Angle: {} > {}".format(self.observation[2], self.MAX_ANGLE))
+    if(math.fabs(self.observation[0]) > self.MAX_ANGLE):
+      print("!!!!!!!!!!!!!!!isFallen. Angle: {} > {}".format(self.observation[0], self.MAX_ANGLE))
       return True
     else:
       return False
 
   def __isFarAway(self):
     if(math.fabs(self.observation[0]) > self.MAX_DISTANCE):
-      print("!!!!!!!!!!!!!!!isFarAway. Distance: {} > {}".format(self.observation[0], self.MAX_DISTANCE))
+      print("!!!!!!!!!!!!!!!isFarAway. Distance: {} > {}".format(self.observation[2], self.MAX_DISTANCE))
       return True
     else:
       return False
