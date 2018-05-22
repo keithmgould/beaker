@@ -14,9 +14,9 @@ class Arduino:
   # in Arduino land, we use actual rads/sec for power.
   # so we convert here from +/- 1 to +/- 10
   def updateMotorPower(self, newPower):
-    newPower = newPower * 10.0;
-    newPower = self.constrain(newPower, -10, 10);
-    self.__writeMessage("W" + str(newPower))
+    # newPower = newPower * 10.0;
+    newPower = self.constrain(newPower, -0.5, 0.5);
+    self.__writeMessage("A" + str(newPower))
 
   def stopMotors(self):
     self.updateMotorPower(0)
