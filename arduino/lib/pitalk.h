@@ -45,14 +45,28 @@ class PiTalk {
     sendToPi("Updated Theta Offset.");
   }
 
-  // This is the main method for controlling Beaker, if the algorithm
+  // This is one of two main method for controlling Beaker, if the algorithm
   // is housed in the Raspberry Pi (such as with Reinforcement Learning)
   // NOTE: there is no response for this call. It is meant to be used
   // very frequently (if the RPI holds the main control algorithm) so
   // speed is important, and we don't want to waste time with a response.
+  //
+  // updates to a new rads/sec 
   void updateWheelRadsPerSec(std::string message){
     float newRadsPerSec = String(message.c_str()).toFloat();
     wheels->updateRadsPerSec(newRadsPerSec);
+  }
+
+  // This is one of two main method for controlling Beaker, if the algorithm
+  // is housed in the Raspberry Pi (such as with Reinforcement Learning)
+  // NOTE: there is no response for this call. It is meant to be used
+  // very frequently (if the RPI holds the main control algorithm) so
+  // speed is important, and we don't want to waste time with a response.
+  //
+  // accelerates existing rads/sec by acceleration
+  void accelerateWheelRadsPerSec(std::string message){
+    float acceleration = String(message.c_str()).toFloat();
+    wheels->accelerateRadsPerSec(acceleration);
   }
 
   // Update the low-level PID values for the motors. This should
@@ -85,6 +99,7 @@ class PiTalk {
       case 'B': updateThetaOffset(message); break;
       case 'M': updateMotorPids(message); break;
       case 'W': updateWheelRadsPerSec(message); break;
+      case 'A': accelerateWheelRadsPerSec(message); break;
       case 'R': reset(); break;
       default : callbackFunction(command, message); break;
     }

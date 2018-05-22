@@ -179,6 +179,13 @@ class Wheels {
     leftMotorPid.updateSetpoint(rps);
     rightMotorPid.updateSetpoint(rps);
   }
+
+  // accelerate (positive or negative) the current target rads/sec
+  void accelerateRadsPerSec(float acc){
+    float newTargetRadsPerSec = targetRadsPerSec + acc;
+    updateRadsPerSec(newTargetRadsPerSec);
+  }
+
 };
 
 #endif
