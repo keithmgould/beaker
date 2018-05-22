@@ -63,7 +63,7 @@ class Motor
   //-------------------------------------------------------------------
 
   void resetCount() {
-    edgeCount = rotations = 0;
+    edgeCount = totalEdgeCount = rotations = 0;
   }
 
   Motor(int firstEncoderPinArg, int secondEncoderPinArg, int tickDirectionArg)

@@ -80,10 +80,9 @@ class PiTalk {
     sendToPi("Updated Motor PIDs.");
   }
 
-  // reset the xPos. Try to make sure the wheels are not 
-  // moving when you do this.
+  // Stops the wheels and sets edge counts and target rads/sec to zero.
   void reset(){
-    wheels->resetCounts();
+    wheels->reset();
 
     sendToPi("Reset robot.");
   }

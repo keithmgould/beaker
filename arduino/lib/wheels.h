@@ -95,7 +95,7 @@ class Wheels {
     delay(500);
     updateRadsPerSec(0);
     updatePids(MOTOR_P_PARAM,MOTOR_I_PARAM,MOTOR_D_PARAM);
-    resetCounts();
+    reset();
   }
 
   // called by interrupt callback
@@ -108,17 +108,17 @@ class Wheels {
     motorLeft.encoderEvent();
   }
 
-  // this method "trusts" that the robot is not moving when 
-  // this method is called. Otherwise, Bad Things might happen.
-  void resetCounts(){
-    targetRadsPerSec = 0;
-    leftPhi = leftLastPhi = rightPhi = rightLastPhi = 0;
+  void reset(){
+    updateRadsPerSec(0);
+    motorLeft.updatePower(0);
+    motorRight.updatePower(0);
+    motorLeft.resetCount();
+    motorRight.resetCount();
     leftPhiDelta = rightPhiDelta = 0;
     leftPhiDot = rightPhiDot = 0;
     leftCommandDelta = rightCommandDelta = 0;
-    leftTotalEdgeCount = leftLastTotalEdgeCount = rightTotalEdgeCount = rightLastTotalEdgeCount = 0;
-    motorLeft.resetCount();
-    motorRight.resetCount();
+    leftTotalEdgeCount = leftLastTotalEdgeCount = 0;
+    rightTotalEdgeCount = rightLastTotalEdgeCount = 0;
   }
 
   // in meters. Average of both wheels
