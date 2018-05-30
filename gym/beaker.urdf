@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<robot name="myfirst">
+  <material name="blue">
+    <color rgba="0 0 0.8 1"/>
+  </material>
+
+  <material name="something">
+    <color rgba="1 0.5 0.5 1"/>
+  </material>
+  
+  <material name="black">
+    <color rgba="0 0 0 0"/>
+  </material>
+
+  <!-- Main Body -->
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="0.1016 0.0254 0.6604"/>
+      </geometry>
+      <origin xyz="0 0 0.3302" />
+      <material name="something"/>
+    </visual>
+
+    <collision>
+      <geometry>
+        <box size="0.1016 0.0254 0.6604"/>
+      </geometry>
+      <origin xyz="0 0 0.3302" />
+    </collision>
+
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0.2159"/>
+      <mass value="1.765" />
+      <!-- the below line is random.... -->
+      <inertia ixx="0.004878" ixy="-6.2341e-07" ixz="-7.4538e-07" iyy="0.00090164" iyz="-0.00014394" izz="0.0042946"/>
+    </inertial>
+  </link>
+
+  <!-- Left Wheel Object -->
+  <link name="left_wheel">
+    <visual>
+      <geometry>
+        <cylinder length="0.0254" radius=".042"/>
+      </geometry>
+      <origin rpy="0 1.57 0"/>
+      <material name="blue"/>
+    </visual>
+
+    <collision>
+      <geometry>
+        <cylinder length="0.0254" radius=".042"/>
+      </geometry>
+      <origin rpy="0 1.57 0"/>
+    </collision>
+
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0.2159"/>
+      <!-- the below line (mass) is random.... -->
+      <mass value="0.1" />
+      <!-- the below line is random.... -->
+      <inertia ixx="0.004878" ixy="-6.2341e-07" ixz="-7.4538e-07" iyy="0.00090164" iyz="-0.00014394" izz="0.0042946"/>
+    </inertial>
+  </link>
+
+  <!-- Left Wheel Joint To Body -->
+  <joint name="base_to_left_wheel" type="continuous">
+    <parent link="base_link"/>
+    <child link="left_wheel"/>
+    <origin xyz="0.09398 0.0 0.01905" />
+    <axis xyz="1 0 0"/>
+  </joint>
+
+  <!-- Right Wheel -->
+  <link name="right_wheel">
+    <visual>
+      <geometry>
+        <cylinder length="0.0254" radius=".042"/>
+      </geometry>
+      <origin rpy="0 1.57 0" />
+      <material name="blue"/>
+    </visual>
+
+    <collision>
+      <geometry>
+        <cylinder length="0.0254" radius=".042"/>
+      </geometry>
+      <origin rpy="0 1.57 0"/>
+    </collision>
+
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0.2159"/>
+      <!-- the below line (mass) is random.... -->
+      <mass value="0.1" />
+      <!-- the below line is random.... -->
+      <inertia ixx="0.004878" ixy="-6.2341e-07" ixz="-7.4538e-07" iyy="0.00090164" iyz="-0.00014394" izz="0.0042946"/>
+    </inertial>
+  </link>
+
+  <!-- Right Wheel Joint to Body -->
+  <joint name="base_to_right_wheel" type="continuous">
+    <parent link="base_link"/>
+    <child link="right_wheel"/>
+    <origin xyz="-0.09398 0.0 0.01905" />
+    <axis xyz="1 0 0"/>
+  </joint>
+
+
+</robot>
