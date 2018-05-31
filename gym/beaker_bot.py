@@ -47,7 +47,7 @@ class MyURDFBasedRobot(XmlBasedRobot):
 class BeakerBot(MyURDFBasedRobot):
 	def __init__(self):
 		r = np.random.rand(3) / 100.0
-		bP=[0, 0, 0.02]
+		bP=[0, 0, 0]
 		bO=[r[0], r[1], r[2], 1]
 		# bO=[0, 0.707, 0, 0.707]
 		MyURDFBasedRobot.__init__(self, 'beaker.urdf', 'beaker', action_dim=1, obs_dim=4, basePosition=bP, baseOrientation=bO)
@@ -61,19 +61,30 @@ class BeakerBot(MyURDFBasedRobot):
 
 	def apply_action(self, action):
 
-		self.leftWheelJoint.set_velocity(action)
+		self.leftWheelJoint.set_velocity(-action)
 		self.rightWheelJoint.set_velocity(action)
 
-	# theta ?
-	# thetaDot ?
+
+	# https://en.wikipedia.org/wiki/Rotation_matrix
+	# see "Basic Rotations" around Z
+	def translateAroundZ(self, yaw):
+		return np.array(
+			[[np.cos(-yaw), -np.sin(-yaw), 0],
+			[np.sin(-yaw), np.cos(-yaw), 0],
+			[		0,			 0, 1]]
+		)
+
+	# theta. DONE.
+	# thetaDot. DONE.
 	# xPos (avg of both wheels)
 	# xVel (avg of both wheels)
 	def calc_state(self):
-		# pdb.set_trace()
-		foo = self._p.getEulerFromQuaternion(self.body.current_orientation())
-		bar = self._p.getBaseVelocity(self.urdfID) # this is not correct
-		self.theta = foo[0]
-		self.thetaDot = bar[1][0]
-		return [self.theta, self.thetaDot, "x", bar[1][1], bar[1][1]]
+		body_pose = self.robot_body.pose()
+		self.body_rpy = body_pose.rpy()
+		roll, pitch, yaw = self.body_rpy # relative to world frame
+		baseVel = self._p.getBaseVelocity(self.urdfID)
+		translated = self.translateAroundZ(yaw)
+		wx, wy, wz = np.dot(translated, baseVel[1])
+		return [roll, wx, 0, 0]
 
 
