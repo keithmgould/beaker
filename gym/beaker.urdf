@@ -9,7 +9,7 @@
   </material>
   
   <material name="black">
-    <color rgba="0 0 0 0"/>
+    <color rgba="0.7 0.7 0.7 1"/>
   </material>
 
   <!-- Main Body -->
@@ -19,7 +19,7 @@
         <box size="0.1016 0.0254 0.6604"/>
       </geometry>
       <origin xyz="0 0 0.3302" />
-      <material name="something"/>
+      <material name="black"/>
     </visual>
 
     <collision>
@@ -31,13 +31,44 @@
 
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0.2159"/>
-      <mass value="1.765" />
-      <!-- the below line is random.... -->
-      <inertia ixx="0.004878" ixy="-6.2341e-07" ixz="-7.4538e-07" iyy="0.00090164" iyz="-0.00014394" izz="0.0042946"/>
+      <mass value="1.767" />
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
 
-  <!-- Left Wheel Object -->
+  <!-- face link. for visual only. -->
+  <link name="face_link">
+    <visual>
+      <geometry>
+        <box size="0.05 0.01 0.05"/>
+      </geometry>
+      <origin xyz="0 0.010 0.5" />
+      <material name="something"/>
+    </visual>
+  </link>
+  <joint name="face_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="face_link"/>
+  </joint>
+
+  <!-- axle. for visual only. -->
+  <link name="axle_link">
+    <visual>
+      <geometry>
+        <cylinder length="0.17" radius=".01"/>
+      </geometry>
+      <origin rpy="0 1.57 0" xyz="0 0 0.01905"/>
+      <material name="something"/>
+    </visual>
+  </link>
+  <joint name="axle_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="axle_link"/>
+    <axis xyz="1 0 0"/>
+  </joint>
+
+
+  <!-- Left Wheel -->
   <link name="left_wheel">
     <visual>
       <geometry>
@@ -56,10 +87,8 @@
 
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0.2159"/>
-      <!-- the below line (mass) is random.... -->
-      <mass value="0.1" />
-      <!-- the below line is random.... -->
-      <inertia ixx="0.004878" ixy="-6.2341e-07" ixz="-7.4538e-07" iyy="0.00090164" iyz="-0.00014394" izz="0.0042946"/>
+      <mass value="0.09" />
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
 
@@ -90,10 +119,8 @@
 
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0.2159"/>
-      <!-- the below line (mass) is random.... -->
-      <mass value="0.1" />
-      <!-- the below line is random.... -->
-      <inertia ixx="0.004878" ixy="-6.2341e-07" ixz="-7.4538e-07" iyy="0.00090164" iyz="-0.00014394" izz="0.0042946"/>
+      <mass value="0.09" />
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
     </inertial>
   </link>
 
@@ -104,6 +131,4 @@
     <origin xyz="-0.09398 0.0 0.01905" />
     <axis xyz="1 0 0"/>
   </joint>
-
-
 </robot>

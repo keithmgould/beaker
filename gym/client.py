@@ -7,7 +7,7 @@ def main():
 	env.reset()
 	while True:
 		time.sleep(1./60.) # just use this if rendering
-		obs, r, done, _ = env.step(0.1)
+		obs, r, done, _ = env.step(0)
 		print(obs)
 		env.render("human")
 

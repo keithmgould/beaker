@@ -3,42 +3,40 @@ import numpy as np
 import os
 import pdb
 
+# I created this because of path issues (and I am lazy). I wanted an easy way to specify the entire path of the URDF file,
+# and the URDFBasedRobot class does not allow this. 
 class MyURDFBasedRobot(XmlBasedRobot):
 	"""
 	Base class for URDF .xml based robots.
 	"""
 
-	def __init__(self, model_urdf, robot_name, action_dim, obs_dim, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1], fixed_base=False, self_collision=False):
-		XmlBasedRobot.__init__(self, robot_name, action_dim, obs_dim, self_collision)
+	def __init__(self, model_urdf, robot_name, action_dim, obs_dim, basePosition=[0, 0, 0], baseOrientation=[0, 0, 0, 1]):
+		XmlBasedRobot.__init__(self, robot_name, action_dim, obs_dim, False)
 
 		self.model_urdf = model_urdf
 		self.basePosition = basePosition
 		self.baseOrientation = baseOrientation
-		self.fixed_base = fixed_base
+		self.fixed_base = False
 
 	def reset(self, bullet_client):
 		self._p = bullet_client
 		self.ordered_joints = []
 
-		print(os.path.join(os.path.dirname(__file__), self.model_urdf))
+		self.robot_path = os.path.join(os.path.dirname(__file__), self.model_urdf)
+		print(self.robot_path)
 
-		if self.self_collision:
-			self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(self._p, 
-				self._p.loadURDF(os.path.join(pybullet_data.getDataPath(), self.model_urdf),
-				basePosition=self.basePosition,
-				baseOrientation=self.baseOrientation,
-				useFixedBase=self.fixed_base,
-				flags=pybullet.URDF_USE_SELF_COLLISION))
-		else:
-			self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(self._p,
-				self._p.loadURDF(os.path.join(os.path.dirname(__file__), self.model_urdf),
-				basePosition=self.basePosition,
-				baseOrientation=self.baseOrientation,
-				useFixedBase=self.fixed_base))
+		self.urdfID = self._p.loadURDF(
+			self.robot_path, 
+			basePosition=self.basePosition, 
+			baseOrientation=self.baseOrientation, 
+			useFixedBase=self.fixed_base
+		)
+
+		self.parts, self.jdict, self.ordered_joints, self.robot_body = self.addToScene(self._p, self.urdfID)
 
 		self.robot_specific_reset(self._p)
 
-		s = self.calc_state()  # optimization: calc_state() can calculate something in self.* for calc_potential() to use
+		s = self.calc_state()
 		self.potential = self.calc_potential()
 
 		return s
@@ -48,7 +46,11 @@ class MyURDFBasedRobot(XmlBasedRobot):
 
 class BeakerBot(MyURDFBasedRobot):
 	def __init__(self):
-		MyURDFBasedRobot.__init__(self, 'beaker.urdf', 'beaker', action_dim=1, obs_dim=4)
+		r = np.random.rand(3) / 100.0
+		bP=[0, 0, 0.02]
+		bO=[r[0], r[1], r[2], 1]
+		# bO=[0, 0.707, 0, 0.707]
+		MyURDFBasedRobot.__init__(self, 'beaker.urdf', 'beaker', action_dim=1, obs_dim=4, basePosition=bP, baseOrientation=bO)
 
 	def robot_specific_reset(self, bullet_client):
 		self.body = self.parts["beaker"]
@@ -57,17 +59,21 @@ class BeakerBot(MyURDFBasedRobot):
 		self.leftWheelJoint = self.jdict["base_to_left_wheel"]
 		self.rightWheelJoint = self.jdict["base_to_right_wheel"]
 
-	def updateTargetRadsPerSec(self, targetRPS):
-		return True
-
-
 	def apply_action(self, action):
-		self.leftWheelJoint.set_motor_torque(action)
-		self.rightWheelJoint.set_motor_torque(action)
-		return True
 
+		self.leftWheelJoint.set_velocity(action)
+		self.rightWheelJoint.set_velocity(action)
+
+	# theta ?
+	# thetaDot ?
+	# xPos (avg of both wheels)
+	# xVel (avg of both wheels)
 	def calc_state(self):
+		# pdb.set_trace()
 		foo = self._p.getEulerFromQuaternion(self.body.current_orientation())
-		return [0,foo[0],foo[1],foo[2]]
+		bar = self._p.getBaseVelocity(self.urdfID) # this is not correct
+		self.theta = foo[0]
+		self.thetaDot = bar[1][0]
+		return [self.theta, self.thetaDot, "x", bar[1][1], bar[1][1]]
 
 
