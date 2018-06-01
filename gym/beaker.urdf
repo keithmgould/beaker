@@ -8,8 +8,16 @@
     <color rgba="1 0.5 0.5 1"/>
   </material>
   
-  <material name="black">
+  <material name="gray">
     <color rgba="0.7 0.7 0.7 1"/>
+  </material>
+
+   <material name="red">
+    <color rgba="0.8 0 0 1"/>
+  </material>
+
+   <material name="green">
+    <color rgba="0 0.8 0 1"/>
   </material>
 
   <!-- Main Body -->
@@ -19,7 +27,16 @@
         <box size="0.1016 0.0254 0.6604"/>
       </geometry>
       <origin xyz="0 0 0.3302" />
-      <material name="black"/>
+      <material name="gray"/>
+    </visual>
+
+    <!-- axle -->
+    <visual>
+      <geometry>
+        <cylinder length="0.17" radius=".01"/>
+      </geometry>
+      <origin rpy="0 1.57 0" xyz="0 0 0.01905"/>
+      <material name="gray"/>
     </visual>
 
     <collision>
@@ -36,7 +53,6 @@
     </inertial>
   </link>
 
-  <!-- face link. for visual only. -->
   <link name="face">
     <visual>
       <geometry>
@@ -51,31 +67,64 @@
     <child link="face"/>
   </joint>
 
-  <!-- axle. for visual only. -->
-  <link name="axle_link">
+
+  <!-- right Wheel -->
+  <link name="right_wheel">
+
+    <!-- main wheel visual -->
     <visual>
       <geometry>
-        <cylinder length="0.17" radius=".01"/>
+        <cylinder length="0.0254" radius=".042"/>
       </geometry>
-      <origin rpy="0 1.57 0" xyz="0 0 0.01905"/>
-      <material name="something"/>
+      <origin rpy="0 1.57 0"/>
+      <material name="green"/>
     </visual>
+
+    <collision>
+      <geometry>
+        <cylinder length="0.0254" radius=".042"/>
+      </geometry>
+      <origin rpy="0 1.57 0"/>
+    </collision>
+
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0.2159"/>
+      <mass value="0.09" />
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+    </inertial>
   </link>
-  <joint name="axle_joint" type="fixed">
+
+  <!-- right Wheel Joint To Body -->
+  <joint name="base_to_right_wheel" type="continuous">
     <parent link="body"/>
-    <child link="axle_link"/>
+    <child link="right_wheel"/>
+    <origin xyz="0.09398 0.0 0.01905" />
     <axis xyz="1 0 0"/>
   </joint>
 
+  <!-- helps to see the wheel rotation -->
+  <link name="right_wheel_stripe">
+    <visual>
+      <geometry>
+        <box size="0.01 0.01 0.08"/>
+      </geometry>
+      <origin xyz="0.01 0 0" />
+      <material name="blue"/>
+    </visual> 
+  </link>
+  <joint name="right_wheel_to_stripe" type="fixed">
+    <parent link="right_wheel"/>
+    <child link="right_wheel_stripe"/>
+  </joint>
 
-  <!-- Left Wheel -->
+  <!-- left Wheel -->
   <link name="left_wheel">
     <visual>
       <geometry>
         <cylinder length="0.0254" radius=".042"/>
       </geometry>
-      <origin rpy="0 1.57 0"/>
-      <material name="blue"/>
+      <origin rpy="0 1.57 0" />
+      <material name="red"/>
     </visual>
 
     <collision>
@@ -92,43 +141,27 @@
     </inertial>
   </link>
 
-  <!-- Left Wheel Joint To Body -->
+  <!-- left Wheel Joint to Body -->
   <joint name="base_to_left_wheel" type="continuous">
     <parent link="body"/>
     <child link="left_wheel"/>
-    <origin xyz="0.09398 0.0 0.01905" />
-    <axis xyz="1 0 0"/>
-  </joint>
-
-  <!-- Right Wheel -->
-  <link name="right_wheel">
-    <visual>
-      <geometry>
-        <cylinder length="0.0254" radius=".042"/>
-      </geometry>
-      <origin rpy="0 1.57 0" />
-      <material name="blue"/>
-    </visual>
-
-    <collision>
-      <geometry>
-        <cylinder length="0.0254" radius=".042"/>
-      </geometry>
-      <origin rpy="0 1.57 0"/>
-    </collision>
-
-    <inertial>
-      <origin rpy="0 0 0" xyz="0 0 0.2159"/>
-      <mass value="0.09" />
-      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
-    </inertial>
-  </link>
-
-  <!-- Right Wheel Joint to Body -->
-  <joint name="base_to_right_wheel" type="continuous">
-    <parent link="body"/>
-    <child link="right_wheel"/>
     <origin xyz="-0.09398 0.0 0.01905" />
     <axis xyz="1 0 0"/>
   </joint>
+
+  <!-- helps to see the wheel rotation -->
+  <link name="left_wheel_stripe">
+    <visual>
+      <geometry>
+        <box size="0.01 0.01 0.08"/>
+      </geometry>
+      <origin xyz="-0.01 0 0" />
+      <material name="blue"/>
+    </visual> 
+  </link>
+  <joint name="left_wheel_to_stripe" type="fixed">
+    <parent link="left_wheel"/>
+    <child link="left_wheel_stripe"/>
+  </joint>
+
 </robot>
