@@ -60,31 +60,35 @@ class BeakerBot(MyURDFBasedRobot):
 		self.rightWheelJoint = self.jdict["base_to_right_wheel"]
 
 	def apply_action(self, action):
-
-		self.leftWheelJoint.set_velocity(-action)
+		self.leftWheelJoint.set_velocity(action)
 		self.rightWheelJoint.set_velocity(action)
 
+	def calc_state(self):
+		theta, thetaDot = self._getThetaAndThetaDot()
+		xPos, xVel = self._getXposXvel()
+		return [theta, thetaDot, xPos, xVel]
+
+	def _getXposXvel(self):
+		lx, lv = self.leftWheelJoint.get_state()
+		rx, rv = self.leftWheelJoint.get_state()
+		return (lx + rx)/2, (lv + rv)/2
+
+	def _getThetaAndThetaDot(self):
+		body_pose = self.robot_body.pose()
+		self.body_rpy = body_pose.rpy()
+		roll, pitch, yaw = self.body_rpy # relative to world frame
+		baseVel = self._p.getBaseVelocity(self.urdfID)
+		translated = self._translateAroundZ(yaw)
+		wx, _, _ = np.dot(translated, baseVel[1])
+		return roll, wx
 
 	# https://en.wikipedia.org/wiki/Rotation_matrix
 	# see "Basic Rotations" around Z
-	def translateAroundZ(self, yaw):
+	def _translateAroundZ(self, yaw):
 		return np.array(
 			[[np.cos(-yaw), -np.sin(-yaw), 0],
 			[np.sin(-yaw), np.cos(-yaw), 0],
 			[		0,			 0, 1]]
 		)
-
-	# theta. DONE.
-	# thetaDot. DONE.
-	# xPos (avg of both wheels)
-	# xVel (avg of both wheels)
-	def calc_state(self):
-		body_pose = self.robot_body.pose()
-		self.body_rpy = body_pose.rpy()
-		roll, pitch, yaw = self.body_rpy # relative to world frame
-		baseVel = self._p.getBaseVelocity(self.urdfID)
-		translated = self.translateAroundZ(yaw)
-		wx, wy, wz = np.dot(translated, baseVel[1])
-		return [roll, wx, 0, 0]
 
 
