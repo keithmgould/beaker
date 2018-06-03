@@ -5,11 +5,28 @@ def main():
 	env = gym.make("BeakerBotBulletEnv-v0")
 	env.render(mode="human")
 	env.reset()
+
 	while True:
 		time.sleep(1./60.) # just use this if rendering
-		obs, r, done, _ = env.step(2)
+		obs, r, done, _ = env.step(0)
 		print(obs)
 		env.render("human")
+		if(done):
+			env.reset()
 
 if __name__=="__main__":
 	main()
+
+
+# reset flow:
+
+# client.py
+		# env.reset()
+# beakerEnv.py
+		# reset()
+# MJCFBasedBulletEnv.py
+		# _reset()
+# myURDFBaseRobot.py
+		# reset()					<-- duplication happens here
+# beakerBot.py
+		# _robot_specific_reset

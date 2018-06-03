@@ -1,6 +1,6 @@
-from beaker_env import BeakerBotBulletEnv
+from beakerEnv import BeakerBotBulletEnv
 import gym
-from gym.envs.registration import registry, make, spec
+from gym.envs.registration import registry
 
 def register(id,*args,**kvargs):
 	if id in registry.env_specs:
@@ -10,7 +10,7 @@ def register(id,*args,**kvargs):
 
 register(
 	id='BeakerBotBulletEnv-v0',
-	entry_point='beaker_env:BeakerBotBulletEnv',
+	entry_point='beakerEnv:BeakerBotBulletEnv',
 	timestep_limit=1000,
 	reward_threshold=950.0,
 )
