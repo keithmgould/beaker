@@ -20,13 +20,11 @@ class BeakerBot(URDFBasedRobot):
 		return [self.theta, self.thetaDot, xPos, xVel]
 
 	def robot_specific_reset(self, bullet_client):
-		print("reset: _robot_specific_reset")
 		self.body = self.parts["beaker"]
 		self.leftWheel = self.parts["left_wheel"]
 		self.rightWheel = self.parts["right_wheel"]
 		self.leftWheelJoint = self.jdict["base_to_left_wheel"]
 		self.rightWheelJoint = self.jdict["base_to_right_wheel"]
-		# self.reset_pose([0,0,0.03], [0,0,0,1])
 
 	def _getXposXvel(self):
 		lx, lv = self.leftWheelJoint.get_state()
