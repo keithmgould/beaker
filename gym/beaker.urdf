@@ -4,7 +4,7 @@
     <color rgba="0 0 0.8 1"/>
   </material>
 
-  <material name="something">
+  <material name="pink">
     <color rgba="1 0.5 0.5 1"/>
   </material>
   
@@ -43,13 +43,17 @@
       <geometry>
         <box size="0.1016 0.0254 0.6604"/>
       </geometry>
-      <origin xyz="0 0 0.3302" />
+      <!-- <origin xyz="0 0 0.3302" /> -->
+      <origin xyz="0 0 0.4" />
     </collision>
 
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0.2159"/>
       <mass value="1.767" />
-      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+
+      <!-- https://en.wikipedia.org/wiki/List_of_moments_of_inertia -->
+      <!-- see "slender rod along y axis" -->
+      <inertia ixx="0.12212" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.12212"/>
     </inertial>
   </link>
 
@@ -59,7 +63,7 @@
         <box size="0.05 0.01 0.05"/>
       </geometry>
       <origin xyz="0 0.010 0.5" />
-      <material name="something"/>
+      <material name="pink"/>
     </visual>
 
     <!-- Just visual aid. Has no mass -->
@@ -96,7 +100,9 @@
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0.2159"/>
       <mass value="0.09" />
-      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+
+      <!-- UPDATE THIS! -->
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
   </link>
 
@@ -149,7 +155,9 @@
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0.2159"/>
       <mass value="0.09" />
-      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+
+      <!-- fix this! -->
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
     </inertial>
   </link>
 
