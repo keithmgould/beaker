@@ -1,4 +1,3 @@
-# from pybullet_envs.scene_abstract import SingleRobotEmptyScene
 from pybullet_envs.scene_stadium import SinglePlayerStadiumScene
 from pybullet_envs.env_bases import MJCFBaseBulletEnv
 from beakerBot import BeakerBot
@@ -25,7 +24,8 @@ class BeakerBotBulletEnv(MJCFBaseBulletEnv):
 		self.stateId=-1
 
 	def create_single_player_scene(self, bullet_client):
-		return SinglePlayerStadiumScene(bullet_client, gravity=9.8, timestep=0.0165, frame_skip=1)
+		# 50 fps, so a step is 20ms or 0.02 seconds
+		return SinglePlayerStadiumScene(bullet_client, gravity=9.8, timestep=0.02, frame_skip=1)
 
 	def _reset(self):
 		if (self.stateId>=0):

@@ -1,6 +1,7 @@
 # from myURDFBasedRobot import MyURDFBasedRobot
 from pybullet_envs.robot_bases import URDFBasedRobot
 import numpy as np
+import os
 import pdb
 
 class BeakerBot(URDFBasedRobot):
@@ -8,7 +9,9 @@ class BeakerBot(URDFBasedRobot):
 		r = np.random.rand(3) / 100.0
 		bP=[0, 0, 0.03]
 		bO=[r[0], r[1], r[2], 1]
-		URDFBasedRobot.__init__(self, 'beaker.urdf', 'beaker', action_dim=1, obs_dim=4, basePosition=bP, baseOrientation=bO)
+	
+		path = os.path.join( os.path.dirname(__file__),'beaker.urdf')
+		URDFBasedRobot.__init__(self, path, 'beaker', action_dim=1, obs_dim=4, basePosition=bP, baseOrientation=bO)
 
 	def apply_action(self, action):
 		self.leftWheelJoint.set_velocity(action)
