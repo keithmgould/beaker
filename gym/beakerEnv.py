@@ -14,7 +14,7 @@ class BeakerCam:
 	def move_and_look_at(self,x,y,z):
 		lookat = [x,y,z]
 		distance = 1
-		yaw = 50
+		yaw = 90
 		self._p.resetDebugVisualizerCamera(distance, yaw, -20, lookat)
 
 class BeakerBotBulletEnv(MJCFBaseBulletEnv):
@@ -32,6 +32,8 @@ class BeakerBotBulletEnv(MJCFBaseBulletEnv):
 			self._p.restoreState(self.stateId)
 
 		r = MJCFBaseBulletEnv._reset(self)
+		self.beakerCam = BeakerCam(self._p)
+		# self.camera_adjust()
 
 		if (self.stateId<0):
 			self.stateId = self._p.saveState()
@@ -42,12 +44,10 @@ class BeakerBotBulletEnv(MJCFBaseBulletEnv):
 		self.robot.apply_action(a)
 		self.scene.global_step()
 		state = self.robot.calc_state()
-		vel_penalty = 0
-		reward = 1.0
 		done = np.abs(self.robot.theta) > .2
-		self.rewards = [float(reward)]
 		self.HUD(state, a, done)
-		return state, sum(self.rewards), done, {}
+		self.camera_adjust(self.robot.robot_body.current_position())
+		return state, 1.0, done, {}
 
-	def camera_adjust(self):
-		self.beakerCam.move_and_look_at(0,0,0)
+	def camera_adjust(self, pos):
+		self.beakerCam.move_and_look_at(pos[0], pos[1], pos[2])
