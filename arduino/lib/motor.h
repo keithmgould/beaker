@@ -104,11 +104,6 @@ class Motor
     return tickDirection;
   }
 
-  // float getPhiDelta(long newEdgeCount, long oldEdgeCount){
-  //   float edgeDelta = newEdgeCount - oldEdgeCount;
-  //   return edgeDelta * CLICKS_TO_RADIANS;
-  // }
-
   // this should be called by encoder interrupts
   void encoderEvent() {
     if(digitalRead(firstEncoderPin) == digitalRead(secondEncoderPin)){
