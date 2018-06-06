@@ -14,6 +14,9 @@ class SerialMotor: public Motor{
   SerialMotor(int encoderA, int encoderB, int direction): Motor(encoderA, encoderB, direction){}
 
   /*
+
+  From: https://www.dimensionengineering.com/datasheets/Sabertooth2x12.pdf
+
   Because Sabertooth controls two motors with one 8 byte character,
   when operating in Simplified Serial mode, each motor has 7 bits of resolution.
   Sending a character between 1 and 127 will control motor 1. 1 is full reverse,
@@ -22,6 +25,8 @@ class SerialMotor: public Motor{
   Character 0 (hex 0x00) is a special case.
   Sending this character will shut down both motors.
 
+  *--------------------------------------------------------------------------
+
   We have seven bits (0-127) so:
   range between -63 and 63.
   -63 is full reverse
@@ -29,13 +34,15 @@ class SerialMotor: public Motor{
   63 is full forward
 
   input is a float between -1 and 1
+
   */
   void updatePower(float raw_power) {
     raw_power *= -1; // keep this or reverse the wiring.
     raw_power = constrain(raw_power, -1, 1);  // safety first
     raw_power *= 63;
     int power = roundf(raw_power);
-    byte command = tickDirection == RIGHT ? 64 + power : 192 + power;
+    byte command = tickDirection == RIGHT ? 64 + power : 191 + power;
+    command = constrain(command, 1, 254); // safety last
     Serial1.write(command);
   }
 };
