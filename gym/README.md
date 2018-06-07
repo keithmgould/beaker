@@ -11,5 +11,5 @@ and OpenAI Gym? Great!
 #### Using it
 
 ```
-$python3 client.py
+$python3 pidClient.py
 ```

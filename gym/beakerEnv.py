@@ -31,14 +31,13 @@ class BeakerBotBulletEnv(MJCFBaseBulletEnv):
 		if (self.stateId>=0):
 			self._p.restoreState(self.stateId)
 
-		r = MJCFBaseBulletEnv._reset(self)
+		rr = MJCFBaseBulletEnv._reset(self)
 		self.beakerCam = BeakerCam(self._p)
-		# self.camera_adjust()
 
 		if (self.stateId<0):
 			self.stateId = self._p.saveState()
-
-		return r
+		
+		return rr
 	
 	def _step(self, a):
 		self.robot.apply_action(a)
