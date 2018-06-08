@@ -40,7 +40,8 @@ def main():
 	env = gym.make("BeakerBotBulletEnv-v0")
 	env.render(mode="human")
 	obs = env.reset()
-	pid = MiniPid(1.15,0.05,16)
+	# pid = MiniPid(1.15,0.05,16)
+	pid = MiniPid(11.5,0.5,160)
 	targetRPS = 0
 
 	while True:

@@ -9,7 +9,7 @@ class BeakerBot(URDFBasedRobot):
 		bP=[0, 0, 0.03]
 		bO=[0,0,0,1]
 	
-		path = os.path.join( os.path.dirname(__file__),'beakerWithTrainingWheels.urdf')
+		path = os.path.join( os.path.dirname(__file__),'beaker.urdf')
 		URDFBasedRobot.__init__(self, path, 'beaker', action_dim=1, obs_dim=4, basePosition=bP, baseOrientation=bO)
 
 	def apply_action(self, action):
