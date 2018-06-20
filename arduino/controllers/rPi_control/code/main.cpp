@@ -33,7 +33,7 @@ String buildTelemetry(){
 
   // raw states
   log += "," + String(my_imu.getTheta(),4) + "," + String(my_imu.getThetaDot(),4);
-  log += "," + String(wheels.getX(),4) + "," + String(wheels.getPhiDotAvg(),4);
+  log += "," + String(wheels.getTotalPhi(),4) + "," + String(wheels.getPhiDotAvg(),4);
 
   // calibrations
   log += "," + String(my_imu.getThetaOffset(),4);
