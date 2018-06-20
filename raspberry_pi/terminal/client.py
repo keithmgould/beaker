@@ -8,9 +8,13 @@ class Agent:
 
   def run(self):
     while True:
-      print("Type H for help.")
+      print("Type H for help. Prefix a command with ! if not expecting a response.")
       userString = input()
-      self.arduino.writeMessageAndWait(userString)
+      if userString[0] == '!':
+      	userString = userString[1:]
+      	self.arduino.writeMessage(userString)
+      else:
+      	self.arduino.writeMessageAndWait(userString)
 
 agent = Agent()
 agent.run()
