@@ -151,6 +151,8 @@ if __name__ == '__main__':
     # agent parameters
     parser.add_argument('--actor-lr', help='actor network learning rate', default=0.0001)
     parser.add_argument('--tau', help='soft target update parameter', default=0.001)
+    parser.add_argument('--random-seed', help='random seed for repeatability', default=1234)
+    parser.add_argument('--minibatch-size', help='size of minibatch for minibatch-SGD', default=64)
 
     # run parameters
     
