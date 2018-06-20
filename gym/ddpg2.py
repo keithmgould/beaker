@@ -257,6 +257,8 @@ def build_summaries():
 # ===========================
 
 def train(sess, env, args, actor, critic, actor_noise):
+    if args['render_env']:
+        env.render(mode="human")
 
     # Set up summary Ops
     summary_ops, summary_vars = build_summaries()
@@ -298,6 +300,9 @@ def train(sess, env, args, actor, critic, actor_noise):
             a = actor.predict(np.reshape(s, (1, actor.s_dim))) + actor_noise()
 
             s2, r, terminal, info = env.step(a[0])
+
+            if j%10 == 0 and j > 1:
+                print(s2)
 
             replay_buffer.add(np.reshape(s, (actor.s_dim,)), np.reshape(a, (actor.a_dim,)), r,
                               terminal, np.reshape(s2, (actor.s_dim,)))

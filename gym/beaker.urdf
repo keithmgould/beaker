@@ -56,6 +56,7 @@
     </inertial>
   </link>
 
+  <!-- Just visual aid. Has no mass -->
   <link name="face">
     <visual>
       <geometry>
@@ -80,7 +81,7 @@
   <!-- right Wheel -->
   <link name="right_wheel">
 
-    <!-- main wheel visual -->
+    <!-- main wheel visual.  -->
     <visual>
       <geometry>
         <cylinder length="0.0254" radius=".042"/>
@@ -116,7 +117,7 @@
     <axis xyz="1 0 0"/>
   </joint>
 
-  <!-- helps to see the wheel rotation -->
+  <!-- helps to see the wheel rotation. has no mass -->
   <link name="right_wheel_stripe">
     <visual>
       <geometry>
@@ -174,7 +175,7 @@
     <axis xyz="1 0 0"/>
   </joint>
 
-  <!-- helps to see the wheel rotation -->
+  <!-- helps to see the wheel rotation. has no mass -->
   <link name="left_wheel_stripe">
     <visual>
       <geometry>
