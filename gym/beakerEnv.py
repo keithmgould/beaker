@@ -42,7 +42,7 @@ class BeakerBotBulletEnv(MJCFBaseBulletEnv):
 	def _step(self, a):
 		self.robot.apply_action(a)
 		self.scene.global_step()
-		state = self.robot.calc_state()
+		state = self.robot.calc_state() # theta, thetaDot, phi, phiDot (rad, rad/sec, rad, rad/sec)
 		done = np.abs(self.robot.theta) > .2
 		self.HUD(state, a, done)
 		self.camera_adjust(self.robot.robot_body.current_position())

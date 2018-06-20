@@ -16,10 +16,11 @@ class BeakerBot(URDFBasedRobot):
 		self.leftWheelJoint.set_velocity(action)
 		self.rightWheelJoint.set_velocity(action)
 
+	# rads, rads/sec, rads, rads/sec
 	def calc_state(self):
 		self.theta, self.thetaDot = self._getThetaAndThetaDot()
-		xPos, xVel = self._getXposXvel()
-		return [self.theta, self.thetaDot, xPos, xVel]
+		phi, phiDot = self._getWheelPositionAndVelocity()
+		return [self.theta, self.thetaDot, phi, phiDot]
 
 	def robot_specific_reset(self, bullet_client):
 		self.body = self.parts["beaker"]
@@ -66,11 +67,13 @@ class BeakerBot(URDFBasedRobot):
 			"rw_spin_f": rw_spinning_friction
 		}
 
-	def _getXposXvel(self):
+  # (avg across both wheels) rads and rads/sec
+	def _getWheelPositionAndVelocity(self):
 		lx, lv = self.leftWheelJoint.get_state()
 		rx, rv = self.leftWheelJoint.get_state()
 		return (lx + rx)/2, (lv + rv)/2
 
+	# rads and rads/sec
 	def _getThetaAndThetaDot(self):
 		body_pose = self.robot_body.pose()
 		self.body_rpy = body_pose.rpy()

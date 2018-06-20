@@ -12,17 +12,25 @@
 import gym, register
 import time
 
+# utility for testing loop times
+current_milli_time = lambda: int(round(time.time() * 1000))
+
 def main():
 	env = gym.make("BeakerBotBulletEnv-v0")
 	env.render(mode="human")
 	obs = env.reset()
-	targetRPS = 20
+	targetRPS = 20 # rads/sec
+	stepCount = 0
 
 	while True:
 		# BeakerEnv steps at 50Hz. Just use this if rendering
 		time.sleep(1./50.) 
 		obs, r, done, _ = env.step(targetRPS)
-		print(obs[3])
+		if stepCount % 50 == 0:
+			print("! second mark")
+
+		print(obs)
+		stepCount += 1
 
 if __name__=="__main__":
 	main()

@@ -31,7 +31,7 @@ class Arduino:
       return False
     return True
 
-  # theta, thetaDot, xPos, phiDot, outerDt, targerRadPerSec
+  # theta, thetaDot, phi, phiDot, outerDt, targerRadPerSec
   def getState(self):
     self.__writeMessage("S") # S for "state" on Arduino
     message = self.__waitForArduinoMessage("A")
