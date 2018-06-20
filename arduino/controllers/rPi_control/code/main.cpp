@@ -21,7 +21,7 @@ void rightEncoderEvent(){ wheels.rightEncoderEvent(); }
 // similar to buildTelemetry. Meant to stay small.
 String buildState(){
   String state = String(my_imu.getTheta(),4) + "," + String(my_imu.getThetaDot(),4);
-  state += "," + String(wheels.getPhi(),4) + "," + String(wheels.getPhiDotAvg(),4);
+  state += "," + String(wheels.getTotalPhi(),4) + "," + String(wheels.getPhiDotAvg(),4);
   state += ", " + String(outerDt,2) + "," + String(wheels.getTargetRadsPerSec(),4);
   return state;
 }

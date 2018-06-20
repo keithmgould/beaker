@@ -58,6 +58,11 @@ class Motor
     handleInfinity();
   }
 
+  // in meters  
+  float rotationsToMeters(){
+    return rotations * WHEEL_CIRCUMFERECE;
+  }
+
   //-------------------------------------------------------------------
   public:
   //-------------------------------------------------------------------
@@ -77,14 +82,14 @@ class Motor
     resetCount();
   }
 
-  // in radians
+  // in radians. between 0 and 2PI
   float getPhi() {
     return (float) edgeCount * CLICKS_TO_RADIANS;
   }
 
-  // in meters  
-  float rotationsToMeters(){
-    return rotations * WHEEL_CIRCUMFERECE;
+  // distance in radians.
+  float getTotalPhi() {
+      return (float) rotations * TWO_PI + getPhi();
   }
 
   // in meters
@@ -96,12 +101,9 @@ class Motor
     return totalEdgeCount;
   }
 
-  long getEdgeCount() {
+  // between 0 and FULL_ROTATION_EDGE_EVENTS
+  int getEdgeCount() {
     return edgeCount;
-  }
-
-  int getDirection(){
-    return tickDirection;
   }
 
   // this should be called by encoder interrupts

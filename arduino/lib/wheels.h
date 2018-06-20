@@ -126,6 +126,11 @@ class Wheels {
     return (motorLeft.getDistance() + motorRight.getDistance()) / 2.0;
   }
 
+  // in radians. Average of both wheels
+  float getTotalPhi() {
+    return (motorLeft.getTotalPhi() + motorRight.getTotalPhi()) / 2.0; 
+  }
+
   float getTargetRadsPerSec() { return targetRadsPerSec; }              // rads/sec
   float getPhi(){ return (leftPhi + rightPhi) / 2.0; }                  // rads. avg of 2 whls
   float getPhiDot(){ return (leftPhiDot + rightPhiDot) / 2.0; }         // rads/sec. avg of 2 whls
