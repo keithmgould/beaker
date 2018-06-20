@@ -141,8 +141,8 @@ def main(args):
             action = actor.predict(observation)
             observation, r, terminal = env.step(action)
             if observation == False: # some sort of error communicating w Arduino
-            done = False # prob not needed (already false) but just to be safe
-            break # lets try another rollout
+              done = False # prob not needed (already false) but just to be safe
+              break # lets try another rollout
         print("!")
 
 if __name__ == '__main__':
