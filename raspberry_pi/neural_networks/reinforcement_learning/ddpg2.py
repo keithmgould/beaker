@@ -131,14 +131,15 @@ def main(args):
 
 
         saver = tf.train.Saver(max_to_keep=5)
+        latest_checkpoint = tf.train.latest_checkpoint('./models/ddpg/')
         saver.restore(sess, latest_checkpoint)
 
-        observation, reward, done = self.env.reset(), 0, False
-        throw_away_action = actor.predict(observation) # prime network.
+        observation, reward, done = env.reset(), 0, False
+        throw_away_action = actor.predict([observation]) # prime network.
 
 
         while(True):
-            action = actor.predict(observation)
+            action = actor.predict([observation])
             observation, r, terminal = env.step(action)
             if observation == False: # some sort of error communicating w Arduino
               done = False # prob not needed (already false) but just to be safe
