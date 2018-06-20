@@ -96,14 +96,16 @@ class Agent:
       last_time = current_milli_time()
       while not done:
         time_delta = current_milli_time() - last_time
-        print("Local Loop Time: {}".format(time_delta))
+        # print("Local Loop Time: {}".format(time_delta))
         last_time = current_milli_time()
         action = policy.select_action(observation)
         time_delta = current_milli_time() - last_time
         observations.append(observation)
         actions.append(action)
-        print("obsv: {}, action: {}".format(observation, action))
-        observation, reward, done, _ = self.env.step(action)
+        # print("obsv: {}, action: {}".format(observation, action))
+        current_phiDot = observation[3]
+        new_phiDot = current_phiDot + action
+        observation, reward, done, _ = self.env.step(new_phiDot)
         if observation == False: # some sort of error communicating w Arduino
             done = False # prob not needed (already false) but just to be safe
             break # lets try another rollout
