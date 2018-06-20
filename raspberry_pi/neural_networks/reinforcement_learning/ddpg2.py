@@ -154,6 +154,7 @@ if __name__ == '__main__':
     parser.add_argument('--random-seed', help='random seed for repeatability', default=1234)
     parser.add_argument('--minibatch-size', help='size of minibatch for minibatch-SGD', default=64)
 
+
     # run parameters
     
     parser.add_argument('--max-episode-len', help='max length of 1 episode', default=1000)

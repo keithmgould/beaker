@@ -266,7 +266,7 @@ def train(sess, env, args, actor, critic, actor_noise):
     sess.run(tf.global_variables_initializer())
     writer = tf.summary.FileWriter(args['summary_dir'], sess.graph)
 
-    saver = tf.train.Saver(max_to_keep=5)
+    saver = tf.train.Saver(max_to_keep=1)
     latest_checkpoint = tf.train.latest_checkpoint('./models/ddpg2/')
 
     if args['restore']:
@@ -301,8 +301,8 @@ def train(sess, env, args, actor, critic, actor_noise):
 
             s2, r, terminal, info = env.step(a[0])
 
-            if j%10 == 0 and j > 1:
-                print(s2)
+            # if j%10 == 0 and j > 1:
+            #     print(s2)
 
             replay_buffer.add(np.reshape(s, (actor.s_dim,)), np.reshape(a, (actor.a_dim,)), r,
                               terminal, np.reshape(s2, (actor.s_dim,)))
@@ -354,7 +354,7 @@ def train(sess, env, args, actor, critic, actor_noise):
                 writer.add_summary(summary_str, i)
                 writer.flush()
 
-                saver.save(sess, './models/ddpg2/hope', global_step=global_step, write_meta_graph=False)
+                saver.save(sess, './models/ddpg2_b/hope', global_step=global_step, write_meta_graph=False)
 
                 ep_rewards_avg = np.average(ep_rewards[-25:])
 
