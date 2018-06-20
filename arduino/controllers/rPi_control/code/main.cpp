@@ -54,9 +54,22 @@ void sendState(){
   piTalk.sendToPi(state);
 }
 
+void showHelp(){
+  String response = "S: send state.\n";
+  response += "B: update Theta Offset.\n";
+  response += "M: update Motor Pids.\n";
+  response += "W: update to given rads/sec.\n";
+  response += "A: accelerate by given rads/sec.\n";
+  response += "R: reset robot.\n";
+  response += "H: this help.\n";
+
+  piTalk.sendToPi(response);
+}
+
 void handlePiTalk(char command, std::string message){
   switch(command){
     case 'S': sendState(); break;
+    case 'H': showHelp(); break;
   }
 }
 

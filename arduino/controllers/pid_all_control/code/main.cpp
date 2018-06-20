@@ -144,8 +144,8 @@ void showHelp(){
   response += "S: save PID values to EEPROM\n";
   response += "V: show currently used Param Values\n";
   response += "Z: zero out all PID Values.\n";
-  response += "J: turn motors on.\n";
-  response += "K: turn motors off.\n";
+  response += "J: enable motors. (Pay attention to motor commands)\n";
+  response += "K: disable motors. (Ignore motor commands)\n";
   response += "H: this help\n";
 
   piTalk.sendToPi(response);
