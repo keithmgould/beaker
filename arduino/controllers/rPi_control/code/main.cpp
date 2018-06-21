@@ -83,7 +83,7 @@ void emergencyStop(){
 void setup() {
   piTalk.setup(&wheels, &my_imu, &handlePiTalk);
   Serial.begin(115200); while (!Serial) {;}
-  Serial3.begin(115200); while (!Serial3) {;} // bluetooth
+  Serial3.begin(115200); while (!Serial3) {;} // bluetooth for telemetry
   Serial.println("\n\nBeginning initializations...");
   my_imu.setup();
   attachInterrupt(digitalPinToInterrupt(LH_ENCODER_A), leftEncoderEvent, CHANGE);
