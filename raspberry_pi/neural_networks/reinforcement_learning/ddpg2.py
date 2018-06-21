@@ -140,12 +140,12 @@ def main(args):
 
             while(True):
                 action = actor.predict([observation])
-                observation, r, terminal = env.step(action)
+                observation, reward, done = env.step(action)
                 if observation == False: # some sort of error communicating w Arduino
                   done = False # prob not needed (already false) but just to be safe
                   break # lets try another rollout
-                if terminal == False:
-                    break
+                if done:
+                  break
 
 
 if __name__ == '__main__':

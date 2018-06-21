@@ -24,7 +24,7 @@ class SomeSpace():
 class World(BaseWorld):
   MAX_EPISODE_DURATION = 10 # seconds
   MAX_ANGLE = 0.25 # in radians. ~> 14.3 degrees
-  MAX_DISTANCE = 1 # in meters.
+  MAX_DISTANCE = 30 # in radians
 
   def __init__(self):
     self.state = State()
