@@ -12,6 +12,7 @@ class Agent:
 
   def run(self):
     self.ensureStopped()
+    loops = 0
     issueTime = current_milli_time()
     self.arduino.writeMessage("W10")
 
@@ -22,9 +23,11 @@ class Agent:
         responseTime = current_milli_time() - issueTime
         print("response time: {}".format(responseTime))
         break
+      else:
+        loops += 1
 
     self.ensureStopped()
-    print("End of experiment!")
+    print("End of experiment! Loops: {}".format(loops))
 
   def ensureStopped(self):
     print("Ensuring stopped...")
