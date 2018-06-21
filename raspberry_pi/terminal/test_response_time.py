@@ -28,7 +28,7 @@ class Agent:
       while True:
         observation = self.arduino.writeMessageAndWait("S") # get State
         wheelSpeed = observation[3]
-        if(wheelSpeed == 0.0):
+        if(wheelSpeed == 0):
           print("Stopped! :)")
           return
         else:

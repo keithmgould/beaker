@@ -20,6 +20,16 @@ class Arduino:
       return False
     return response
 
+  # theta, thetaDot, phi, phiDot, outerDt, targerRadPerSec
+  def getState(self):
+    self.__writeMessage("S") # S for "state" on Arduino
+    message = self.__waitForArduinoMessage()
+    if message == False:
+      print("errored on getState.")
+      return False
+    lst = message.split(",")
+    return [float(i) for i in lst]
+
   def __waitForArduinoMessage(self):
     waiting = True
     message = ""
