@@ -18,7 +18,7 @@ class Arduino:
     if response == False:
       print("errored on message receive.")
       return False
-    print(response)
+    return response
 
   def __waitForArduinoMessage(self):
     waiting = True

@@ -1,4 +1,4 @@
-from arduino import Arduino
+from lib.arduino import Arduino
 
 # Use this little client to communicate with PID control, PID_ALL control, or P4 control
 
@@ -14,7 +14,7 @@ class Agent:
       	userString = userString[1:]
       	self.arduino.writeMessage(userString)
       else:
-      	self.arduino.writeMessageAndWait(userString)
+      	print(self.arduino.writeMessageAndWait(userString))
 
 agent = Agent()
 agent.run()

@@ -302,7 +302,7 @@ def train(sess, env, args, actor, critic, actor_noise):
             s2, r, terminal, info = env.step(a[0])
 
             # if j%10 == 0 and j > 1:
-            #     print(s2)
+                # print("{}, {}".format(a[0], s2))
 
             replay_buffer.add(np.reshape(s, (actor.s_dim,)), np.reshape(a, (actor.a_dim,)), r,
                               terminal, np.reshape(s2, (actor.s_dim,)))

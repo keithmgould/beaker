@@ -30,6 +30,8 @@ class BeakerBot(URDFBasedRobot):
 		self.rightWheelJoint = self.jdict["base_to_right_wheel"]
 		r = np.random.randint(-100,100,(3)) / 10000.
 		newOrientation=[r[0], r[1], r[2], 1]
+
+		# newOrientation = self._p.getQuaternionFromEuler([0.50,0,0])
 		self.body.reset_orientation(newOrientation)
 
 	def getFrictionInfo(self):
