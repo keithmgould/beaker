@@ -134,17 +134,19 @@ def main(args):
         latest_checkpoint = tf.train.latest_checkpoint('./models/ddpg/')
         saver.restore(sess, latest_checkpoint)
 
-        observation, reward, done = env.reset(), 0, False
-        throw_away_action = actor.predict([observation]) # prime network.
-
-
         while(True):
-            action = actor.predict([observation])
-            observation, r, terminal = env.step(action)
-            if observation == False: # some sort of error communicating w Arduino
-              done = False # prob not needed (already false) but just to be safe
-              break # lets try another rollout
-        print("!")
+            observation, reward, done = env.reset(), 0, False
+            throw_away_action = actor.predict([observation]) # prime network.
+
+            while(True):
+                action = actor.predict([observation])
+                observation, r, terminal = env.step(action)
+                if observation == False: # some sort of error communicating w Arduino
+                  done = False # prob not needed (already false) but just to be safe
+                  break # lets try another rollout
+                if terminal == False:
+                    break
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='provide arguments for DDPG agent')
