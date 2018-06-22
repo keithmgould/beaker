@@ -2,8 +2,23 @@
 
 Taking the below concept and applying PID to each of the states, rather than just P on each state.
 
-People often use PID to balance a robot, using theta as input, but that is not enough for Beaker,
-probably because he is so tall.
+In short, given four element vector that defines the state:
+
+theta, thetaDot, phi, phiDot,
+
+We can apply a PID controller to each of these elements, and sum them together:
+
+outTheta = thetaPid(theta)
+outThetaDot = thetaDotPid(theta)
+outphi = phiPid(phi)
+outphiDot = phiDotPid(phiDot)
+
+then final command is a sum of these:
+
+outTheta + outThetaDot + outPhi + outPhiDot
+
+
+This command is interpreted as an acceleration, aka a change in desired wheel velocity.
 
 
 # Original P4 Concept
@@ -58,59 +73,4 @@ shaft encoders this gives the wheel velocity, and for the angle
 sensor this gives the angle velocity.  The four triangles labeled
 K1 through K4 are the "knobs" that apply gain to the four feedback
 signals.  They are then summed together and fed back to the robot
-as the PWM motor voltage. Here is the same thing in C code:
-
-/* define constants.  In the demo these were set with a knob */
-
-#define K1 20
-#define K2 50
-#define K3 10
-#define K4 22
-
-/* HC11 16 bit integers for tilt sensor and shaft encoder */
-
-int angle, angle_velocity, last_angle;
-int wheel, wheel_velocity, last_wheel;
-int torque;
-
-/* the code */
-
-void balance()
-{
-    while(1) {    /* loop forever */
-
-  angle = read_analog(TILT_SENSOR);
-  angle_velocity = angle - last_angle;
-  last_angle = angle;
-
-  wheel = read_wheel_encoder();  /* wheel = read_encoder()-profiler() */
-  velocity = wheel - last_wheel;
-  last_wheel = wheel;
-
-  torque = (angle_velocity * K1) + (angle * K2)
-      + (wheel_velocity * K3) + (wheel * K4);
-
-  pwm(torque);
-
-  msleep(40); /* sleep 40 milliseconds */
-    }
-}
-
-
-
-This loop runs 25 times per second, measuring the wheel position and
-tilt angle and updating the motor voltage to achieve balance.  The
-constant for the wheel location, K4, is set equal to 0 for the
-robot to travel, and to non zero (10 in this case) for the robot
-to hold its location.
-
-For driving the robot, the desired X offset is summed in with the
-velocity term.  Steering is accomplished by adding an offset to
-one motor and subtracting it from the other.  This does not effect
-the balancing mechanism.  Obviously there is a lot left out of this
-sample piece of code, but the principal is the same.
-
-updated 2012 Feb 01 dpa
-
-03 Aug 2001
-dpa
+as the PWM motor voltage. 
