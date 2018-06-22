@@ -29,7 +29,7 @@ void printStuff(float dt, float newRadPerSec, float radPerSecDelta, float phiDot
 
   // raw states
   log += "," + String(my_imu.getTheta(),4) + "," + String(my_imu.getThetaDot(),4);
-  log += "," + String(wheels.getX(),4) + "," + String(phiDotAvg,4);
+  log += "," + String(wheels.getTotalPhi(),4) + "," + String(phiDotAvg,4);
 
   // calibrations
   log += "," + String(my_imu.getThetaOffset(),4);
