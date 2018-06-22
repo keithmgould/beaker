@@ -1,4 +1,5 @@
 from pybullet_envs.robot_bases import URDFBasedRobot
+from motor import Motor
 import numpy as np
 import random
 import os
@@ -13,14 +14,15 @@ class BeakerBot(URDFBasedRobot):
 		URDFBasedRobot.__init__(self, path, 'beaker', action_dim=1, obs_dim=4, basePosition=bP, baseOrientation=bO)
 
 	def apply_action(self, action):
-		self.leftWheelJoint.set_velocity(action)
-		self.rightWheelJoint.set_velocity(action)
+		constrainedAction = Motor.step(self.phiDot,action)
+		self.leftWheelJoint.set_velocity(constrainedAction)
+		self.rightWheelJoint.set_velocity(constrainedAction)
 
 	# rads, rads/sec, rads, rads/sec
 	def calc_state(self):
 		self.theta, self.thetaDot = self._getThetaAndThetaDot()
-		phi, phiDot = self._getWheelPositionAndVelocity()
-		return [self.theta, self.thetaDot, phi, phiDot]
+		self.phi, self.phiDot = self._getWheelPositionAndVelocity()
+		return [self.theta, self.thetaDot, self.phi, self.phiDot]
 
 	def robot_specific_reset(self, bullet_client):
 		self.body = self.parts["beaker"]

@@ -43,16 +43,16 @@
       <geometry>
         <box size="0.1016 0.0254 0.6604"/>
       </geometry>
-      <origin xyz="0 0 0.4" />
+      <origin xyz="0 0 0.3302" />
     </collision>
 
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0.2159"/>
-      <mass value="1.767" />
+      <mass value="0.001767" />
 
       <!-- https://en.wikipedia.org/wiki/List_of_moments_of_inertia -->
       <!-- see "slender rod along y axis" -->
-      <inertia ixx="0.12212" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.12212"/>
+      <inertia ixx="0.000012212" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.000012212"/>
     </inertial>
   </link>
 
@@ -100,7 +100,7 @@
 
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0.2159"/>
-      <mass value="0.09" />
+      <mass value="0.0009" />
 
       <!-- https://en.wikipedia.org/wiki/List_of_moments_of_inertia -->
       <!-- see "slender rod along y axis" -->
@@ -158,7 +158,7 @@
 
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0.2159"/>
-      <mass value="0.09" />
+      <mass value="0.0009" />
 
       <!-- https://en.wikipedia.org/wiki/List_of_moments_of_inertia -->
       <!-- see "slender rod along y axis" -->

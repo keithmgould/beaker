@@ -1,37 +1,8 @@
 import gym, register
 import time
 import pdb
+from miniPid import MiniPid
 
-class MiniPid:
-	def __init__(self, kP, kI, kD):
-		self.kP = kP
-		self.kI = kI
-		self.kD = kD
-		self.errorSum = 0
-		self.previousError = 0
-
-	def reset(self):
-		self.errorSum = 0
-		self.previousError = 0
-
-	def getControl(self, error):
-		pTerm = self._getKP(error) 
-		iTerm = self._getKI(error)
-		dTerm = self._getKD(error)
-
-		return pTerm + iTerm + dTerm
-
-	def _getKP(self, error):
-		return self.kP * error
-
-	def _getKI(self, error):
-		self.errorSum += error
-		return self.kI * self.errorSum
-
-	def _getKD(self, error):
-		result = self.kD * (error - self.previousError)
-		self.previousError = error
-		return result
 
 def constrain(val, minVal, maxVal):
 	return max(min(maxVal, val), minVal)
@@ -40,8 +11,10 @@ def main():
 	env = gym.make("BeakerBotBulletEnv-v0")
 	env.render(mode="human")
 	obs = env.reset()
-	# pid = MiniPid(1.15,0.05,16)
-	pid = MiniPid(11.5,0.5,160)
+	thetaPid = MiniPid(1.15,0.05,16)
+	# thetaPid = MiniPid(11.5,0.5,160)
+
+	phiPid = MiniPid(0,0,0)
 	targetRPS = 0
 
 	while True:
@@ -49,16 +22,21 @@ def main():
 		time.sleep(1./50.) 
 		
 		theta = obs[0]
-		acc = pid.getControl(theta)
+		phi = obs[2]
+		accFromTheta = thetaPid.getControl(theta)
+		accFromPhi = phiPid.getControl(phi)
+
+		acc = accFromTheta + accFromPhi
+
 		targetRPS += acc
 		targetRPS = constrain(targetRPS, -10, 10)
-		# print("{}, {}".format(obs, targetRPS))
-		print(targetRPS)
+		print("{}, {}".format(accFromTheta, accFromPhi))
+		# print(targetRPS)
 		obs, r, done, _ = env.step(targetRPS)
 		
 		if(done):
 			obs = env.reset()
-			pid.reset()
+			thetaPid.reset()
 			targetRPS = 0
 
 if __name__=="__main__":
