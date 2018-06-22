@@ -209,10 +209,10 @@ void loop(){
     float xPos = wheels.getX();
     float theta = my_imu.getTheta();
 
-    float thetaTerm = thetaPid.generateCommand(theta, outerDt);
-    float thetaDotTerm = thetaDotPid.generateCommand(my_imu.getThetaDot(), outerDt);
-    float xPosTerm = xPosPid.generateCommand(wheels.getX(), outerDt);
-    float phiDotTerm = phiDotPid.generateCommand(phiDotAvg, outerDt);
+    float thetaTerm = thetaPid.generateCommand(theta);
+    float thetaDotTerm = thetaDotPid.generateCommand(my_imu.getThetaDot());
+    float xPosTerm = xPosPid.generateCommand(wheels.getX());
+    float phiDotTerm = phiDotPid.generateCommand(phiDotAvg);
 
     // If the xPosTerm did its job and got us leaning back towards X=0, 
     // then stop trying to accelerate away from X=0.

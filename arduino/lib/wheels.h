@@ -159,8 +159,8 @@ class Wheels {
   void spin(long dt) {
     updateWheelStates(dt);
     phiDotAverager.push(getPhiDot());
-    leftCommandDelta = leftMotorPid.generateCommand(leftPhiDot, dt);
-    rightCommandDelta = rightMotorPid.generateCommand(rightPhiDot, dt);
+    leftCommandDelta = leftMotorPid.generateCommand(leftPhiDot);
+    rightCommandDelta = rightMotorPid.generateCommand(rightPhiDot);
     leftCommand += leftCommandDelta;
     rightCommand += rightCommandDelta;
     motorLeft.updatePower(leftCommand);

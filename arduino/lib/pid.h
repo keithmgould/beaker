@@ -16,7 +16,6 @@ class Pid {
   float kI = 0;       // holds the I parameter
   float kD = 0;       // holds the D parameter
 
-  int dt = 0;
   long timestep = 0;
   float currentError = 0;
   float previousError = 0;
@@ -105,9 +104,8 @@ class Pid {
     return kD * deltaError; 
   }
 
-  void updateErrors(float currentState, long newDt){
+  void updateErrors(float currentState){
     float newError = setpoint - currentState;
-    dt = newDt;
     setCurrentError(newError);
     calculateAccumulatedError();
     calculateDeltaError();
@@ -124,8 +122,8 @@ class Pid {
     setpoint = newSetpoint;
   }
 
-  float generateCommand(float currentState, long newDt){
-    updateErrors(currentState, newDt);
+  float generateCommand(float currentState){
+    updateErrors(currentState);
     return pTerm() + iTerm() + dTerm();
   }
 
