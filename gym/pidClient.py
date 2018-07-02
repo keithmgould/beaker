@@ -24,17 +24,22 @@ def main():
 		theta = obs[0]
 		phi = obs[2]
 		accFromTheta = thetaPid.getControl(theta)
+		thetaTerms = thetaPid.getTerms()
 		accFromPhi = phiPid.getControl(phi)
 
 		acc = accFromTheta + accFromPhi
 
 		targetRPS += acc
 		targetRPS = constrain(targetRPS, -10, 10)
-		print("{}, {}".format(accFromTheta, accFromPhi))
-		# print(targetRPS)
+		print("obs: {} - thetaTerms: {} - acc: {} - new rad/s: {}".format(obs, thetaTerms, acc, targetRPS))
+		
 		obs, r, done, _ = env.step(targetRPS)
+
 		
 		if(done):
+			print("-----------------------------------------------------------------------")
+			print("-----------------------------------------------------------------------")
+			print("-----------------------------------------------------------------------")
 			obs = env.reset()
 			thetaPid.reset()
 			targetRPS = 0
