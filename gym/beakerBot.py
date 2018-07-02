@@ -15,11 +15,16 @@ class BeakerBot(URDFBasedRobot):
 
 	def apply_action(self, action):
 		constrainedAction = Motor.step(self.phiDot,action)
+
 		# self.leftWheelJoint.set_velocity(constrainedAction)
 		# self.rightWheelJoint.set_velocity(constrainedAction)
-		force = 1000
-		self._p.setJointMotorControl2(self.uniqueID,self.leftWheelJoint.jointIndex,self._p.VELOCITY_CONTROL, targetVelocity=constrainedAction, force=force)
-		self._p.setJointMotorControl2(self.uniqueID,self.rightWheelJoint.jointIndex,self._p.VELOCITY_CONTROL, targetVelocity=constrainedAction, force=force)
+		# force = 1000
+		# self._p.setJointMotorControl2(self.uniqueID,self.leftWheelJoint.jointIndex,self._p.VELOCITY_CONTROL, targetVelocity=constrainedAction, force=force)
+		# self._p.setJointMotorControl2(self.uniqueID,self.rightWheelJoint.jointIndex,self._p.VELOCITY_CONTROL, targetVelocity=constrainedAction, force=force)
+
+		self.leftGearJoint.set_velocity(constrainedAction)
+		self.rightGearJoint.set_velocity(constrainedAction)
+
 
 	# rads, rads/sec, rads, rads/sec
 	def calc_state(self):
@@ -31,8 +36,10 @@ class BeakerBot(URDFBasedRobot):
 		self.body = self.parts["beaker"]
 		self.leftWheel = self.parts["left_wheel"]
 		self.rightWheel = self.parts["right_wheel"]
-		self.leftWheelJoint = self.jdict["base_to_left_wheel"]
-		self.rightWheelJoint = self.jdict["base_to_right_wheel"]
+		self.leftGearJoint = self.jdict["base_to_left_gear"]
+		self.rightGearJoint = self.jdict["base_to_right_gear"]
+		self.leftWheelJoint = self.jdict["left_gear_to_left_wheel"]
+		self.rightWheelJoint = self.jdict["right_gear_to_right_wheel"]
 		r = np.random.randint(-100,100,(3)) / 10000.
 		newOrientation=[r[0], r[1], r[2], 1]
 
@@ -51,12 +58,15 @@ class BeakerBot(URDFBasedRobot):
 		self.drawDebugAxis(self.leftWheel.bodyPartIndex)
 		self.drawDebugAxis(self.rightWheel.bodyPartIndex)
 
+		self._p.setJointMotorControl2(bodyUniqueId=self.uniqueID, jointIndex=self.leftWheelJoint.jointIndex, controlMode=self._p.VELOCITY_CONTROL, force = 0)
+		self._p.setJointMotorControl2(bodyUniqueId=self.uniqueID, jointIndex=self.rightWheelJoint.jointIndex, controlMode=self._p.VELOCITY_CONTROL, force = 0)
+
 	def getFrictionInfo(self):
-		lwJ = self._p.getJointInfo(self.uniqueID, self.leftWheelJoint.jointIndex)
+		lwJ = self._p.getJointInfo(self.uniqueID, self.leftGearJoint.jointIndex)
 		lwj_dampening = lwJ[6]
 		lwj_friction = lwJ[7]
 
-		rwj = self._p.getJointInfo(self.uniqueID, self.rightWheelJoint.jointIndex)
+		rwj = self._p.getJointInfo(self.uniqueID, self.rightGearJoint.jointIndex)
 		rwj_dampening = rwj[6]
 		rwj_friction = rwj[7]
 
@@ -88,8 +98,8 @@ class BeakerBot(URDFBasedRobot):
 
   # (avg across both wheels) rads and rads/sec
 	def _getWheelPositionAndVelocity(self):
-		lx, lv = self.leftWheelJoint.get_state()
-		rx, rv = self.leftWheelJoint.get_state()
+		lx, lv = self.leftGearJoint.get_state()
+		rx, rv = self.leftGearJoint.get_state()
 		return (lx + rx)/2, (lv + rv)/2
 
 	# rads and rads/sec
