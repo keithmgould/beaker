@@ -16,11 +16,15 @@ class BeakerBot(URDFBasedRobot):
 	def apply_action(self, action):
 		constrainedAction = Motor.step(self.phiDot,action)
 
+
 		# self.leftWheelJoint.set_velocity(constrainedAction)
 		# self.rightWheelJoint.set_velocity(constrainedAction)
 		# force = 1000
 		# self._p.setJointMotorControl2(self.uniqueID,self.leftWheelJoint.jointIndex,self._p.VELOCITY_CONTROL, targetVelocity=constrainedAction, force=force)
 		# self._p.setJointMotorControl2(self.uniqueID,self.rightWheelJoint.jointIndex,self._p.VELOCITY_CONTROL, targetVelocity=constrainedAction, force=force)
+
+
+		constrainedAction = 10
 
 		self.leftGearJoint.set_velocity(constrainedAction)
 		self.rightGearJoint.set_velocity(constrainedAction)
