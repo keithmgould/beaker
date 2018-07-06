@@ -79,7 +79,7 @@
     </joint>
 
     <!-- right Wheel .................................................................-->
-    <link name="rightWheel">
+    <link name="right_wheel">
       <visual>
         <geometry>
           <cylinder length="0.0254" radius="0.042"/>
@@ -103,7 +103,7 @@
       <limit lower="-0.0756" upper="0.0756" effort="1000" velocity="1000"/>
       <origin xyz="0.09398 0 0.01905"/>
       <parent link="body"/>
-      <child link="rightWheel"/>
+      <child link="right_wheel"/>
       <axis xyz="1 0 0"/>
     </joint>
     <!-- right Wheel Indicator .................................................................-->
@@ -119,15 +119,15 @@
           <inertia ixx="0.000000" ixy="0.0" ixz="0.0" iyy="0.000000" iyz="0.0" izz="0.000000"/>
       </inertial>
     </link>
-    <joint name="indicatorTorightWheel" type="fixed">
+    <joint name="indicator_to_right_wheel" type="fixed">
       <origin xyz="0 0.042 0"/>
-      <parent link="rightWheel"/>
+      <parent link="right_wheel"/>
       <child link="rightWheelIndicator"/>
     </joint>
   
 
     <!-- left Wheel .................................................................-->
-    <link name="leftWheel">
+    <link name="left_wheel">
       <visual>
         <geometry>
           <cylinder length="0.0254" radius="0.042"/>
@@ -151,7 +151,7 @@
       <limit lower="-0.0756" upper="0.0756" effort="1000" velocity="1000"/>
       <origin xyz="-0.09398 0 0.01905"/>
       <parent link="body"/>
-      <child link="leftWheel"/>
+      <child link="left_wheel"/>
       <axis xyz="1 0 0"/>
     </joint>
     <!-- left Wheel Indicator .................................................................-->
@@ -167,9 +167,9 @@
           <inertia ixx="0.000000" ixy="0.0" ixz="0.0" iyy="0.000000" iyz="0.0" izz="0.000000"/>
       </inertial>
     </link>
-    <joint name="indicatorToleftWheel" type="fixed">
+    <joint name="indicator_to_left_wheel" type="fixed">
       <origin xyz="0 0.042 0"/>
-      <parent link="leftWheel"/>
+      <parent link="left_wheel"/>
       <child link="leftWheelIndicator"/>
     </joint>
 

@@ -1,5 +1,5 @@
   <!-- {{dir}} Wheel .................................................................-->
-  <link name="{{dir}}Wheel">
+  <link name="{{dir}}_wheel">
     <visual>
       <geometry>
         <cylinder length="{{wheel_length}}" radius="{{wheel_rad}}"/>
@@ -23,6 +23,6 @@
     <limit lower="-0.0756" upper="0.0756" effort="1000" velocity="1000"/>
     <origin xyz="{{wheel_x_offset}} 0 {{wheel_height}}"/>
     <parent link="body"/>
-    <child link="{{dir}}Wheel"/>
+    <child link="{{dir}}_wheel"/>
     <axis xyz="1 0 0"/>
   </joint>

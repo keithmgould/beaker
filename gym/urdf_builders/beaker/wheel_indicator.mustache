@@ -11,8 +11,8 @@
         <inertia ixx="0.000000" ixy="0.0" ixz="0.0" iyy="0.000000" iyz="0.0" izz="0.000000"/>
     </inertial>
   </link>
-  <joint name="indicatorTo{{dir}}Wheel" type="fixed">
+  <joint name="indicator_to_{{dir}}_wheel" type="fixed">
     <origin xyz="0 {{wheel_rad}} 0"/>
-    <parent link="{{dir}}Wheel"/>
+    <parent link="{{dir}}_wheel"/>
     <child link="{{dir}}WheelIndicator"/>
   </joint>
