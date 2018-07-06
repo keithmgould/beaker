@@ -34,6 +34,10 @@ class BeakerBot(URDFBasedRobot):
 	def calc_state(self):
 		self.theta, self.thetaDot = self._getThetaAndThetaDot()
 		self.phi, self.phiDot = self._getWheelPositionAndVelocity()
+
+		lx, lv = self.leftWheelJoint.get_state()
+		print("leftWheelJoint: {}".format(lx))
+
 		return [self.theta, self.thetaDot, self.phi, self.phiDot]
 
 	def robot_specific_reset(self, bullet_client):

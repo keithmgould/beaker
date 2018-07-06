@@ -34,6 +34,7 @@ def main():
 
 		targetRPS += acc
 		targetRPS = constrain(targetRPS, -10, 10)
+
 		results = ', '.join(str(x) for x in obs) + ","
 		results += ', '.join(str(x) for x in thetaTerms) + ","
 		results += str(acc) + ","
@@ -42,6 +43,9 @@ def main():
 		results = str(obs) +"," + str(thetaTerms) + "," + str(acc) + "," + str(targetRPS)
 		results = results.strip("[]")
 		print(results)
+
+		# print("obs: {} - thetaTerms: {} - acc: {} - new rad/s: {}".format(obs, thetaTerms, acc, targetRPS))
+
 		
 		obs, r, done, _ = env.step(targetRPS)
 
