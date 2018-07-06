@@ -1,0 +1,20 @@
+  <!-- Just visual aid. Has no mass -->
+  <link name="face">
+    <visual>
+      <geometry>
+        <box size="0.05 0.01 0.05"/>
+      </geometry>
+      <origin xyz="0 0.010 0.5" />
+      <material name="pink"/>
+    </visual>
+
+    <!-- Just visual aid. Has no mass -->
+    <inertial>
+      <mass value="0" />
+      <inertia ixx="0" ixy="0.0" ixz="0.0" iyy="0" iyz="0.0" izz="0"/>
+    </inertial>
+  </link>
+  <joint name="face_joint" type="fixed">
+    <parent link="body"/>
+    <child link="face"/>
+  </joint>
