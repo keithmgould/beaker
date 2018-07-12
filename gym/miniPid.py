@@ -5,12 +5,14 @@ class MiniPid:
 		self.kD = kD
 		self.errorSum = 0
 		self.previousError = 0
+		self.setPoint = 0
 
 	def reset(self):
 		self.errorSum = 0
 		self.previousError = 0
 
-	def getControl(self, error):
+	def getControl(self, value):
+		error = self.setPoint - value
 		self.pTerm = self._getKP(error) 
 		self.iTerm = self._getKI(error)
 		self.dTerm = self._getKD(error)

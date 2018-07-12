@@ -11,8 +11,9 @@ def main():
 	env = gym.make("BeakerBotBulletEnv-v0")
 	env.render(mode="human")
 	obs = env.reset()
-	thetaPid = MiniPid(1.15,0.05,16)
-	# thetaPid = MiniPid(11.5,0.5,160)
+	# thetaPid = MiniPid(1.15,0.05,16)
+	thetaPid = MiniPid(11.5,0.5,160)
+	# thetaPid = MiniPid(11.5,0,160) # works well with kI = 0
 
 	phiPid = MiniPid(0,0,0)
 	targetRPS = 0
@@ -29,9 +30,18 @@ def main():
 
 		acc = accFromTheta + accFromPhi
 
+		acc = -acc
+
 		targetRPS += acc
 		targetRPS = constrain(targetRPS, -10, 10)
-		print("obs: {} - thetaTerms: {} - acc: {} - new rad/s: {}".format(obs, thetaTerms, acc, targetRPS))
+		results = ', '.join(str(x) for x in obs) + ","
+		results += ', '.join(str(x) for x in thetaTerms) + ","
+		results += str(acc) + ","
+		results += str(targetRPS)
+
+		results = str(obs) +"," + str(thetaTerms) + "," + str(acc) + "," + str(targetRPS)
+		results = results.strip("[]")
+		print(results)
 		
 		obs, r, done, _ = env.step(targetRPS)
 

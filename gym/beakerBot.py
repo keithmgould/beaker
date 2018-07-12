@@ -15,8 +15,11 @@ class BeakerBot(URDFBasedRobot):
 
 	def apply_action(self, action):
 		constrainedAction = Motor.step(self.phiDot,action)
-		self.leftWheelJoint.set_velocity(constrainedAction)
-		self.rightWheelJoint.set_velocity(constrainedAction)
+		# self.leftWheelJoint.set_velocity(constrainedAction)
+		# self.rightWheelJoint.set_velocity(constrainedAction)
+		force = 1000
+		self._p.setJointMotorControl2(self.uniqueID,self.leftWheelJoint.jointIndex,self._p.VELOCITY_CONTROL, targetVelocity=constrainedAction, force=force)
+		self._p.setJointMotorControl2(self.uniqueID,self.rightWheelJoint.jointIndex,self._p.VELOCITY_CONTROL, targetVelocity=constrainedAction, force=force)
 
 	# rads, rads/sec, rads, rads/sec
 	def calc_state(self):
@@ -35,6 +38,18 @@ class BeakerBot(URDFBasedRobot):
 
 		# newOrientation = self._p.getQuaternionFromEuler([0.50,0,0])
 		self.body.reset_orientation(newOrientation)
+		self.drawDebugLines()
+		# print(self.getFrictionInfo())
+
+	def drawDebugAxis(self, bodyIndex):
+		self._p.addUserDebugLine([0,0,0],[0.1,0,0],[1,0,0], parentObjectUniqueId=self.uniqueID, parentLinkIndex=bodyIndex)
+		self._p.addUserDebugLine([0,0,0],[0,0.1,0],[0,1,0],parentObjectUniqueId=self.uniqueID, parentLinkIndex=bodyIndex)
+		self._p.addUserDebugLine([0,0,0],[0,0,0.1],[0,0,1],parentObjectUniqueId=self.uniqueID, parentLinkIndex=bodyIndex)
+
+	def drawDebugLines(self):
+		self.drawDebugAxis(self.body.bodyPartIndex)
+		self.drawDebugAxis(self.leftWheel.bodyPartIndex)
+		self.drawDebugAxis(self.rightWheel.bodyPartIndex)
 
 	def getFrictionInfo(self):
 		lwJ = self._p.getJointInfo(self.uniqueID, self.leftWheelJoint.jointIndex)

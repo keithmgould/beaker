@@ -14,7 +14,7 @@ class BeakerCam:
 	def move_and_look_at(self,x,y,z):
 		lookat = [x,y,z]
 		distance = 1
-		yaw = 90
+		yaw = 135
 		self._p.resetDebugVisualizerCamera(distance, yaw, -20, lookat)
 
 class BeakerBotBulletEnv(MJCFBaseBulletEnv):

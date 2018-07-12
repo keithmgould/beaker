@@ -1,0 +1,31 @@
+  <!-- main body (base) .................................................................-->
+  <link name="body">
+    <visual>
+      <geometry>
+        <box size="{{body_dimensions}}"/>
+      </geometry>
+      <origin xyz="0 0 0.3302" />
+      <material name="gray"/>
+    </visual>
+
+    <!-- axle -->
+    <visual>
+      <geometry>
+        <cylinder length="0.17" radius=".01"/>
+      </geometry>
+      <origin rpy="0 1.5707963 0" xyz="0 0 0.01905"/>
+      <material name="gray"/>
+    </visual>
+
+    <collision>
+      <geometry>
+        <box size="{{body_dimensions}}"/>
+      </geometry>
+      <origin xyz="0 0 0.3302" />
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0.2159"/>
+      <mass value="{{body_mass}}" />
+      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+    </inertial>
+  </link>

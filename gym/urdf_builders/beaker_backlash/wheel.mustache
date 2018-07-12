@@ -1,10 +1,11 @@
-  <link name="{{dir}}Wheel">
+  <!-- {{dir}} Wheel .................................................................-->
+  <link name="{{dir}}_wheel">
     <visual>
       <geometry>
         <cylinder length="{{wheel_length}}" radius="{{wheel_rad}}"/>
       </geometry>
       <origin rpy="0 1.5708 0"/>
-      <material name="orange"/>
+      <material name="{{color}}"/>
     </visual>
     <collision>
       <geometry>
@@ -18,10 +19,10 @@
     </inertial>
   </link>
 
-  <joint name="{{dir}}GearToWheel" type="revolute">
+  <joint name="gear_to_{{dir}}_wheel" type="revolute">
     <limit lower="-0.0756" upper="0.0756" effort="1000" velocity="1000"/>
-    <origin xyz="{{wheel_x_offset}} 0 0"/>
-    <parent link="{{dir}}Gear"/>
-    <child link="{{dir}}Wheel"/>
+    <origin xyz="{{wheel_x_offset}} 0 {{wheel_height}}"/>
+    <parent link="{{dir}}_gear"/>
+    <child link="{{dir}}_wheel"/>
     <axis xyz="1 0 0"/>
   </joint>

@@ -1,10 +1,11 @@
-  <link name="{{dir}}Gear">
+  <!-- {{dir}} Wheel .................................................................-->
+  <link name="{{dir}}_gear">
     <visual>
       <geometry>
         <cylinder length="{{gear_length}}" radius="{{gear_rad}}"/>
       </geometry>
       <origin xyz="0 0 0" rpy="0 1.5708 0"/>
-      <material name="green"/>
+      <material name="{{color}}"/>
     </visual>
     <inertial>
       <mass value=".00001" />
@@ -12,9 +13,9 @@
     </inertial>
   </link>
   
-  <joint name="{{dir}}GearToBox" type="continuous">
+  <joint name="base_to_{{dir}}_gear" type="continuous">
     <origin xyz="{{gear_x_offset}} 0 {{gear_z_offset}}" />
     <parent link="body"/>
-    <child link="{{dir}}Gear"/>
+    <child link="{{dir}}_gear"/>
     <axis xyz="1 0 0"/>
   </joint>

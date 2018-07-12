@@ -2,7 +2,7 @@ require 'mustache'
 
 Mustache.template_path = File.dirname(__FILE__)
 
-Mustache.template_file = File.dirname(__FILE__) + '/template.mustache'
+Mustache.template_file = File.dirname(__FILE__) + '/main.mustache'
 view = Mustache.new
 
 #---------------------------------------------------
@@ -26,7 +26,7 @@ gear_x_offset = 0.061
 view[:wheel_rad] = 0.042
 view[:wheel_height] = 0.01905
 view[:wheel_length] = 0.0254
-wheel_x_offset = 0.04
+wheel_x_offset = 0.09398
 
 #---------------------------------------------------
 # indicators
@@ -34,8 +34,8 @@ side = 0.01
 view[:indicator_dimensions] = "#{side} #{side} #{side}"
 view[:indicator_gear_offset] = 0.03
 
-view[:left_side] = { dir: "left", gear_x_offset: -gear_x_offset, wheel_x_offset: -wheel_x_offset }
-view[:right_side] = { dir: "right", gear_x_offset: gear_x_offset, wheel_x_offset: wheel_x_offset }
+view[:left_side] = { dir: "left", gear_x_offset: -gear_x_offset, wheel_x_offset: -wheel_x_offset, color: "red" }
+view[:right_side] = { dir: "right", gear_x_offset: gear_x_offset, wheel_x_offset: wheel_x_offset, color: "green" }
 
-path = File.dirname(__FILE__) + '/../beaker.urdf'
+path = File.dirname(__FILE__) + '/../../beaker.urdf'
 open(path, 'w') { |f| f.puts view.render }

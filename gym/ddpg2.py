@@ -24,6 +24,8 @@ import register
 import time
 import pdb
 
+save_path = "./models/ddpg3/"
+
 # ===========================
 #   Actor and Critic DNNs
 # ===========================
@@ -267,7 +269,7 @@ def train(sess, env, args, actor, critic, actor_noise):
     writer = tf.summary.FileWriter(args['summary_dir'], sess.graph)
 
     saver = tf.train.Saver(max_to_keep=1)
-    latest_checkpoint = tf.train.latest_checkpoint('./models/ddpg2/')
+    latest_checkpoint = tf.train.latest_checkpoint(save_path)
 
     if args['restore']:
         saver.restore(sess, latest_checkpoint)
@@ -354,7 +356,7 @@ def train(sess, env, args, actor, critic, actor_noise):
                 writer.add_summary(summary_str, i)
                 writer.flush()
 
-                saver.save(sess, './models/ddpg2_b/hope', global_step=global_step, write_meta_graph=False)
+                saver.save(sess, save_path + 'hope', global_step=global_step, write_meta_graph=False)
 
                 ep_rewards_avg = np.average(ep_rewards[-25:])
 

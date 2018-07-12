@@ -15,6 +15,8 @@ Waiter outerWaiter(POSITION_CONTROL_TIMESTEP);
 Waiter innerWaiter(MOTOR_CONTROL_TIMESTEP);
 float outerDt = 0; // actual loop time of outer (slower) loop
 
+bool shouldSendTelemetry = false;
+
 void leftEncoderEvent(){ wheels.leftEncoderEvent(); }
 void rightEncoderEvent(){ wheels.rightEncoderEvent(); }
 
@@ -54,13 +56,20 @@ void sendState(){
   piTalk.sendToPi(state);
 }
 
+void toggleTelemetry(){
+  shouldSendTelemetry = !shouldSendTelemetry;
+  String response = "sending telemetry set to: " + String(shouldSendTelemetry);
+  piTalk.sendToPi(response);
+}
+
 void showHelp(){
   String response = "S: send state.\n";
-  response += "B: update Theta Offset.\n";
-  response += "M: update Motor Pids.\n";
-  response += "W: update to given rads/sec.\n";
-  response += "A: accelerate by given rads/sec.\n";
-  response += "R: reset robot.\n";
+  response += "B: update Theta Offset.\n";                          // defined in pitalk.h
+  response += "M: update Motor Pids.\n";                            // defined in pitalk.h
+  response += "W: update to given rads/sec. ( No response )\n";     // defined in pitalk.h
+  response += "A: accelerate by given rads/sec. ( No respons )\n";  // defined in pitalk.h
+  response += "R: reset robot.\n";                                  // defined in pitalk.h
+  response += "T: toggle telemetry. (It's currently "+ String(shouldSendTelemetry) +")\n";
   response += "H: this help.\n";
 
   piTalk.sendToPi(response);
@@ -70,6 +79,7 @@ void handlePiTalk(char command, std::string message){
   switch(command){
     case 'S': sendState(); break;
     case 'H': showHelp(); break;
+    case 'T': toggleTelemetry(); break;
   }
 }
 
@@ -107,7 +117,7 @@ void loop(){
     my_imu.update();
     // if(my_imu.isEmergency()) { emergencyStop(); }
 
-    // sendTelemetry();
+    if(shouldSendTelemetry) { sendTelemetry(); }
     piTalk.checkForPiCommand();
   }
 }
