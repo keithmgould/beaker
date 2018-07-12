@@ -42,6 +42,8 @@ class BeakerBot(URDFBasedRobot):
 
 	def robot_specific_reset(self, bullet_client):
 		self.body = self.parts["beaker"]
+		self.leftGear = self.parts["left_gear"]
+		self.rightGear = self.parts["right_gear"]
 		self.leftWheel = self.parts["left_wheel"]
 		self.rightWheel = self.parts["right_wheel"]
 		self.leftGearJoint = self.jdict["base_to_left_gear"]
@@ -53,21 +55,25 @@ class BeakerBot(URDFBasedRobot):
 
 		# newOrientation = self._p.getQuaternionFromEuler([0.50,0,0])
 		self.body.reset_orientation(newOrientation)
-		self.drawDebugLines()
-		# print(self.getFrictionInfo())
+		self.drawAllDebugAxis()
+		self._p.setJointMotorControl2(bodyUniqueId=self.uniqueID, jointIndex=self.leftWheelJoint.jointIndex, controlMode=self._p.VELOCITY_CONTROL, force = 0)
+		self._p.setJointMotorControl2(bodyUniqueId=self.uniqueID, jointIndex=self.rightWheelJoint.jointIndex, controlMode=self._p.VELOCITY_CONTROL, force = 0)
 
 	def drawDebugAxis(self, bodyIndex):
 		self._p.addUserDebugLine([0,0,0],[0.1,0,0],[1,0,0], parentObjectUniqueId=self.uniqueID, parentLinkIndex=bodyIndex)
 		self._p.addUserDebugLine([0,0,0],[0,0.1,0],[0,1,0],parentObjectUniqueId=self.uniqueID, parentLinkIndex=bodyIndex)
 		self._p.addUserDebugLine([0,0,0],[0,0,0.1],[0,0,1],parentObjectUniqueId=self.uniqueID, parentLinkIndex=bodyIndex)
 
-	def drawDebugLines(self):
+	def drawAllDebugAxis(self):
 		self.drawDebugAxis(self.body.bodyPartIndex)
-		self.drawDebugAxis(self.leftWheel.bodyPartIndex)
+		# left side axis
+		self.drawDebugAxis(self.rightGear.bodyPartIndex)
 		self.drawDebugAxis(self.rightWheel.bodyPartIndex)
+		# right side axis
+		self.drawDebugAxis(self.leftGear.bodyPartIndex)
+		self.drawDebugAxis(self.leftWheel.bodyPartIndex)
+		
 
-		self._p.setJointMotorControl2(bodyUniqueId=self.uniqueID, jointIndex=self.leftWheelJoint.jointIndex, controlMode=self._p.VELOCITY_CONTROL, force = 0)
-		self._p.setJointMotorControl2(bodyUniqueId=self.uniqueID, jointIndex=self.rightWheelJoint.jointIndex, controlMode=self._p.VELOCITY_CONTROL, force = 0)
 
 	def getFrictionInfo(self):
 		lwJ = self._p.getJointInfo(self.uniqueID, self.leftGearJoint.jointIndex)

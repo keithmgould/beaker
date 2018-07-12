@@ -17,16 +17,15 @@ view[:body_dimensions] = "#{body_x} #{body_y} #{body_z}"
 # gears
 view[:gear_length] = 0.02
 view[:gear_rad] = 0.03
-view[:gear_x_offset] = 0.061
 view[:gear_z_offset] = 0.01905
 gear_x_offset = 0.061
 
 #---------------------------------------------------
 # wheels
-view[:wheel_rad] = 0.042
-view[:wheel_height] = 0.01905
 view[:wheel_length] = 0.0254
-wheel_x_offset = 0.09398
+view[:wheel_rad] = 0.042
+view[:wheel_z_offset] = 0 #.01905
+wheel_x_offset = 0.03298
 
 #---------------------------------------------------
 # indicators
