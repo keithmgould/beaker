@@ -15,23 +15,18 @@ view[:body_dimensions] = "#{body_x} #{body_y} #{body_z}"
 
 #---------------------------------------------------
 # gears
-view[:gear_length] = 0.02
-view[:gear_rad] = 0.03
+view[:gear_length] = 0.01
+view[:gear_rad] = 0.04
 view[:gear_z_offset] = 0.01905
+view[:gear_mass] = 0.1
 gear_x_offset = 0.061
 
 #---------------------------------------------------
 # wheels
 view[:wheel_length] = 0.0254
 view[:wheel_rad] = 0.042
-view[:wheel_z_offset] = 0 #.01905
+view[:wheel_mass] = 0.1
 wheel_x_offset = 0.03298
-
-#---------------------------------------------------
-# indicators
-side = 0.01
-view[:indicator_dimensions] = "#{side} #{side} #{side}"
-view[:indicator_gear_offset] = 0.03
 
 view[:left_side] = { dir: "left", gear_x_offset: -gear_x_offset, wheel_x_offset: -wheel_x_offset, color: "red" }
 view[:right_side] = { dir: "right", gear_x_offset: gear_x_offset, wheel_x_offset: wheel_x_offset, color: "green" }

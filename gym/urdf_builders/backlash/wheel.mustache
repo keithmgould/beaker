@@ -14,14 +14,14 @@
       <origin rpy="0 1.5708 0"/>
     </collision>
     <inertial>
-      <mass value=".1" />
-      <inertia ixx="0.00004453" ixy="0.0" ixz="0.0" iyy="0.00004453" iyz="0.0" izz="0.00007938"/>
+      <mass value="{{wheel_mass}}" />
+      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
     </inertial>
   </link>
 
   <joint name="{{dir}}_gear_to_{{dir}}_wheel" type="revolute">
     <limit lower="-0.0756" upper="0.0756" effort="1000" velocity="1000"/>
-    <origin xyz="{{wheel_x_offset}} 0 {{wheel_z_offset}}"/>
+    <origin xyz="{{wheel_x_offset}} 0 0"/>
     <parent link="{{dir}}_gear"/>
     <child link="{{dir}}_wheel"/>
     <axis xyz="1 0 0"/>

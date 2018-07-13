@@ -42,7 +42,7 @@ def main():
 
 		results = str(obs) +"," + str(thetaTerms) + "," + str(acc) + "," + str(targetRPS)
 		results = results.strip("[]")
-		print(results)
+		# print(results)
 
 		# print("obs: {} - thetaTerms: {} - acc: {} - new rad/s: {}".format(obs, thetaTerms, acc, targetRPS))
 
@@ -50,13 +50,13 @@ def main():
 		obs, r, done, _ = env.step(targetRPS)
 
 		
-		if(done):
-			print("-----------------------------------------------------------------------")
-			print("-----------------------------------------------------------------------")
-			print("-----------------------------------------------------------------------")
-			obs = env.reset()
-			thetaPid.reset()
-			targetRPS = 0
+		# if(done):
+		# 	print("-----------------------------------------------------------------------")
+		# 	print("-----------------------------------------------------------------------")
+		# 	print("-----------------------------------------------------------------------")
+		# 	obs = env.reset()
+		# 	thetaPid.reset()
+		# 	targetRPS = 0
 
 if __name__=="__main__":
 	main()

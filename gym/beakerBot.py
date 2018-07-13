@@ -7,7 +7,8 @@ import pdb
 
 class BeakerBot(URDFBasedRobot):
 	def __init__(self):
-		bP=[0, 0, 0.03]
+		# bP=[0, 0, 0.03]
+		bP=[0, 0, 0.6]
 		bO=[0,0,0,1]
 	
 		path = os.path.join( os.path.dirname(__file__),'beaker.urdf')
@@ -16,18 +17,16 @@ class BeakerBot(URDFBasedRobot):
 	def apply_action(self, action):
 		constrainedAction = Motor.step(self.phiDot,action)
 
+		constrainedAction = 1
 
-		# self.leftWheelJoint.set_velocity(constrainedAction)
-		# self.rightWheelJoint.set_velocity(constrainedAction)
-		# force = 1000
-		# self._p.setJointMotorControl2(self.uniqueID,self.leftWheelJoint.jointIndex,self._p.VELOCITY_CONTROL, targetVelocity=constrainedAction, force=force)
-		# self._p.setJointMotorControl2(self.uniqueID,self.rightWheelJoint.jointIndex,self._p.VELOCITY_CONTROL, targetVelocity=constrainedAction, force=force)
+		force = 1000
+		self._p.setJointMotorControl2(self.uniqueID,self.leftGearJoint.jointIndex,self._p.VELOCITY_CONTROL, targetVelocity=constrainedAction, force=force)
+		self._p.setJointMotorControl2(self.uniqueID,self.rightGearJoint.jointIndex,self._p.VELOCITY_CONTROL, targetVelocity=constrainedAction, force=force)
 
 
-		constrainedAction = 10
-
-		self.leftGearJoint.set_velocity(constrainedAction)
-		self.rightGearJoint.set_velocity(constrainedAction)
+		
+		# self.leftGearJoint.set_velocity(constrainedAction)
+		# self.rightGearJoint.set_velocity(constrainedAction)
 
 
 	# rads, rads/sec, rads, rads/sec
@@ -36,7 +35,8 @@ class BeakerBot(URDFBasedRobot):
 		self.phi, self.phiDot = self._getWheelPositionAndVelocity()
 
 		lx, lv = self.leftWheelJoint.get_state()
-		print("leftWheelJoint: {}".format(lx))
+		rx, rv = self.rightWheelJoint.get_state()
+		print("leftWheelJoint: {}, rightWheelJoint: {}".format(lx, rx))
 
 		return [self.theta, self.thetaDot, self.phi, self.phiDot]
 
@@ -46,8 +46,8 @@ class BeakerBot(URDFBasedRobot):
 		self.rightGear = self.parts["right_gear"]
 		self.leftWheel = self.parts["left_wheel"]
 		self.rightWheel = self.parts["right_wheel"]
-		self.leftGearJoint = self.jdict["base_to_left_gear"]
-		self.rightGearJoint = self.jdict["base_to_right_gear"]
+		self.leftGearJoint = self.jdict["body_to_left_gear"]
+		self.rightGearJoint = self.jdict["body_to_right_gear"]
 		self.leftWheelJoint = self.jdict["left_gear_to_left_wheel"]
 		self.rightWheelJoint = self.jdict["right_gear_to_right_wheel"]
 		r = np.random.randint(-100,100,(3)) / 10000.
@@ -56,13 +56,26 @@ class BeakerBot(URDFBasedRobot):
 		# newOrientation = self._p.getQuaternionFromEuler([0.50,0,0])
 		self.body.reset_orientation(newOrientation)
 		self.drawAllDebugAxis()
+
+		# Needed because the revolute joint is "active" and wont spin freely otherwise:
 		self._p.setJointMotorControl2(bodyUniqueId=self.uniqueID, jointIndex=self.leftWheelJoint.jointIndex, controlMode=self._p.VELOCITY_CONTROL, force = 0)
 		self._p.setJointMotorControl2(bodyUniqueId=self.uniqueID, jointIndex=self.rightWheelJoint.jointIndex, controlMode=self._p.VELOCITY_CONTROL, force = 0)
 
+		# Lets look at the constraints!
+		numConstraints = self._p.getNumConstraints()
+		print("Number of constraints: {}".format(numConstraints))
+
+		# Lets look at the joint info!
+		lwj = self._p.getJointInfo(self.uniqueID, self.leftWheelJoint.jointIndex)
+		print("LWJ: {}".format(lwj))
+		rwj = self._p.getJointInfo(self.uniqueID, self.rightWheelJoint.jointIndex)
+		print("RWJ: {}".format(rwj))
+
 	def drawDebugAxis(self, bodyIndex):
-		self._p.addUserDebugLine([0,0,0],[0.1,0,0],[1,0,0], parentObjectUniqueId=self.uniqueID, parentLinkIndex=bodyIndex)
-		self._p.addUserDebugLine([0,0,0],[0,0.1,0],[0,1,0],parentObjectUniqueId=self.uniqueID, parentLinkIndex=bodyIndex)
-		self._p.addUserDebugLine([0,0,0],[0,0,0.1],[0,0,1],parentObjectUniqueId=self.uniqueID, parentLinkIndex=bodyIndex)
+		length = 1
+		self._p.addUserDebugLine([0,0,0],[length,0,0],[1,0,0], parentObjectUniqueId=self.uniqueID, parentLinkIndex=bodyIndex)
+		self._p.addUserDebugLine([0,0,0],[0,length,0],[0,1,0],parentObjectUniqueId=self.uniqueID, parentLinkIndex=bodyIndex)
+		self._p.addUserDebugLine([0,0,0],[0,0,length],[0,0,1],parentObjectUniqueId=self.uniqueID, parentLinkIndex=bodyIndex)
 
 	def drawAllDebugAxis(self):
 		self.drawDebugAxis(self.body.bodyPartIndex)
@@ -72,8 +85,6 @@ class BeakerBot(URDFBasedRobot):
 		# right side axis
 		self.drawDebugAxis(self.leftGear.bodyPartIndex)
 		self.drawDebugAxis(self.leftWheel.bodyPartIndex)
-		
-
 
 	def getFrictionInfo(self):
 		lwJ = self._p.getJointInfo(self.uniqueID, self.leftGearJoint.jointIndex)
