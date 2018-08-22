@@ -50,3 +50,11 @@ class PidClient:
 
     def _constrain(self, val, min_val, max_val):
       return min(max_val, max(min_val, val))
+
+
+def main(args):
+  pid_client = PidClient()
+  pid_client.loop()
+
+if __name__ == '__main__':
+  main(args)
