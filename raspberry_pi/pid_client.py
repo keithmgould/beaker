@@ -62,10 +62,18 @@ class PidClient:
       return min(max_val, max(min_val, val))
 
 
+WAIT_TIME = 20 # 1000 / 50 = 20
+
 def main():
   pid_client = PidClient()
+  last_time = current_milli_time()
   while(True):
-    
+    new_time = current_milli_time()
+    delta_time = new_time - last_time
+    if delta_time < WAIT_TIME:
+      continue
+
+    last_time = new_time
     pid_client.loop()
 
 if __name__ == '__main__':
