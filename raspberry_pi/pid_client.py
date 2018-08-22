@@ -1,6 +1,10 @@
 from lib.arduino import Arduino
 from lib.pid import Pid
 
+import time
+
+current_milli_time = lambda: int(round(time.time() * 1000))
+
 class PidClient:
     MOMENTUM_CONSTANT = 0.10
 
@@ -24,7 +28,6 @@ class PidClient:
 
     def loop(self):
       self.getObservation()
-
       self.thetaTerm = self.thetaPid.getControl(self.theta)
       self.xPosTerm = self.xPosPid.getControl(self.xPos)
 
@@ -44,11 +47,13 @@ class PidClient:
         self.xPosTerm = 0
 
       # note that thetaDotTerm and phiDotTerm are zeroed out.
-      radPerSecDelta = self.thetaTerm + self.xPosTerm
+      #radPerSecDelta = self.thetaTerm + self.xPosTerm
+      radPerSecDelta = self.thetaTerm
 
       radPerSecDelta = -radPerSecDelta
       newRadPerSec = self.targetRPS
       newRadPerSec += radPerSecDelta
+      print("s:{}. t:{}. x:{} => {}".format(self.state, self.thetaTerm, self.xPosTerm, newRadPerSec))
       newRadPerSec = self._constrain(newRadPerSec, -10, 10)
 
       self.updateRadPerSec(newRadPerSec)
@@ -60,6 +65,7 @@ class PidClient:
 def main():
   pid_client = PidClient()
   while(True):
+    
     pid_client.loop()
 
 if __name__ == '__main__':
