@@ -28,6 +28,11 @@ class PidClient:
       self.thetaTerm = self.thetaPid.getControl(self.theta)
       self.xPosTerm = self.xPosPid.getControl(self.xPos)
 
+      # emergency breaks
+      if(abs(self.thetaTerm) > 0.30):
+        self.updateRadPerSec(0)
+        return
+
       # // If the xPosTerm did its job and got us leaning back towards X=0, 
       # // then stop trying to accelerate away from X=0.
       momentum = self.MOMENTUM_CONSTANT *  abs(self.phiDot)
@@ -54,7 +59,8 @@ class PidClient:
 
 def main():
   pid_client = PidClient()
-  pid_client.loop()
+  while(True):
+    pid_client.loop()
 
 if __name__ == '__main__':
   main()
