@@ -9,7 +9,8 @@ class PidClient:
     MOMENTUM_CONSTANT = 0.10
 
     def __init__(self):
-      self.thetaPid = Pid(1.1500,0.0500,16.0000)
+      #self.thetaPid = Pid(1.1500,0.0500,16.0000)
+      self.thetaPid = Pid(30, 0.0, 0000)
       self.xPosPid = Pid(0.1500,0.0000,0.0000)
       self.arduino = Arduino()
 
@@ -17,7 +18,6 @@ class PidClient:
     def getObservation(self):
       self.state = self.arduino.getState()
       self.theta = self.state[0]
-      self.thetaDot = self.state[1]
       self.xPos = self.state[2]
       self.phiDot = self.state[3]
       self.outerDt = self.state[4]
@@ -32,28 +32,28 @@ class PidClient:
       self.xPosTerm = self.xPosPid.getControl(self.xPos)
 
       # emergency breaks
-      if(abs(self.thetaTerm) > 0.30):
-        self.updateRadPerSec(0)
-        return
+#      if(abs(self.thetaTerm) > 0.30):
+#        self.updateRadPerSec(0)
+#        return
 
       # // If the xPosTerm did its job and got us leaning back towards X=0, 
       # // then stop trying to accelerate away from X=0.
-      momentum = self.MOMENTUM_CONSTANT *  abs(self.phiDot)
+      # momentum = self.MOMENTUM_CONSTANT *  abs(self.phiDot)
 
-      if self.xPos > 0 and self.theta < -momentum:
-        self.xPosTerm = 0
+      # if self.xPos > 0 and self.theta < -momentum:
+       # self.xPosTerm = 0
 
-      if self.xPos < 0 and self.theta > momentum:
-        self.xPosTerm = 0
+      #if self.xPos < 0 and self.theta > momentum:
+      #  self.xPosTerm = 0
 
       # note that thetaDotTerm and phiDotTerm are zeroed out.
       #radPerSecDelta = self.thetaTerm + self.xPosTerm
-      radPerSecDelta = self.thetaTerm
-
-      radPerSecDelta = -radPerSecDelta
-      newRadPerSec = self.targetRPS
-      newRadPerSec += radPerSecDelta
-      print("s:{}. t:{}. x:{} => {}".format(self.state, self.thetaTerm, self.xPosTerm, newRadPerSec))
+      # radPerSecDelta = self.thetaTerm
+      # radPerSecDelta = -radPerSecDelta
+      # newRadPerSec = self.targetRPS
+      # newRadPerSec += radPerSecDelta
+      newRadPerSec = self.theta * 50
+      print("st:{}. sx:{}. t:{}. x:{} => {}".format(self.theta, self.xPos, self.thetaTerm, self.xPosTerm, newRadPerSec))
       newRadPerSec = self._constrain(newRadPerSec, -10, 10)
 
       self.updateRadPerSec(newRadPerSec)
