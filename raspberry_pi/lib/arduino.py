@@ -8,6 +8,14 @@ class Arduino:
                   parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,
                   bytesize=serial.EIGHTBITS, timeout=1)
 
+  def accelerateMotorPower(self, acc):
+    acc = self.__constrain(acc, -0.5, 0.5);
+    self.__writeMessage("A" + str(acc))
+
+  def updateMotorPower(self, newPower):
+    newPower = self.__constrain(newPower, -10, 10);
+    self.__writeMessage("W" + str(newPower))
+
   def writeMessage(self, message):
     self.__writeMessage(message)
 
