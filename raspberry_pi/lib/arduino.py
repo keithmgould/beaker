@@ -8,6 +8,9 @@ class Arduino:
                   parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,
                   bytesize=serial.EIGHTBITS, timeout=1)
 
+  def __constrain(self, val, min_val, max_val):
+    return min(max_val, max(min_val, val))
+
   def accelerateMotorPower(self, acc):
     acc = self.__constrain(acc, -0.5, 0.5);
     self.__writeMessage("A" + str(acc))
