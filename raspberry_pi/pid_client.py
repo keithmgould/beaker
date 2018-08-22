@@ -10,7 +10,7 @@ class PidClient:
 
     def __init__(self):
       #self.thetaPid = Pid(1.1500,0.0500,16.0000)
-      self.thetaPid = Pid(30, 0.0, 0000)
+      self.thetaPid = Pid(50, 4, 5.0000)
       self.xPosPid = Pid(0.1500,0.0000,0.0000)
       self.arduino = Arduino()
 
@@ -47,12 +47,13 @@ class PidClient:
       #  self.xPosTerm = 0
 
       # note that thetaDotTerm and phiDotTerm are zeroed out.
-      #radPerSecDelta = self.thetaTerm + self.xPosTerm
+      newRadPerSec = self.thetaTerm
+      newRadPerSec = -newRadPerSec
       # radPerSecDelta = self.thetaTerm
       # radPerSecDelta = -radPerSecDelta
       # newRadPerSec = self.targetRPS
       # newRadPerSec += radPerSecDelta
-      newRadPerSec = self.theta * 50
+      # newRadPerSec = self.theta * 100
       print("st:{}. sx:{}. t:{}. x:{} => {}".format(self.theta, self.xPos, self.thetaTerm, self.xPosTerm, newRadPerSec))
       newRadPerSec = self._constrain(newRadPerSec, -10, 10)
 
