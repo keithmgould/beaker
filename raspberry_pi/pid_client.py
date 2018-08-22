@@ -4,9 +4,9 @@ from lib.pid import Pid
 class PidClient:
     MOMENTUM_CONSTANT = 0.10
 
-    def __init__():
-      self.thetaPid = Pid()
-      self.xPosPid = Pid()
+    def __init__(self):
+      self.thetaPid = Pid(1.1500,0.0500,16.0000)
+      self.xPosPid = Pid(0.1500,0.0000,0.0000)
       self.arduino = Arduino()
 
     # returns four states
@@ -39,7 +39,7 @@ class PidClient:
         self.xPosTerm = 0
 
       # note that thetaDotTerm and phiDotTerm are zeroed out.
-      radPerSecDelta = thetaTerm + xPosTerm
+      radPerSecDelta = self.thetaTerm + self.xPosTerm
 
       radPerSecDelta = -radPerSecDelta
       newRadPerSec = self.targetRPS
@@ -52,9 +52,9 @@ class PidClient:
       return min(max_val, max(min_val, val))
 
 
-def main(args):
+def main():
   pid_client = PidClient()
   pid_client.loop()
 
 if __name__ == '__main__':
-  main(args)
+  main()
