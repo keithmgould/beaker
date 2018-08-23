@@ -3,6 +3,8 @@ from lib.pid import Pid
 import pdb
 import time
 
+LOG=True
+
 class PidClient:
     MOMENTUM_CONSTANT = 0.10
 
@@ -58,12 +60,28 @@ def main():
   arduino = Arduino()
   pid_client = PidClient()
 
+  if(LOG):
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    filename = "pid_log-" + timestr + ".txt"
+    file = open(filename,"w+")
+    loglines = 0
+
   while(True):
     print("waiting...")
     state = arduino.waitForState()
     print("{}".format(state))
     newControl = pid_client.determineControl(state)
     print("control: {}".format(newControl))
+
+    if(LOG):
+      logLine = str(state) + "," + str(newControl) + "\n"
+      logLine = logLine.strip("[]")
+      file.write(logLine)
+      loglines += 1
+      if(loglines % 1000 == 0):
+        print("loglines: {}".format(loglines))
+        file.flush()
+
     arduino.updateMotorPower(newControl)
 
 if __name__ == '__main__':
