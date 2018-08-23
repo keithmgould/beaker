@@ -1,7 +1,6 @@
 from lib.arduino import Arduino
 from lib.pid import Pid
 import pdb
-
 import time
 
 current_milli_time = lambda: int(round(time.time() * 1000))
@@ -10,8 +9,8 @@ class PidClient:
     MOMENTUM_CONSTANT = 0.10
 
     def __init__(self):
-      #self.thetaPid = Pid(1.1500,0.0500,16.0000)
-      self.thetaPid = Pid(50, 4, 5.0000)
+      # self.thetaPid = Pid(1.1500,0.0500,16.0000)
+      self.thetaPid = Pid(50., 5., 0.0000)
       self.xPosPid = Pid(5,0.0000,0.0000)
       self.arduino = Arduino()
 
@@ -48,7 +47,7 @@ class PidClient:
         self.xPosTerm = 0
 
       # note that thetaDotTerm and phiDotTerm are zeroed out.
-      newRadPerSec = self.thetaTerm + self.xPosTerm
+      newRadPerSec = self.thetaTerm #+ self.xPosTerm
       newRadPerSec = -newRadPerSec
       newRadPerSec = self._constrain(newRadPerSec, -10, 10)
       return newRadPerSec
