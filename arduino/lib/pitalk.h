@@ -140,7 +140,7 @@ class PiTalk {
   // The Arduino sends state and waits (blocking) for a response.
   void requestControl(String state){
     sendToPi(state);
-    While(!Serial2.available()){ delay(3); }
+    while(!Serial2.available()){ delay(3); }
     checkForPiCommand();
   }
 
