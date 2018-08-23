@@ -56,9 +56,24 @@ void sendState(){
   piTalk.sendToPi(state);
 }
 
+// Send the state up to the Raspberry Pi.
+// Wait for response.
+// If no response in 1 second, shut off motors.
+// If response, process response
 void requestControl(){
+  long startLoop;
   String state = buildState();
-  piTalk.requestControl(state);
+  piTalk.sendToPi(state);
+  startLoop = millis();
+  while(!Serial2.available()){ 
+    delay(3);
+    if(millis() - startLoop > 10){
+      wheels.updateRadsPerSec(0);
+      return;
+    } 
+  }
+
+  piTalk.checkForPiCommand();
 }
 
 void toggleTelemetry(){
