@@ -67,11 +67,8 @@ def main():
     loglines = 0
 
   while(True):
-    print("waiting...")
     state = arduino.waitForState()
-    print("{}".format(state))
     newControl = pid_client.determineControl(state)
-    print("control: {}".format(newControl))
 
     if(LOG):
       logLine = str(state) + "," + str(newControl) + "\n"
