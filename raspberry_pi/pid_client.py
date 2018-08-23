@@ -3,8 +3,6 @@ from lib.pid import Pid
 import pdb
 import time
 
-current_milli_time = lambda: int(round(time.time() * 1000))
-
 class PidClient:
     MOMENTUM_CONSTANT = 0.10
 
@@ -47,7 +45,7 @@ class PidClient:
         self.xPosTerm = 0
 
       # note that thetaDotTerm and phiDotTerm are zeroed out.
-      newRadPerSec = self.thetaTerm #+ self.xPosTerm
+      newRadPerSec = self.thetaTerm + self.xPosTerm
       newRadPerSec = -newRadPerSec
       newRadPerSec = self._constrain(newRadPerSec, -10, 10)
       return newRadPerSec
