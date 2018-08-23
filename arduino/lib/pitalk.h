@@ -137,6 +137,13 @@ class PiTalk {
     callbackFunction = callbk;  // algorithm specific continuation of switch statement
   }
 
+  // The Arduino sends state and waits (blocking) for a response.
+  void requestControl(String state){
+    sendToPi(state);
+    While(!Serial2.available()){ delay(3); }
+    checkForPiCommand();
+  }
+
   // update data from Pi.
   // If full command is here, process it.
   void checkForPiCommand(){

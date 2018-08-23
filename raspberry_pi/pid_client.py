@@ -15,26 +15,29 @@ class PidClient:
       self.arduino = Arduino()
 
     # returns four states
-    def getObservation(self):
-      self.state = self.arduino.getState()
-      self.theta = self.state[0]
-      self.xPos = self.state[2]
-      self.phiDot = self.state[3]
-      self.outerDt = self.state[4]
-      self.targetRPS = self.state[5]
+
+    def parseState(self, state):
+      self.state = state
+      self.theta = state[0]
+      self.thetaDot = state[1]
+      self.xPos = state[2]
+      self.phiDot = state[3]
+      self.outerDt = state[4]
+      self.targetRPS = state[5]
+
 
     def updateRadPerSec(self, newRadPerSec):
       self.arduino.updateMotorPower(newRadPerSec)
 
-    def loop(self):
-      self.getObservation()
+    def determineControl(self, state):
+      self.parseState(state)
       self.thetaTerm = self.thetaPid.getControl(self.theta)
       self.xPosTerm = self.xPosPid.getControl(self.xPos)
 
       # emergency breaks
-#      if(abs(self.thetaTerm) > 0.30):
-#        self.updateRadPerSec(0)
-#        return
+      if(abs(self.thetaTerm) > 0.30):
+        return 0
+
 
       # // If the xPosTerm did its job and got us leaning back towards X=0, 
       # // then stop trying to accelerate away from X=0.
@@ -50,27 +53,20 @@ class PidClient:
       newRadPerSec = self.thetaTerm + self.xPosTerm
       newRadPerSec = -newRadPerSec
       newRadPerSec = self._constrain(newRadPerSec, -10, 10)
-      print("st:{}. sx:{}. t:{}. x:{} => {}".format(self.theta, self.xPos, self.thetaTerm, self.xPosTerm, newRadPerSec))
+      return newRadPerSec
 
-      self.updateRadPerSec(newRadPerSec)
 
     def _constrain(self, val, min_val, max_val):
       return min(max_val, max(min_val, val))
 
-
-WAIT_TIME = 20 # 1000 / 50 = 20
-
 def main():
+  arduino = Arduino()
   pid_client = PidClient()
-  last_time = current_milli_time()
-  while(True):
-    new_time = current_milli_time()
-    delta_time = new_time - last_time
-    if delta_time < WAIT_TIME:
-      continue
 
-    last_time = new_time
-    pid_client.loop()
+  while(True):
+    state = arduino.waitForState()
+    newControl = pid_client.determineControl(state)
+    arduino.updateMotorPower(newControl)
 
 if __name__ == '__main__':
   main()

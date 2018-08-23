@@ -56,6 +56,11 @@ void sendState(){
   piTalk.sendToPi(state);
 }
 
+void requestControl(){
+  String state = buildState();
+  piTalk.requestControl(state);
+}
+
 void toggleTelemetry(){
   shouldSendTelemetry = !shouldSendTelemetry;
   String response = "sending telemetry set to: " + String(shouldSendTelemetry);
@@ -83,13 +88,6 @@ void handlePiTalk(char command, std::string message){
   }
 }
 
-void emergencyStop(){
-  wheels.updateRadsPerSec(0);
-  Outputs::beep(100,100);
-  Outputs::beep(100,100);
-  Outputs::beep(100,100);
-}
-
 void setup() {
   piTalk.setup(&wheels, &my_imu, &handlePiTalk);
   Serial.begin(115200); while (!Serial) {;}
@@ -115,9 +113,8 @@ void loop(){
   if(outerWaiter.isTime()){
     outerDt = outerWaiter.starting();
     my_imu.update();
-    // if(my_imu.isEmergency()) { emergencyStop(); }
 
     if(shouldSendTelemetry) { sendTelemetry(); }
-    piTalk.checkForPiCommand();
+    requestControl();
   }
 }
