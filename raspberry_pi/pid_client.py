@@ -1,5 +1,6 @@
 from lib.arduino import Arduino
 from lib.pid import Pid
+import pdb
 
 import time
 
@@ -14,8 +15,6 @@ class PidClient:
       self.xPosPid = Pid(5,0.0000,0.0000)
       self.arduino = Arduino()
 
-    # returns four states
-
     def parseState(self, state):
       self.state = state
       self.theta = state[0]
@@ -25,19 +24,18 @@ class PidClient:
       self.outerDt = state[4]
       self.targetRPS = state[5]
 
-
     def updateRadPerSec(self, newRadPerSec):
       self.arduino.updateMotorPower(newRadPerSec)
 
     def determineControl(self, state):
       self.parseState(state)
-      self.thetaTerm = self.thetaPid.getControl(self.theta)
-      self.xPosTerm = self.xPosPid.getControl(self.xPos)
 
       # emergency breaks
-      if(abs(self.thetaTerm) > 0.30):
+      if(abs(self.theta) > 0.30):
         return 0
 
+      self.thetaTerm = self.thetaPid.getControl(self.theta)
+      self.xPosTerm = self.xPosPid.getControl(self.xPos)
 
       # // If the xPosTerm did its job and got us leaning back towards X=0, 
       # // then stop trying to accelerate away from X=0.
@@ -64,8 +62,11 @@ def main():
   pid_client = PidClient()
 
   while(True):
+    print("waiting...")
     state = arduino.waitForState()
+    print("{}".format(state))
     newControl = pid_client.determineControl(state)
+    print("control: {}".format(newControl))
     arduino.updateMotorPower(newControl)
 
 if __name__ == '__main__':
