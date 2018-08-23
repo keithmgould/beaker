@@ -11,7 +11,7 @@ class PidClient:
     def __init__(self):
       #self.thetaPid = Pid(1.1500,0.0500,16.0000)
       self.thetaPid = Pid(50, 4, 5.0000)
-      self.xPosPid = Pid(0.1500,0.0000,0.0000)
+      self.xPosPid = Pid(5,0.0000,0.0000)
       self.arduino = Arduino()
 
     # returns four states
@@ -38,24 +38,19 @@ class PidClient:
 
       # // If the xPosTerm did its job and got us leaning back towards X=0, 
       # // then stop trying to accelerate away from X=0.
-      # momentum = self.MOMENTUM_CONSTANT *  abs(self.phiDot)
+      momentum = self.MOMENTUM_CONSTANT *  abs(self.phiDot)
 
-      # if self.xPos > 0 and self.theta < -momentum:
-       # self.xPosTerm = 0
+      if self.xPos > 0 and self.theta < -momentum:
+        self.xPosTerm = 0
 
-      #if self.xPos < 0 and self.theta > momentum:
-      #  self.xPosTerm = 0
+      if self.xPos < 0 and self.theta > momentum:
+        self.xPosTerm = 0
 
       # note that thetaDotTerm and phiDotTerm are zeroed out.
-      newRadPerSec = self.thetaTerm
+      newRadPerSec = self.thetaTerm + self.xPosTerm
       newRadPerSec = -newRadPerSec
-      # radPerSecDelta = self.thetaTerm
-      # radPerSecDelta = -radPerSecDelta
-      # newRadPerSec = self.targetRPS
-      # newRadPerSec += radPerSecDelta
-      # newRadPerSec = self.theta * 100
-      print("st:{}. sx:{}. t:{}. x:{} => {}".format(self.theta, self.xPos, self.thetaTerm, self.xPosTerm, newRadPerSec))
       newRadPerSec = self._constrain(newRadPerSec, -10, 10)
+      print("st:{}. sx:{}. t:{}. x:{} => {}".format(self.theta, self.xPos, self.thetaTerm, self.xPosTerm, newRadPerSec))
 
       self.updateRadPerSec(newRadPerSec)
 
