@@ -2,7 +2,7 @@
 
 ## Brief Compute Breakdown
 
-### Raspberry Pi.
+### Raspberry Pi
 
 This is used for Beaker's "high level" control, in particular any neural network control algorithms are stored here.
 
