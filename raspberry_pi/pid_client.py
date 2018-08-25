@@ -3,7 +3,7 @@ from lib.pid import Pid
 import pdb
 import time
 
-LOG=True
+LOG = False
 
 class PidClient:
     MOMENTUM_CONSTANT = 0.10
@@ -11,7 +11,7 @@ class PidClient:
     def __init__(self):
       # self.thetaPid = Pid(1.1500,0.0500,16.0000)
       self.thetaPid = Pid(50., 5., 0.0000)
-      self.xPosPid = Pid(5,0.0000,0.0000)
+      self.xPosPid = Pid(15,0.0000,0.0000)
       self.arduino = Arduino()
 
     def parseState(self, state):
@@ -20,8 +20,6 @@ class PidClient:
       self.thetaDot = state[1]
       self.xPos = state[2]
       self.phiDot = state[3]
-      self.outerDt = state[4]
-      self.targetRPS = state[5]
 
     def updateRadPerSec(self, newRadPerSec):
       self.arduino.updateMotorPower(newRadPerSec)
@@ -79,6 +77,7 @@ def main():
         print("loglines: {}".format(loglines))
         file.flush()
 
+    print(newControl)
     arduino.updateMotorPower(newControl)
 
 if __name__ == '__main__':
