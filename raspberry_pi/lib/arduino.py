@@ -11,13 +11,13 @@ class Arduino:
   def __constrain(self, val, min_val, max_val):
     return min(max_val, max(min_val, val))
 
-  def accelerateMotorPower(self, messageId, acc):
+  def accelerateMotorPower(self, acc):
     acc = self.__constrain(acc, -0.5, 0.5);
-    self.__writeMessage(str(int(messageId)) + "A" + str(acc))
+    self.__writeMessage(self.messageId + "A" + str(acc))
 
-  def updateMotorPower(self, messageId, newPower):
+  def updateMotorPower(self, newPower):
     newPower = self.__constrain(newPower, -10, 10);
-    self.__writeMessage(str(int(messageId)) + "W" + str(newPower))
+    self.__writeMessage(self.messageId + "W" + str(newPower))
 
   def writeMessage(self, message):
     self.__writeMessage(message)
@@ -38,6 +38,7 @@ class Arduino:
       print("errored on getState.")
       return False
     lst = message.split(",")
+    self.messageId = lst.pop()
     return [float(i) for i in lst]
 
   # theta, thetaDot, phi, phiDot, outerDt, targerRadPerSec

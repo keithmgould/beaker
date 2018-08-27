@@ -65,11 +65,7 @@ def main():
     loglines = 0
 
   while(True):
-    response = arduino.waitForState() # blocking
-    state = response[0:4]
-    messageId = response[4:5][0]
-    print("messageId: {}".format(messageId))
-    
+    state = arduino.waitForState() # blocking
     newControl = pid_client.determineControl(state)
 
     if(LOG):
@@ -82,7 +78,7 @@ def main():
         file.flush()
 
     print(newControl)
-    arduino.updateMotorPower(messageId, newControl)
+    arduino.updateMotorPower(newControl)
 
 if __name__ == '__main__':
   main()
