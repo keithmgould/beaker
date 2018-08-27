@@ -32,6 +32,7 @@ class PiTalk {
 
   std::string str; // holds incoming serial messages from Pi
 
+  int requestMessageId;
   Wheels *wheels;
   Imu *my_imu;
   void (*callbackFunction) (char, std::string) = nullptr;
@@ -87,12 +88,40 @@ class PiTalk {
     sendToPi("Reset robot.");
   }
 
+  // ensure the response from the rPi is meant for this request
+  bool validateResponseMessageId(char responseMessageId){
+    int ia = responseMessageId - '0';
+    return requestMessageId == ia;
+  }
+
+  void alertInvalidMessageId(char responseMessageId){
+    String errorMessage = "invalid response ID.";
+    errorMessage += " Expected " + String(requestMessageId);
+    errorMessage += " and received " + String(responseMessageId);
+    Serial3.println(errorMessage);
+  }
+
+  // ----------------------------------------------------
+  //format of response is:
+  // char 0: messageId (can be 0-9)
+  // char 1: command
+  // char 2-N: message
+  //
   // Try for the universal commands, and if nothing matches,
   // hit the callback for the algorithm-specific commands
   void handleCommandFromPi(std::string command_plus_message){
-    std::string message = command_plus_message.substr(1);
+    std::string message = command_plus_message.substr(2);
+    char responseMessageId;
     char command;
-    command = command_plus_message[0];
+
+    responseMessageId = command_plus_message[0];
+    command = command_plus_message[1];
+
+    if(!validateResponseMessageId(responseMessageId)) {
+      alertInvalidMessageId(responseMessageId);
+      wheels->updateRadsPerSec(0);
+      return;
+    }
 
     switch(command){
       case 'B': updateThetaOffset(message); break;
@@ -137,9 +166,10 @@ class PiTalk {
     callbackFunction = callbk;  // algorithm specific continuation of switch statement
   }
 
-  // update data from Pi.
-  // If full command is here, process it.
-  void checkForPiCommand(){
+  // If full command is here, process it. Otherwise, store partial message
+  // and give control back to main loop.
+  void checkForPiCommand(int newRequestMessageId){
+    requestMessageId = newRequestMessageId;
     char tmp_char;
 
     while(Serial2.available()) {
@@ -153,9 +183,33 @@ class PiTalk {
     }
   }
 
+  // blocking version of checkForPiCommand
+  void waitForResponse(int newRequestMessageId){
+    requestMessageId = newRequestMessageId;
+    char tmp_char;
+    bool finished = false;
+
+    while(true){
+      if(finished) { return; }
+      while(Serial2.available()) {
+        tmp_char = Serial2.read();
+        if(tmp_char == '!'){
+          handleCommandFromPi(str);
+          str = "";
+          finished = true;
+        }else{
+          str += tmp_char;
+        }
+      }
+      delay(1);
+    }
+  }
+
   void sendToPi(char code, String message){
     String final;
     final = String(code) + message + "!";
+    // Serial3.print("sending to pi: ");
+    // Serial3.println(final);
     Serial2.write(final.c_str());
   }
 
