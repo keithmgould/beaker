@@ -16,8 +16,9 @@ class Pid:
 		self.pTerm = self._getKP(error) 
 		self.iTerm = self._getKI(error)
 		self.dTerm = self._getKD(error)
-
-		return self.pTerm + self.iTerm + self.dTerm
+    final = self.pTerm + self.iTerm + self.dTerm
+  print("{}. p: {}, i: {}".format(final, self.pTerm, self.iTerm))
+    return final
 
 	def getTerms(self):
 		return [self.pTerm, self.iTerm, self.dTerm]
