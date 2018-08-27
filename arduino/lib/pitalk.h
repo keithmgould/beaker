@@ -184,12 +184,19 @@ class PiTalk {
   }
 
   // blocking version of checkForPiCommand
+  // after 2x loop time, give up, set motors to stopped.
   void waitForResponse(int newRequestMessageId){
     requestMessageId = newRequestMessageId;
     char tmp_char;
     bool finished = false;
+    long startTime;
 
+    startTime = millis();
     while(true){
+      if(millis() - startTime > 2 * POSITION_CONTROL_TIMESTEP){
+        wheels->updateRadsPerSec(0);
+        return;
+      }
       if(finished) { return; }
       while(Serial2.available()) {
         tmp_char = Serial2.read();
