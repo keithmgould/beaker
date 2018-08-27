@@ -10,7 +10,7 @@
 
 Imu my_imu;
 Wheels wheels;
-PiTalk piTalk;
+PiTalk piTalk(&Serial2);
 int messageId;
 Waiter outerWaiter(POSITION_CONTROL_TIMESTEP);
 Waiter innerWaiter(MOTOR_CONTROL_TIMESTEP);
@@ -104,14 +104,11 @@ void handlePiTalk(char command, std::string message){
 
 void setup() {
   messageId = 0;
-  piTalk.setup(&wheels, &my_imu, &handlePiTalk);
-  Serial.begin(115200); while (!Serial) {;}
   Serial3.begin(115200); while (!Serial3) {;} // bluetooth for telemetry
-  Serial.println("\n\nBeginning initializations...");
+  piTalk.setup(&wheels, &my_imu, &handlePiTalk);
   my_imu.setup();
   attachInterrupt(digitalPinToInterrupt(LH_ENCODER_A), leftEncoderEvent, CHANGE);
   attachInterrupt(digitalPinToInterrupt(RH_ENCODER_A), rightEncoderEvent, CHANGE);
-  Serial.println("Setting up interrupts...Done!");
   wheels.initialize();
   Outputs::init();
 }
