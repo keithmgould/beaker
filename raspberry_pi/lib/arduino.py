@@ -11,13 +11,13 @@ class Arduino:
   def __constrain(self, val, min_val, max_val):
     return min(max_val, max(min_val, val))
 
-  def accelerateMotorPower(self, acc):
+  def accelerateMotorPower(self, messageId, acc):
     acc = self.__constrain(acc, -0.5, 0.5);
-    self.__writeMessage("A" + str(acc))
+    self.__writeMessage(str(int(messageId)) + "A" + str(acc))
 
-  def updateMotorPower(self, newPower):
+  def updateMotorPower(self, messageId, newPower):
     newPower = self.__constrain(newPower, -10, 10);
-    self.__writeMessage("W" + str(newPower))
+    self.__writeMessage(str(int(messageId)) + "W" + str(newPower))
 
   def writeMessage(self, message):
     self.__writeMessage(message)
