@@ -14,7 +14,7 @@ class PidClient:
       pid_values = yaml.load(stream)
     
       self.thetaPid = Pid(pid_values['theta_p'], pid_values['theta_i'], pid_values['theta_d'], True)
-      self.xPosPid = Pid(5,0.0000,0.0000, False)
+      self.xPosPid = Pid(pid_values['xpos_p'], pid_values['xpos_i'], pid_values['xpos_d'], False)
       self.arduino = Arduino()
 
     def parseState(self, state):
@@ -51,7 +51,7 @@ class PidClient:
         self.xPosTerm = 0
 
       # note that thetaDotTerm and phiDotTerm are zeroed out.
-      newRadPerSec = self.thetaTerm #+ self.xPosTerm
+      newRadPerSec = self.thetaTerm + self.xPosTerm
       newRadPerSec = -newRadPerSec
       newRadPerSec = self._constrain(newRadPerSec, -10, 10)
       return newRadPerSec
