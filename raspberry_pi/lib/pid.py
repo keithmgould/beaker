@@ -1,5 +1,6 @@
 class Pid:
-  def __init__(self, kP, kI, kD):
+  def __init__(self, kP, kI, kD, shouldPrint = False):
+    self.shouldPrint = shouldPrint
     self.kP = kP
     self.kI = kI
     self.kD = kD
@@ -17,7 +18,8 @@ class Pid:
     self.iTerm = self._getKI(error)
     self.dTerm = self._getKD(error)
     final = self.pTerm + self.iTerm + self.dTerm
-    print("{}. p: {}, i: {}".format(final, self.pTerm, self.iTerm))
+    if(self.shouldPrint):
+      print("{:0.4f} => {:0.4f}. p: {:0.4f}, i: {:0.4f}, d: {:0.4f}".format(error, final, self.pTerm, self.iTerm, self.dTerm))
     return final
 
   def getTerms(self):
