@@ -12,7 +12,6 @@ class Arduino:
     return min(max_val, max(min_val, val))
 
   def accelerateMotorPower(self, acc):
-    acc = self.__constrain(acc, -0.5, 0.5);
     self.__writeMessage(self.messageId + "A" + str(acc))
 
   def updateMotorPower(self, newPower):
