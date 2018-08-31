@@ -2,6 +2,7 @@ from lib.arduino import Arduino
 from lib.pid import Pid
 import pdb
 import time
+import yaml
 
 LOG = False
 
@@ -9,8 +10,10 @@ class PidClient:
     MOMENTUM_CONSTANT = 0.10
 
     def __init__(self):
-      self.thetaPid = Pid(10., 0, 30.0000, True)
-      #self.thetaPid = Pid(1.15, 0.03, 16.0000, True)
+      stream = open("pid_values.yml", "r")
+      pid_values = yaml.load(stream)
+    
+      self.thetaPid = Pid(pid_values['theta_p'], pid_values['theta_i'], pid_values['theta_d'], True)
       self.xPosPid = Pid(5,0.0000,0.0000, False)
       self.arduino = Arduino()
 
