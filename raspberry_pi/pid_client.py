@@ -9,8 +9,9 @@ class PidClient:
     MOMENTUM_CONSTANT = 0.10
 
     def __init__(self):
-      self.thetaPid = Pid(25., 1., 0.0000)
-      self.xPosPid = Pid(15,0.0000,0.0000)
+      self.thetaPid = Pid(10., 0, 30.0000, True)
+      #self.thetaPid = Pid(1.15, 0.03, 16.0000, True)
+      self.xPosPid = Pid(5,0.0000,0.0000, False)
       self.arduino = Arduino()
 
     def parseState(self, state):
@@ -36,6 +37,9 @@ class PidClient:
       # // If the xPosTerm did its job and got us leaning back towards X=0, 
       # // then stop trying to accelerate away from X=0.
       momentum = self.MOMENTUM_CONSTANT *  abs(self.phiDot)
+
+      if abs(self.xPos) < 0.1:
+        self.xPosTerm = 0
 
       if self.xPos > 0 and self.theta < -momentum:
         self.xPosTerm = 0
@@ -64,6 +68,7 @@ def main():
     loglines = 0
 
   while(True):
+    print("waiting for state...")
     state = arduino.waitForState() # blocking
     newControl = pid_client.determineControl(state)
 
@@ -76,8 +81,7 @@ def main():
         print("loglines: {}".format(loglines))
         file.flush()
 
-    #print(newControl)
-    arduino.updateMotorPower(newControl)
+    arduino.accelerateMotorPower(newControl)
 
 if __name__ == '__main__':
   main()
