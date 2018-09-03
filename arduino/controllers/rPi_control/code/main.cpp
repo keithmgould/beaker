@@ -11,7 +11,6 @@
 Imu my_imu;
 Wheels wheels;
 PiTalk piTalk(&Serial2);
-int messageId;
 Waiter outerWaiter(POSITION_CONTROL_TIMESTEP);
 Waiter innerWaiter(MOTOR_CONTROL_TIMESTEP);
 float outerDt = 0; // actual loop time of outer (slower) loop
@@ -56,25 +55,6 @@ void sendState(){
   piTalk.sendToPi(state);
 }
 
-// just loops 0 thru 9
-int nextMessageId(){
-  messageId++;
-  if(messageId > 9) { messageId = 0; }
-  return messageId;
-}
-
-// Send the state up to the Raspberry Pi.
-// Wait for response.
-// If no response in 1 second, shut off motors.
-// If response, process response
-void requestControl(){
-  int requestMessageId = nextMessageId();
-  String state = buildState();
-  state += "," + String(requestMessageId);
-  piTalk.sendToPi(state);
-  piTalk.waitForResponse(requestMessageId);
-}
-
 void toggleTelemetry(){
   shouldSendTelemetry = !shouldSendTelemetry;
   String response = "sending telemetry set to: " + String(shouldSendTelemetry);
@@ -103,7 +83,6 @@ void handlePiTalk(char command, std::string message){
 }
 
 void setup() {
-  messageId = 0;
   Serial3.begin(115200); while (!Serial3) {;} // bluetooth for telemetry
   piTalk.setup(&wheels, &my_imu, &handlePiTalk);
   my_imu.setup();
@@ -119,6 +98,7 @@ void loop(){
     float innerDt = innerWaiter.starting();
     wheels.spin(innerDt);
     my_imu.pushThetaDotData();
+    piTalk.checkForResponse();
   }
 
   // outer loop behavior
@@ -127,6 +107,6 @@ void loop(){
     my_imu.update();
 
     if(shouldSendTelemetry) { sendTelemetry(); }
-    requestControl();
+    piTalk.sendToPi(buildState());
   }
 }
