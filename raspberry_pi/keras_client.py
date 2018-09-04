@@ -5,8 +5,15 @@ import time
 import pdb
 
 def main():
+
+  if(len(sys.argv) != 2):
+    print("give me a model file as argument please!")
+    exit()
+
+  modelfile = sys.argv[1]
+
   arduino = Arduino()
-  model = load_model("./model_h_256_b_32_e_1000.h5")
+  model = load_model(modelfile)
   print("waiting for first state...")
   obs = arduino.waitForState()
   print("neat found first state!")
