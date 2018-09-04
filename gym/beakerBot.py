@@ -89,7 +89,7 @@ class BeakerBot(URDFBasedRobot):
   # (avg across both wheels) rads and rads/sec
 	def _getWheelPositionAndVelocity(self):
 		lx, lv = self.leftWheelJoint.get_state()
-		rx, rv = self.leftWheelJoint.get_state()
+		rx, rv = self.rightWheelJoint.get_state()
 		return (lx + rx)/2, (lv + rv)/2
 
 	# rads and rads/sec
