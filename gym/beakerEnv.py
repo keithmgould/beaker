@@ -8,7 +8,7 @@ import pybullet as p
 import os, sys
 import pdb
 
-THROWBALLS = True
+THROWBALLS = False
 
 class BeakerCam:
 	def __init__(self, bullet_client):
@@ -39,7 +39,7 @@ class BeakerBotBulletEnv(MJCFBaseBulletEnv):
 		
 		if(THROWBALLS and self.stateId < 0):
 			self.frames_since_ball_thrown = 0
-			mass = .05
+			mass = .04
 			visualShapeId = -1
 			sphereRadius = 0.05
 			useMaximalCoordinates = 0
@@ -69,7 +69,7 @@ class BeakerBotBulletEnv(MJCFBaseBulletEnv):
 		self.camera_adjust(self.robot.robot_body.current_position())
 		if(THROWBALLS):
 			self.frames_since_ball_thrown += 1
-			if(self.frames_since_ball_thrown > 100):
+			if(self.frames_since_ball_thrown > 125):
 				self.frames_since_ball_thrown = 0
 				self._throw_ball()
 
