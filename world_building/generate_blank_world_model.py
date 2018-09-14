@@ -39,7 +39,7 @@ print("hidden size: {}".format(hidden_size))
 def baseline_model():
   model = Sequential()
   model.add(Dense(hidden_size, input_dim=5, kernel_initializer='normal', activation='relu'))
-  model.add(Dense(hidden_size, kernel_initializer='normal', activation='relu'))
+  # model.add(Dense(hidden_size, kernel_initializer='normal', activation='relu'))
   model.add(Dense(4, kernel_initializer='normal'))
   # Compile model
   model.compile(loss='mean_squared_error', optimizer='adam')
