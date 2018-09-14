@@ -19,6 +19,7 @@ import time
 import sys
 import pandas
 import keras
+from loss_charter import LossCharter
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.models import load_model
@@ -54,7 +55,7 @@ dataset_train_length = int(dataset_total_length * 0.8)
 np.random.shuffle(dataset)
 
 batch_size = 32
-epochs = 300
+epochs = 10
 
 print("total data points: {}".format(dataset_total_length))
 print("training data points: {}".format(dataset_train_length))
@@ -75,13 +76,11 @@ history = world_model.fit(
   verbose=1, 
   validation_data=(validate_data_x, validate_data_y))
 
-# timestr = time.strftime("%Y%m%d-%H%M%S")
-# modelName = "world_model_dataset_length_{}".format(dataset_total_length) + 
-# "_b_" + str(batch_size) + "_e_" + str(epochs)  + 
-# "_" + timestr +  "_from_logfile_" + log_file + "_val_loss_" + "{0:.3f}".format(history.history['val_loss'][-1])  + ".h5"
-
 loss = history.history['val_loss'][-1]
 model_name = "{}.{}_b{}_e{}".format(world_model_file_no_extension,log_code, batch_size, epochs) + "_{0:3f}_.h5".format(loss)
+
+lc = LossCharter()
+lc.chart(history.history, model_name)
 
 print("Saving model: {}".format(model_name))
 world_model.save(model_name)

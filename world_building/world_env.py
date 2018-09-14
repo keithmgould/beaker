@@ -15,8 +15,7 @@ class WorldEnv:
 
   def reset(self):
     theta = random.uniform(-0.01, 0.01)
-    x_pos = random.uniform(-0.5, 0.5)
-    self.pose = [theta,0,x_pos,0]
+    self.pose = [theta,0,0,0]
     self.steps = 0
     return self.pose
 

@@ -20,7 +20,6 @@ class Renderer:
     x = math.sin(theta) * self.body_length
     y = math.cos(theta) * self.body_length
     self.line_body.set_xdata([x_pos, x_pos + x])
-    # self.line_body.set_xdata([0, x])
     self.line_body.set_ydata([0, y])
     self.fig.canvas.draw()
     plt.pause(1e-17)
