@@ -48,7 +48,7 @@ def baseline_model():
 model = baseline_model()
 
 timestr = time.strftime("%Y%m%d-%H%M%S")
-modelName = "world_model_h{}.h5".format(hidden_size)
+modelName = "model_world_h{}.h5".format(hidden_size)
 print("Saving model: {}".format(modelName))
 model.save(modelName)
 
