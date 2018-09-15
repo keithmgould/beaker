@@ -55,7 +55,7 @@ dataset_train_length = int(dataset_total_length * 0.8)
 np.random.shuffle(dataset)
 
 batch_size = 32
-epochs = 10
+epochs = 300
 
 print("total data points: {}".format(dataset_total_length))
 print("training data points: {}".format(dataset_train_length))

@@ -29,27 +29,30 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 import pdb
 
-hidden_size = 64
+if(len(sys.argv) != 3):
+  print("give me <hidden size> <layers> please! like generate_blank_world_model 64 4")
+  exit()
 
+hidden_size = int(sys.argv[1])
+layers = int(sys.argv[2])
 
 print("hidden size: {}".format(hidden_size))
+print("layers: {}".format(layers))
 
 # input is 5 real numbers: 4 for the state and 5th for action
 # output is 4 real numbers: the predicted next state
 def baseline_model():
   model = Sequential()
   model.add(Dense(hidden_size, input_dim=5, kernel_initializer='normal', activation='relu'))
-  model.add(Dense(hidden_size, kernel_initializer='normal', activation='relu'))
-  model.add(Dense(hidden_size, kernel_initializer='normal', activation='relu'))
+  for i in range(layers - 1):
+  	model.add(Dense(hidden_size, kernel_initializer='normal', activation='relu'))
   model.add(Dense(4, kernel_initializer='normal'))
-  # Compile model
   model.compile(loss='mean_squared_error', optimizer='adam')
   return model
 
 model = baseline_model()
 
-timestr = time.strftime("%Y%m%d-%H%M%S")
-modelName = "model_world_h{}.h5".format(hidden_size)
+modelName = "models/model_world_h{}x{}.h5".format(hidden_size, layers)
 print("Saving model: {}".format(modelName))
 model.save(modelName)
 

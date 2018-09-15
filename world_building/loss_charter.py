@@ -7,7 +7,7 @@ class LossCharter:
 
   def chart(self, history, name):
     val_loss = plt.plot(history["val_loss"],'r--', label='val loss')
-    loss = plt.plot(history["loss"], 'bs', label='loss')
+    loss = plt.plot(history["loss"], 'b--', label='loss')
     plt.title(name)
     plt.legend()
     plt.savefig("{}.png".format(name))
