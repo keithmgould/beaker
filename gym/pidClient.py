@@ -1,9 +1,10 @@
 import gym, register
 import time, re
 import pdb
+import numpy as np
 from miniPid import MiniPid
 
-LOG = True
+LOG = False
 
 def constrain(val, minVal, maxVal):
   return max(min(maxVal, val), minVal)
@@ -44,6 +45,8 @@ def main():
     acc = accFromTheta + accFromPhi
 
     acc = -acc
+
+    print(acc)
 
     targetRPS += acc
     targetRPS = constrain(targetRPS, -10, 10)
