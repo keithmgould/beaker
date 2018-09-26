@@ -12,6 +12,7 @@ class BeakerBot(URDFBasedRobot):
 	
 		path = os.path.join( os.path.dirname(__file__),'beaker.urdf')
 		URDFBasedRobot.__init__(self, path, 'beaker', action_dim=1, obs_dim=4, basePosition=bP, baseOrientation=bO)
+		self.uniqueID = 1 # this is a hacky solution. Better to find the actual ID in case it is not 1
 
 	def apply_action(self, action):
 		constrainedAction = Motor.step(self.phiDot,action)
@@ -50,41 +51,6 @@ class BeakerBot(URDFBasedRobot):
 		self.drawDebugAxis(self.body.bodyPartIndex)
 		self.drawDebugAxis(self.leftWheel.bodyPartIndex)
 		self.drawDebugAxis(self.rightWheel.bodyPartIndex)
-
-	def getFrictionInfo(self):
-		lwJ = self._p.getJointInfo(self.uniqueID, self.leftWheelJoint.jointIndex)
-		lwj_dampening = lwJ[6]
-		lwj_friction = lwJ[7]
-
-		rwj = self._p.getJointInfo(self.uniqueID, self.rightWheelJoint.jointIndex)
-		rwj_dampening = rwj[6]
-		rwj_friction = rwj[7]
-
-		lw = self._p.getDynamicsInfo(self.uniqueID, self.leftWheel.bodyPartIndex)
-		lw_lateral_friction = lw[1]
-		lw_rolling_friction = lw[6]
-		lw_spinning_friction = lw[7]
-
-		rw = self._p.getDynamicsInfo(self.uniqueID, self.rightWheel.bodyPartIndex)
-		rw_lateral_friction = rw[1]
-		rw_rolling_friction = rw[6]
-		rw_spinning_friction = rw[7]
-
-		return {
-			# joint info
-			"lwj_damp": lwj_dampening, 
-			"lwj_fric": lwj_friction,
-			"rwj_damp": rwj_dampening, 
-			"rwj_fric": rwj_friction,
-
-			# link info
-			"lw_lat_f": lw_lateral_friction,
-			"lw_roll_f": lw_rolling_friction,
-			"lw_spin_f": lw_spinning_friction,
-			"rw_lat_f": rw_lateral_friction,
-			"rw_roll_f": rw_rolling_friction,
-			"rw_spin_f": rw_spinning_friction
-		}
 
   # (avg across both wheels) rads and rads/sec
 	def _getWheelPositionAndVelocity(self):
