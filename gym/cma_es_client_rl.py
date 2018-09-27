@@ -2,6 +2,7 @@ import numpy as np
 import cma
 import pdb
 import gym
+import time
 import register
 
 # NN hyperparameters
@@ -54,7 +55,6 @@ class NeuralNetwork:
   def neuron_count(self):
     return self.w1.size + self.b1.size + self.w2.size + self.b2.size
 
-
 model = NeuralNetwork(input_size, hidden_size, output_size)
 
 print("Neuron (parameter) count: {}".format(model.neuron_count()))
@@ -65,26 +65,30 @@ es = cma.CMAEvolutionStrategy(model.neuron_count() * [0], starting_sigma)
 def run_episode():
   obs = env.reset()
   done = False
+  final_return = 0
 
   while not done:
+    # time.sleep(1./50.) 
     action = model.forward(obs)
-    print(action)
+    # print(action)
+    action *= 10 # scale up for robot actuation
     obs, r, done, _ = env.step(action)
+    final_return += r
 
-def try_offspring(offspring):
-  model.load_weights_and_biases(offspring)
-  run_episode()
-  # run environment
-  # return fitness
+  return final_return
 
 while not es.stop():
   solutions = es.ask()
   results = []
   for i, solution in enumerate(solutions):
     print("looking at solution {}".format(i))
-    result = try_offspring(solution)
-    results.append(result)
+    model.load_weights_and_biases(solution)
+    runs = []
+    for j in range(10):
+      runs.append(run_episode())
+    results.append(sum(runs) / len(runs))
 
+    print("Average of results: {}".format(sum(results)/len(results)))
 
-
+  es.tell(solutions, results)
 es.result_pretty()
